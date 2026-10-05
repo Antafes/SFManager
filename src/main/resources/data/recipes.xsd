@@ -15,7 +15,7 @@
             <xs:element name="ingredients">
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="ingredient" type="r:item" maxOccurs="4" />
+                        <xs:element name="ingredient" type="r:item" minOccurs="0" maxOccurs="4" />
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>

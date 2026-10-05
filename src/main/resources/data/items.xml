@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <i:items xmlns:i="http://www.w3schools.com/SFManager/items">
     <i:item key="iron">
         <i:name>
@@ -782,5 +782,71 @@
     </i:item>
     <i:item key="stinger_protein">
         <i:name><i:english>Stinger Protein</i:english></i:name>
+    </i:item>
+    <i:item key="nobelisk">
+        <i:name><i:english>Nobelisk</i:english></i:name>
+    </i:item>
+    <i:item key="cluster_nobelisk">
+        <i:name><i:english>Cluster Nobelisk</i:english></i:name>
+    </i:item>
+    <i:item key="iron_rebar">
+        <i:name><i:english>Iron Rebar</i:english></i:name>
+    </i:item>
+    <i:item key="explosive_rebar">
+        <i:name><i:english>Explosive Rebar</i:english></i:name>
+    </i:item>
+    <i:item key="gas_filter">
+        <i:name><i:english>Gas Filter</i:english></i:name>
+    </i:item>
+    <i:item key="gas_nobelisk">
+        <i:name><i:english>Gas Nobelisk</i:english></i:name>
+    </i:item>
+    <i:item key="hatcher_remains">
+        <i:name><i:english>Hatcher Remains</i:english></i:name>
+    </i:item>
+    <i:item key="hog_remains">
+        <i:name><i:english>Hog Remains</i:english></i:name>
+    </i:item>
+    <i:item key="rifle_ammo">
+        <i:name><i:english>Rifle Ammo</i:english></i:name>
+    </i:item>
+    <i:item key="homing_rifle_ammo">
+        <i:name><i:english>Homing Rifle Ammo</i:english></i:name>
+    </i:item>
+    <i:item key="iodine_infused_filter">
+        <i:name><i:english>Iodine-Infused Filter</i:english></i:name>
+    </i:item>
+    <i:item key="nuke_nobelisk">
+        <i:name><i:english>Nuke Nobelisk</i:english></i:name>
+    </i:item>
+    <i:item key="blue_power_slug">
+        <i:name><i:english>Blue Power Slug</i:english></i:name>
+    </i:item>
+    <i:item key="yellow_power_slug">
+        <i:name><i:english>Yellow Power Slug</i:english></i:name>
+    </i:item>
+    <i:item key="purple_power_slug">
+        <i:name><i:english>Purple Power Slug</i:english></i:name>
+    </i:item>
+    <i:item key="pulse_nobelisk">
+        <i:name><i:english>Pulse Nobelisk</i:english></i:name>
+    </i:item>
+    <i:item key="shatter_rebar">
+        <i:name><i:english>Shatter Rebar</i:english></i:name>
+    </i:item>
+    <i:item key="spitter_remains">
+        <i:name><i:english>Spitter Remains</i:english></i:name>
+    </i:item>
+    <i:item key="stinger_remains">
+        <i:name><i:english>Stinger Remains</i:english></i:name>
+    </i:item>
+    <i:item key="stun_rebar">
+        <i:name><i:english>Stun Rebar</i:english></i:name>
+    </i:item>
+    <i:item key="turbo_rifle_ammo">
+        <i:name><i:english>Turbo Rifle Ammo</i:english></i:name>
+    </i:item>
+    <i:item key="portable_miner">
+        <i:name><i:english>Portable Miner</i:english></i:name>
     </i:item>
 </i:items>

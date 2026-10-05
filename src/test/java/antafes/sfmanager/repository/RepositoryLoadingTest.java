@@ -62,7 +62,7 @@ public class RepositoryLoadingTest extends BaseTest
 
         repository.init();
 
-        assertEquals(163, repository.findAll().size());
+        assertEquals(185, repository.findAll().size());
         Item iron = repository.findOne("iron");
         assertNotNull(iron);
         assertEquals("Iron Ore", iron.getName().getEnglish());
@@ -88,7 +88,7 @@ public class RepositoryLoadingTest extends BaseTest
 
         repository.init();
 
-        assertEquals(55, repository.findAll().size());
+        assertEquals(283, repository.findAll().size());
         Recipe ironIngot = repository.findOne("iron_ingot");
         assertNotNull(ironIngot);
         assertSame(this.context.getBean(BuildingRepository.class).findOne("smelter"),
@@ -104,6 +104,21 @@ public class RepositoryLoadingTest extends BaseTest
             assertEquals(
                 fuelKey,
                 fuelGeneratorRecipe.getIngredients().getFirst().getResource().getKey()
+            );
+        }
+
+        Recipe aiExpansionServer = repository.findOne("ai_expansion_server");
+        assertNotNull(aiExpansionServer);
+        assertEquals(4, aiExpansionServer.getIngredients().size());
+        assertEquals(2, aiExpansionServer.getProducts().size());
+
+        for (Recipe recipe : repository.findAll().values()) {
+            assertNotNull(recipe.getProducedIn(), recipe.getKey() + " has no building reference");
+            recipe.getIngredients().forEach(item ->
+                assertNotNull(item.getResource(), recipe.getKey() + " has an unresolved ingredient")
+            );
+            recipe.getProducts().forEach(item ->
+                assertNotNull(item.getResource(), recipe.getKey() + " has an unresolved product")
             );
         }
 
