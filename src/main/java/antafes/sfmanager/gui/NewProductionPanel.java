@@ -19,9 +19,11 @@ import jakarta.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Comparator;
+import java.util.Hashtable;
 import java.util.List;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
+import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 import java.util.Vector;
 
@@ -31,6 +33,8 @@ public class NewProductionPanel extends BasePanel
 {
     private final String selectedLanguage;
     private final NumberFormat numberFormat;
+    private final NumberFormat clockSpeedFormat;
+    private double clockSpeed = 100;
     private LocalizedNameRenderer<Recipe> recipeRenderer;
     private JLabel buildingSelectLabel;
     private JComboBox<Building> buildingSelect;
@@ -45,7 +49,8 @@ public class NewProductionPanel extends BasePanel
     private JLabel puritySelectLabel;
     private JComboBox<Purity> puritySelect;
     private JLabel clockSpeedLabel;
-    private JTextField clockSpeedField;
+    private JSlider clockSpeedSlider;
+    private JTextField clockSpeedValueField;
     private JLabel usedSomersloopsLabel;
     private JTextField usedSomersloopsField;
     private JLabel ingredientsLabel;
@@ -56,6 +61,8 @@ public class NewProductionPanel extends BasePanel
     private JLabel consumptionInfoLabel;
     private JButton okButton;
     private JButton cancelButton;
+    private boolean syncingClockSpeedFromText;
+    private boolean syncingClockSpeedFromSlider;
 
     @Autowired
     private BuildingRepository buildingRepository;
@@ -72,6 +79,10 @@ public class NewProductionPanel extends BasePanel
         this.numberFormat = NumberFormat.getNumberInstance(locale);
         this.numberFormat.setMaximumFractionDigits(2);
         this.numberFormat.setMinimumFractionDigits(0);
+        this.clockSpeedFormat = NumberFormat.getNumberInstance(locale);
+        this.clockSpeedFormat.setGroupingUsed(false);
+        this.clockSpeedFormat.setMaximumFractionDigits(10);
+        this.clockSpeedFormat.setMinimumFractionDigits(0);
     }
 
     @PostConstruct
@@ -117,7 +128,8 @@ public class NewProductionPanel extends BasePanel
         order.add(this.groupField);
         order.add(this.positionField);
         order.add(this.puritySelect);
-        order.add(this.clockSpeedField);
+        order.add(this.clockSpeedSlider);
+        order.add(this.clockSpeedValueField);
         order.add(this.usedSomersloopsField);
         order.add(this.okButton);
         order.add(this.cancelButton);
@@ -161,10 +173,12 @@ public class NewProductionPanel extends BasePanel
     {
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
         boolean overclockable = selectedBuilding != null && selectedBuilding.isOverclockable();
-        this.clockSpeedField.setEnabled(overclockable);
-        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedField.getText());
-        if (!overclockable && (clockSpeed == null || Double.compare(clockSpeed, 100.0) != 0)) {
-            this.clockSpeedField.setText("100");
+        this.clockSpeedSlider.setEnabled(overclockable);
+        this.clockSpeedValueField.setEnabled(overclockable);
+        if (!overclockable) {
+            this.clockSpeed = 100;
+            this.clockSpeedSlider.setValue(100);
+            this.syncClockSpeedFieldFromSlider();
         }
 
         boolean hasSomersloopSlots = selectedBuilding != null && selectedBuilding.getSomersloopSlots() > 0;
@@ -231,7 +245,55 @@ public class NewProductionPanel extends BasePanel
         });
     }
 
+    private void updateClockSpeedFromText()
+    {
+        if (this.syncingClockSpeedFromSlider) {
+            return;
+        }
+
+        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedValueField.getText(), this.clockSpeedFormat);
+        if (clockSpeed != null && clockSpeed <= 250) {
+            this.clockSpeed = clockSpeed;
+            this.syncingClockSpeedFromText = true;
+            this.clockSpeedSlider.setValue((int) Math.round(clockSpeed));
+            this.syncingClockSpeedFromText = false;
+        }
+        this.updateSummaries();
+    }
+
+    private void syncClockSpeedFieldFromSlider()
+    {
+        this.clockSpeed = this.clockSpeedSlider.getValue();
+        this.syncingClockSpeedFromSlider = true;
+        this.clockSpeedValueField.setText(this.clockSpeedFormat.format(this.clockSpeed));
+        this.syncingClockSpeedFromSlider = false;
+        this.updateSummaries();
+    }
+
+    private void commitClockSpeedText()
+    {
+        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedValueField.getText(), this.clockSpeedFormat);
+        if (clockSpeed == null) {
+            this.syncClockSpeedFieldFromSlider();
+            return;
+        }
+
+        this.clockSpeed = Math.min(clockSpeed, 250);
+        this.syncingClockSpeedFromText = true;
+        this.clockSpeedSlider.setValue((int) Math.round(this.clockSpeed));
+        this.syncingClockSpeedFromText = false;
+        this.syncingClockSpeedFromSlider = true;
+        this.clockSpeedValueField.setText(this.clockSpeedFormat.format(this.clockSpeed));
+        this.syncingClockSpeedFromSlider = false;
+        this.updateSummaries();
+    }
+
     private Double parseNonNegativeNumber(String value)
+    {
+        return this.parseNonNegativeNumber(value, this.numberFormat);
+    }
+
+    private Double parseNonNegativeNumber(String value, NumberFormat formatter)
     {
         String text = value.trim();
         if (text.isEmpty()) {
@@ -239,7 +301,7 @@ public class NewProductionPanel extends BasePanel
         }
 
         ParsePosition position = new ParsePosition(0);
-        Number number = this.numberFormat.parse(text, position);
+        Number number = formatter.parse(text, position);
         if (number == null || position.getIndex() != text.length()) {
             return null;
         }
@@ -291,10 +353,10 @@ public class NewProductionPanel extends BasePanel
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
         Double amount = this.parseNonNegativeNumber(this.amountField.getText());
-        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedField.getText());
+        double clockSpeed = this.clockSpeed;
         Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
 
-        if (selectedRecipe == null || selectedBuilding == null || amount == null || clockSpeed == null
+        if (selectedRecipe == null || selectedBuilding == null || amount == null
             || usedSomersloops == null || usedSomersloops > selectedBuilding.getSomersloopSlots()) {
             this.ingredientsPanel.removeAll();
             this.ingredientsPanel.add(this.ingredientsLabel);
@@ -386,8 +448,28 @@ public class NewProductionPanel extends BasePanel
             }
         });
         this.clockSpeedLabel = new JLabel();
-        this.clockSpeedField = new JTextField();
-        this.clockSpeedField.setText("100");
+        this.clockSpeedSlider = new JSlider(0, 250, 100);
+        this.clockSpeedSlider.setMajorTickSpacing(50);
+        this.clockSpeedSlider.setMinorTickSpacing(10);
+        this.clockSpeedSlider.setPaintTicks(true);
+        this.clockSpeedSlider.setPaintLabels(true);
+        Hashtable<Integer, JLabel> clockSpeedLabels = new Hashtable<>();
+        for (int value = 0; value <= 250; value += 50) {
+            clockSpeedLabels.put(value, new JLabel(Integer.toString(value)));
+        }
+        this.clockSpeedSlider.setLabelTable(clockSpeedLabels);
+        this.clockSpeedValueField = new JTextField(8);
+        this.clockSpeedValueField.setText(this.clockSpeedFormat.format(100));
+        char decimalSeparator = DecimalFormatSymbols.getInstance(
+            this.selectedLanguage.equals("German") ? Locale.GERMAN : Locale.ENGLISH
+        ).getDecimalSeparator();
+        ((javax.swing.text.AbstractDocument) this.clockSpeedValueField.getDocument())
+            .setDocumentFilter(new DecimalPrecisionFilter(decimalSeparator, 10));
+        JPanel clockSpeedInput = new JPanel(new BorderLayout());
+        clockSpeedInput.add(this.clockSpeedSlider, BorderLayout.CENTER);
+        JPanel clockSpeedValuePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        clockSpeedValuePanel.add(this.clockSpeedValueField);
+        clockSpeedInput.add(clockSpeedValuePanel, BorderLayout.SOUTH);
         this.usedSomersloopsLabel = new JLabel();
         this.usedSomersloopsField = new JTextField();
         this.usedSomersloopsField.setText("0");
@@ -410,7 +492,7 @@ public class NewProductionPanel extends BasePanel
         this.addFieldRow(3, this.groupLabel, this.groupField);
         this.addFieldRow(4, this.positionLabel, this.positionField);
         this.addFieldRow(5, this.puritySelectLabel, this.puritySelect);
-        this.addFieldRow(6, this.clockSpeedLabel, this.clockSpeedField);
+        this.addFieldRow(6, this.clockSpeedLabel, clockSpeedInput);
         this.addFieldRow(7, this.usedSomersloopsLabel, this.usedSomersloopsField);
 
         int row = 8;
@@ -443,7 +525,40 @@ public class NewProductionPanel extends BasePanel
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
         this.recipeSelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);
-        this.addSummaryListener(this.clockSpeedField);
+        this.clockSpeedSlider.addChangeListener(event -> {
+            if (!this.syncingClockSpeedFromText) {
+                this.syncClockSpeedFieldFromSlider();
+            } else {
+                this.updateSummaries();
+            }
+        });
+        this.clockSpeedValueField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateClockSpeedFromText();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateClockSpeedFromText();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateClockSpeedFromText();
+            }
+        });
+        this.clockSpeedValueField.addActionListener(event -> this.commitClockSpeedText());
+        this.clockSpeedValueField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent event)
+            {
+                NewProductionPanel.this.commitClockSpeedText();
+            }
+        });
         this.addSummaryListener(this.usedSomersloopsField);
         this.buildingRepository.findAll().values().stream()
             .filter(this::hasRecipes)
@@ -453,4 +568,57 @@ public class NewProductionPanel extends BasePanel
         this.updateRecipes();
     }
 
+    private static class DecimalPrecisionFilter extends javax.swing.text.DocumentFilter
+    {
+        private final char decimalSeparator;
+        private final int maximumFractionDigits;
+
+        private DecimalPrecisionFilter(char decimalSeparator, int maximumFractionDigits)
+        {
+            this.decimalSeparator = decimalSeparator;
+            this.maximumFractionDigits = maximumFractionDigits;
+        }
+
+        @Override
+        public void insertString(
+            javax.swing.text.DocumentFilter.FilterBypass bypass,
+            int offset,
+            String text,
+            javax.swing.text.AttributeSet attributes
+        ) throws javax.swing.text.BadLocationException
+        {
+            this.replace(bypass, offset, 0, text, attributes);
+        }
+
+        @Override
+        public void replace(
+            javax.swing.text.DocumentFilter.FilterBypass bypass,
+            int offset,
+            int length,
+            String text,
+            javax.swing.text.AttributeSet attributes
+        ) throws javax.swing.text.BadLocationException
+        {
+            String currentText = bypass.getDocument().getText(0, bypass.getDocument().getLength());
+            String candidate = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+            int separatorIndex = candidate.indexOf(this.decimalSeparator);
+            boolean valid = true;
+            for (int index = 0; index < candidate.length(); index++) {
+                char character = candidate.charAt(index);
+                if (Character.isDigit(character)) {
+                    continue;
+                }
+                if (character == this.decimalSeparator && index == separatorIndex) {
+                    continue;
+                }
+                valid = false;
+                break;
+            }
+
+            int fractionDigits = separatorIndex < 0 ? 0 : candidate.length() - separatorIndex - 1;
+            if (valid && fractionDigits <= this.maximumFractionDigits) {
+                bypass.replace(offset, length, text, attributes);
+            }
+        }
+    }
 }
