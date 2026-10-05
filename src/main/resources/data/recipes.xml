@@ -6370,4 +6370,43 @@
             </product>
         </products>
     </recipe>
+    <recipe key="well_extractor_crude_oil">
+        <name>
+            <english>Crude Oil</english>
+        </name>
+        <producedIn>well_extractor</producedIn>
+        <ingredients/>
+        <products>
+            <product>
+                <resource>crude_oil</resource>
+                <amount>60</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="well_extractor_water">
+        <name>
+            <english>Water</english>
+        </name>
+        <producedIn>well_extractor</producedIn>
+        <ingredients/>
+        <products>
+            <product>
+                <resource>water</resource>
+                <amount>60</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="well_extractor_nitrogen">
+        <name>
+            <english>Nitrogen</english>
+        </name>
+        <producedIn>well_extractor</producedIn>
+        <ingredients/>
+        <products>
+            <product>
+                <resource>nitrogen</resource>
+                <amount>60</amount>
+            </product>
+        </products>
+    </recipe>
 </recipes>

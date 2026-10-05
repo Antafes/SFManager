@@ -192,7 +192,6 @@ public class NewProductionPanel extends BasePanel
         this.recipeSelect.setEnabled(false);
         this.puritySelect.setEnabled(selectedBuilding != null && selectedBuilding.isResourceBuilding());
         if (selectedBuilding == null) {
-            this.updateSummaryVisibility(false, false);
             this.updateSummaries();
             return;
         }
@@ -204,25 +203,25 @@ public class NewProductionPanel extends BasePanel
                 .thenComparing(Recipe::getKey))
             .forEach(this.recipeSelect::addItem);
         this.recipeSelect.setEnabled(this.recipeSelect.getItemCount() > 0);
-        this.updateSummaryVisibility(
-                this.recipeSelect.getItemCount() > 0,
-                selectedBuilding.getCategory() == Category.POWER
-        );
         this.updateSummaries();
     }
 
-    private void updateSummaryVisibility(boolean hasRecipes, boolean generatesPower)
+    private void updateSummaryVisibility(
+        boolean hasRecipes,
+        boolean generatesPower,
+        boolean consumesPower,
+        boolean hasIngredients
+    )
     {
         boolean showProduction = hasRecipes || generatesPower;
-        boolean showConsumption = hasRecipes && !generatesPower;
-        boolean visibilityChanged = this.ingredientsPanel.isVisible() != hasRecipes
+        boolean visibilityChanged = this.ingredientsPanel.isVisible() != hasIngredients
                 || this.productionPanel.isVisible() != showProduction
-                || this.consumptionLabel.isVisible() != showConsumption
-                || this.consumptionInfoLabel.isVisible() != showConsumption;
-        this.ingredientsPanel.setVisible(hasRecipes);
+                || this.consumptionLabel.isVisible() != consumesPower
+                || this.consumptionInfoLabel.isVisible() != consumesPower;
+        this.ingredientsPanel.setVisible(hasIngredients);
         this.productionPanel.setVisible(showProduction);
-        this.consumptionLabel.setVisible(showConsumption);
-        this.consumptionInfoLabel.setVisible(showConsumption);
+        this.consumptionLabel.setVisible(consumesPower);
+        this.consumptionInfoLabel.setVisible(consumesPower);
         if (visibilityChanged) {
             this.resizeDialogToContent();
         }
@@ -384,6 +383,17 @@ public class NewProductionPanel extends BasePanel
         int productionCount = this.productionPanel.getComponentCount();
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+        boolean hasIngredients = selectedRecipe != null
+            && selectedRecipe.getIngredients() != null
+            && !selectedRecipe.getIngredients().isEmpty();
+        this.updateSummaryVisibility(
+            this.recipeSelect.getItemCount() > 0,
+            selectedBuilding != null && selectedBuilding.getCategory() == Category.POWER,
+            selectedBuilding != null
+                && selectedBuilding.getCategory() != Category.POWER
+                && (this.recipeSelect.getItemCount() > 0 || selectedBuilding.getPower() != 0),
+            hasIngredients
+        );
         Double amount = this.parseNonNegativeNumber(this.amountField.getText());
         double clockSpeed = this.clockSpeed;
         Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
@@ -397,7 +407,7 @@ public class NewProductionPanel extends BasePanel
             this.productionPanel.add(this.productionLabel);
             this.productionPanel.revalidate();
             this.productionPanel.repaint();
-            this.consumptionInfoLabel.setText("");
+            this.updateConsumptionInfo(selectedBuilding, amount, clockSpeed, usedSomersloops);
             if (ingredientCount != this.ingredientsPanel.getComponentCount()
                 || productionCount != this.productionPanel.getComponentCount()) {
                 this.resizeDialogToContent();
@@ -434,7 +444,7 @@ public class NewProductionPanel extends BasePanel
             this.productionPanel.add(generatedPowerLabel);
             this.productionPanel.revalidate();
             this.productionPanel.repaint();
-            this.consumptionInfoLabel.setText("");
+            this.updateConsumptionInfo(selectedBuilding, amount, clockSpeed, usedSomersloops);
             if (ingredientCount != this.ingredientsPanel.getComponentCount()
                 || productionCount != this.productionPanel.getComponentCount()) {
                 this.resizeDialogToContent();
@@ -452,7 +462,7 @@ public class NewProductionPanel extends BasePanel
             this.productionPanel.add(this.productionLabel);
             this.productionPanel.revalidate();
             this.productionPanel.repaint();
-            this.consumptionInfoLabel.setText("");
+            this.updateConsumptionInfo(selectedBuilding, amount, clockSpeed, usedSomersloops);
             if (ingredientCount != this.ingredientsPanel.getComponentCount()
                 || productionCount != this.productionPanel.getComponentCount()) {
                 this.resizeDialogToContent();
@@ -479,17 +489,33 @@ public class NewProductionPanel extends BasePanel
             usedSomersloops,
             somersloopSlots
         );
-        double consumption = PowerCalculator.calculateConsumption(
-            (double) Math.abs(selectedBuilding.getPower()),
-            clockSpeed,
-            usedSomersloops,
-            somersloopSlots
-        ) * amount;
-        this.consumptionInfoLabel.setText(this.numberFormat.format(consumption) + " MW");
+        this.updateConsumptionInfo(selectedBuilding, amount, clockSpeed, usedSomersloops);
         if (ingredientCount != this.ingredientsPanel.getComponentCount()
             || productionCount != this.productionPanel.getComponentCount()) {
             this.resizeDialogToContent();
         }
+    }
+
+    private void updateConsumptionInfo(
+        Building building,
+        Double amount,
+        double clockSpeed,
+        Integer usedSomersloops
+    )
+    {
+        if (building == null || amount == null || building.getCategory() == Category.POWER
+            || usedSomersloops == null || usedSomersloops > building.getSomersloopSlots()) {
+            this.consumptionInfoLabel.setText("");
+            return;
+        }
+
+        double consumption = PowerCalculator.calculateConsumption(
+            (double) Math.abs(building.getPower()),
+            clockSpeed,
+            usedSomersloops,
+            building.getSomersloopSlots()
+        ) * amount;
+        this.consumptionInfoLabel.setText(this.numberFormat.format(consumption) + " MW");
     }
 
     private void initComponents()
@@ -506,6 +532,10 @@ public class NewProductionPanel extends BasePanel
         );
         this.buildingSelect.setRenderer(buildingRenderer);
         this.buildingRepository.findAll().values().stream()
+            .filter(building -> building.getCategory() != Category.SPECIAL
+                && building.getCategory() != Category.LOGISTICS
+                && building.getCategory() != Category.TRANSPORTATION
+                && building.getCategory() != Category.ORGANIZATION)
             .sorted(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))
             .forEach(this.buildingSelect::addItem);
