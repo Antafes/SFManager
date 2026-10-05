@@ -108,36 +108,17 @@ public class NewProductionPanel extends BasePanel
         this.setFocusTraversalPolicyProvider(true);
     }
 
-    private String getBuildingDisplayName(Building building)
-    {
-        if (building == null || building.getName() == null) {
-            return "";
-        }
-        return building.getName().getLocalizedName(this.selectedLanguage);
-    }
-
     private void initComponents()
     {
         this.buildingSelectLabel = new JLabel();
         this.buildingSelect = new JComboBox<>();
-        this.buildingSelect.setRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(
-                JList<?> list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-            ) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                this.setText(value instanceof Building building
-                    ? NewProductionPanel.this.getBuildingDisplayName(building)
-                    : "");
-                return this;
-            }
-        });
+        LocalizedNameRenderer<Building> buildingRenderer = new LocalizedNameRenderer<>(
+            Building::getName,
+            this.selectedLanguage
+        );
+        this.buildingSelect.setRenderer(buildingRenderer);
         this.buildingRepository.findAll().values().stream()
-            .sorted(Comparator.comparing(this::getBuildingDisplayName, String.CASE_INSENSITIVE_ORDER)
+            .sorted(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))
             .forEach(this.buildingSelect::addItem);
         this.recipeSelectLabel = new JLabel();
