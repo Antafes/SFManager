@@ -10,7 +10,7 @@
     <xs:complexType name="item">
         <xs:sequence>
             <xs:element name="name" type="i:name" />
-            <xs:element name="icon" type="xs:string" />
+            <xs:element name="icon" type="xs:string" minOccurs="0" />
             <xs:element name="productions" minOccurs="0">
                 <xs:complexType>
                     <xs:sequence>

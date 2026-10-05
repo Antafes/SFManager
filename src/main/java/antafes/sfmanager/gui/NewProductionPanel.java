@@ -2,6 +2,7 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
+import antafes.sfmanager.entity.Category;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.entity.recipe.Item;
@@ -191,7 +192,7 @@ public class NewProductionPanel extends BasePanel
         this.recipeSelect.setEnabled(false);
         this.puritySelect.setEnabled(selectedBuilding != null && selectedBuilding.isResourceBuilding());
         if (selectedBuilding == null) {
-            this.updateSummaryVisibility(false);
+            this.updateSummaryVisibility(false, false);
             this.updateSummaries();
             return;
         }
@@ -203,20 +204,25 @@ public class NewProductionPanel extends BasePanel
                 .thenComparing(Recipe::getKey))
             .forEach(this.recipeSelect::addItem);
         this.recipeSelect.setEnabled(this.recipeSelect.getItemCount() > 0);
-        this.updateSummaryVisibility(this.recipeSelect.getItemCount() > 0);
+        this.updateSummaryVisibility(
+                this.recipeSelect.getItemCount() > 0,
+                selectedBuilding.getCategory() == Category.POWER
+        );
         this.updateSummaries();
     }
 
-    private void updateSummaryVisibility(boolean visible)
+    private void updateSummaryVisibility(boolean hasRecipes, boolean generatesPower)
     {
-        boolean visibilityChanged = this.ingredientsPanel.isVisible() != visible
-            || this.productionPanel.isVisible() != visible
-            || this.consumptionLabel.isVisible() != visible
-            || this.consumptionInfoLabel.isVisible() != visible;
-        this.ingredientsPanel.setVisible(visible);
-        this.productionPanel.setVisible(visible);
-        this.consumptionLabel.setVisible(visible);
-        this.consumptionInfoLabel.setVisible(visible);
+        boolean showProduction = hasRecipes || generatesPower;
+        boolean showConsumption = hasRecipes && !generatesPower;
+        boolean visibilityChanged = this.ingredientsPanel.isVisible() != hasRecipes
+                || this.productionPanel.isVisible() != showProduction
+                || this.consumptionLabel.isVisible() != showConsumption
+                || this.consumptionInfoLabel.isVisible() != showConsumption;
+        this.ingredientsPanel.setVisible(hasRecipes);
+        this.productionPanel.setVisible(showProduction);
+        this.consumptionLabel.setVisible(showConsumption);
+        this.consumptionInfoLabel.setVisible(showConsumption);
         if (visibilityChanged) {
             this.resizeDialogToContent();
         }
@@ -382,8 +388,62 @@ public class NewProductionPanel extends BasePanel
         double clockSpeed = this.clockSpeed;
         Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
 
-        if (selectedRecipe == null || selectedBuilding == null || amount == null
-            || usedSomersloops == null || usedSomersloops > selectedBuilding.getSomersloopSlots()) {
+        if (selectedBuilding == null || amount == null) {
+            this.ingredientsPanel.removeAll();
+            this.ingredientsPanel.add(this.ingredientsLabel);
+            this.ingredientsPanel.revalidate();
+            this.ingredientsPanel.repaint();
+            this.productionPanel.removeAll();
+            this.productionPanel.add(this.productionLabel);
+            this.productionPanel.revalidate();
+            this.productionPanel.repaint();
+            this.consumptionInfoLabel.setText("");
+            if (ingredientCount != this.ingredientsPanel.getComponentCount()
+                || productionCount != this.productionPanel.getComponentCount()) {
+                this.resizeDialogToContent();
+            }
+            return;
+        }
+
+        if (selectedBuilding.getCategory() == Category.POWER) {
+            if (selectedRecipe != null && usedSomersloops != null
+                && usedSomersloops <= selectedBuilding.getSomersloopSlots()) {
+                this.updateItemSummary(
+                    this.ingredientsPanel,
+                    this.ingredientsLabel,
+                    selectedRecipe.getIngredients(),
+                    amount,
+                    clockSpeed,
+                    usedSomersloops,
+                    selectedBuilding.getSomersloopSlots()
+                );
+            } else {
+                this.ingredientsPanel.removeAll();
+                this.ingredientsPanel.add(this.ingredientsLabel);
+                this.ingredientsPanel.revalidate();
+                this.ingredientsPanel.repaint();
+            }
+            this.productionPanel.removeAll();
+            this.productionPanel.add(this.productionLabel);
+            double generatedPower = selectedBuilding.getPower() * (clockSpeed / 100) * amount;
+            JLabel generatedPowerLabel = new JLabel(
+                this.getLanguage().translate("generatedPower") + ": "
+                    + this.numberFormat.format(generatedPower) + " MW"
+            );
+            generatedPowerLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.productionPanel.add(generatedPowerLabel);
+            this.productionPanel.revalidate();
+            this.productionPanel.repaint();
+            this.consumptionInfoLabel.setText("");
+            if (ingredientCount != this.ingredientsPanel.getComponentCount()
+                || productionCount != this.productionPanel.getComponentCount()) {
+                this.resizeDialogToContent();
+            }
+            return;
+        }
+
+        if (selectedRecipe == null || usedSomersloops == null
+            || usedSomersloops > selectedBuilding.getSomersloopSlots()) {
             this.ingredientsPanel.removeAll();
             this.ingredientsPanel.add(this.ingredientsLabel);
             this.ingredientsPanel.revalidate();

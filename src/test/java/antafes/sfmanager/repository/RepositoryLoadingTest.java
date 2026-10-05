@@ -9,6 +9,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -60,13 +62,18 @@ public class RepositoryLoadingTest extends BaseTest
 
         repository.init();
 
-        assertEquals(38, repository.findAll().size());
+        assertEquals(163, repository.findAll().size());
         Item iron = repository.findOne("iron");
         assertNotNull(iron);
         assertEquals("Iron Ore", iron.getName().getEnglish());
+        assertEquals("images/items/iron_ore.webp", iron.getIcon());
         assertEquals(3, iron.getProductions().size());
         assertSame(this.context.getBean(BuildingRepository.class).findOne("miner_1"),
             iron.getProductions().getFirst().getBuilding());
+
+        Item adaptiveControlUnit = repository.findOne("adaptive_control_unit");
+        assertNotNull(adaptiveControlUnit);
+        assertEquals("images/items/uranium_pellet.png", adaptiveControlUnit.getIcon());
 
         Item ironIngot = repository.findOne("iron_ingot");
         assertNotNull(ironIngot);
@@ -81,7 +88,7 @@ public class RepositoryLoadingTest extends BaseTest
 
         repository.init();
 
-        assertEquals(39, repository.findAll().size());
+        assertEquals(55, repository.findAll().size());
         Recipe ironIngot = repository.findOne("iron_ingot");
         assertNotNull(ironIngot);
         assertSame(this.context.getBean(BuildingRepository.class).findOne("smelter"),
@@ -90,5 +97,19 @@ public class RepositoryLoadingTest extends BaseTest
             ironIngot.getIngredients().getFirst().getResource());
         assertSame(this.context.getBean(ItemRepository.class).findOne("iron_ingot"),
             ironIngot.getProducts().getFirst().getResource());
+
+        for (String fuelKey : List.of("fuel", "liquid_biofuel", "turbofuel", "rocket_fuel", "ionized_fuel")) {
+            Recipe fuelGeneratorRecipe = repository.findOne("fuel_generator_" + fuelKey);
+            assertNotNull(fuelGeneratorRecipe);
+            assertEquals(
+                fuelKey,
+                fuelGeneratorRecipe.getIngredients().getFirst().getResource().getKey()
+            );
+        }
+
+        Recipe leavesFuel = repository.findOne("burner_leaves");
+        assertNotNull(leavesFuel);
+        assertEquals(1, leavesFuel.getIngredients().size());
+        assertTrue(leavesFuel.getProducts().isEmpty());
     }
 }

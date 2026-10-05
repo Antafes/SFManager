@@ -408,4 +408,379 @@
         </i:name>
         <i:icon>images/items/wood.webp</i:icon>
     </i:item>
+    <i:item key="adaptive_control_unit">
+        <i:name><i:english>Adaptive Control Unit</i:english></i:name>
+    </i:item>
+    <i:item key="ai_expansion_server">
+        <i:name><i:english>AI Expansion Server</i:english></i:name>
+    </i:item>
+    <i:item key="ai_limiter">
+        <i:name><i:english>AI Limiter</i:english></i:name>
+    </i:item>
+    <i:item key="alclad_aluminum_sheet">
+        <i:name><i:english>Alclad Aluminum Sheet</i:english></i:name>
+    </i:item>
+    <i:item key="alien_dna_capsule">
+        <i:name><i:english>Alien DNA Capsule</i:english></i:name>
+    </i:item>
+    <i:item key="alien_power_matrix">
+        <i:name><i:english>Alien Power Matrix</i:english></i:name>
+    </i:item>
+    <i:item key="aluminum_casing">
+        <i:name><i:english>Aluminum Casing</i:english></i:name>
+    </i:item>
+    <i:item key="aluminum_scrap">
+        <i:name><i:english>Aluminum Scrap</i:english></i:name>
+    </i:item>
+    <i:item key="alumina_solution">
+        <i:name><i:english>Alumina Solution</i:english></i:name>
+    </i:item>
+    <i:item key="assembly_director_system">
+        <i:name><i:english>Assembly Director System</i:english></i:name>
+    </i:item>
+    <i:item key="automated_wiring">
+        <i:name><i:english>Automated Wiring</i:english></i:name>
+    </i:item>
+    <i:item key="bacon_agaric">
+        <i:name><i:english>Bacon Agaric</i:english></i:name>
+    </i:item>
+    <i:item key="ballistic_warp_drive">
+        <i:name><i:english>Ballistic Warp Drive</i:english></i:name>
+    </i:item>
+    <i:item key="battery">
+        <i:name><i:english>Battery</i:english></i:name>
+    </i:item>
+    <i:item key="beryl_nut">
+        <i:name><i:english>Beryl Nut</i:english></i:name>
+    </i:item>
+    <i:item key="biochemical_sculptor">
+        <i:name><i:english>Biochemical Sculptor</i:english></i:name>
+    </i:item>
+    <i:item key="black_powder">
+        <i:name><i:english>Black Powder</i:english></i:name>
+    </i:item>
+    <i:item key="blade_runners">
+        <i:name><i:english>Blade Runners</i:english></i:name>
+    </i:item>
+    <i:item key="boom_box">
+        <i:name><i:english>Boom Box</i:english></i:name>
+    </i:item>
+    <i:item key="caterium_ore">
+        <i:name><i:english>Caterium Ore</i:english></i:name>
+    </i:item>
+    <i:item key="chainsaw">
+        <i:name><i:english>Chainsaw</i:english></i:name>
+    </i:item>
+    <i:item key="circuit_board">
+        <i:name><i:english>Circuit Board</i:english></i:name>
+    </i:item>
+    <i:item key="compacted_coal">
+        <i:name><i:english>Compacted Coal</i:english></i:name>
+    </i:item>
+    <i:item key="computer">
+        <i:name><i:english>Computer</i:english></i:name>
+    </i:item>
+    <i:item key="cooling_system">
+        <i:name><i:english>Cooling System</i:english></i:name>
+    </i:item>
+    <i:item key="copper_ore">
+        <i:name><i:english>Copper Ore</i:english></i:name>
+    </i:item>
+    <i:item key="copper_powder">
+        <i:name><i:english>Copper Powder</i:english></i:name>
+    </i:item>
+    <i:item key="copper_sheet">
+        <i:name><i:english>Copper Sheet</i:english></i:name>
+    </i:item>
+    <i:item key="crude_oil">
+        <i:name><i:english>Crude Oil</i:english></i:name>
+    </i:item>
+    <i:item key="crystal_oscillator">
+        <i:name><i:english>Crystal Oscillator</i:english></i:name>
+    </i:item>
+    <i:item key="cup">
+        <i:name><i:english>Cup</i:english></i:name>
+    </i:item>
+    <i:item key="dark_matter_crystal">
+        <i:name><i:english>Dark Matter Crystal</i:english></i:name>
+    </i:item>
+    <i:item key="dark_matter_residue">
+        <i:name><i:english>Dark Matter Residue</i:english></i:name>
+    </i:item>
+    <i:item key="diamonds">
+        <i:name><i:english>Diamonds</i:english></i:name>
+    </i:item>
+    <i:item key="dissolved_silica">
+        <i:name><i:english>Dissolved Silica</i:english></i:name>
+    </i:item>
+    <i:item key="electromagnetic_control_rod">
+        <i:name><i:english>Electromagnetic Control Rod</i:english></i:name>
+    </i:item>
+    <i:item key="empty_canister">
+        <i:name><i:english>Empty Canister</i:english></i:name>
+    </i:item>
+    <i:item key="empty_fluid_tank">
+        <i:name><i:english>Empty Fluid Tank</i:english></i:name>
+    </i:item>
+    <i:item key="encased_industrial_beam">
+        <i:name><i:english>Encased Industrial Beam</i:english></i:name>
+    </i:item>
+    <i:item key="encased_plutonium_cell">
+        <i:name><i:english>Encased Plutonium Cell</i:english></i:name>
+    </i:item>
+    <i:item key="encased_uranium_cell">
+        <i:name><i:english>Encased Uranium Cell</i:english></i:name>
+    </i:item>
+    <i:item key="excited_photonic_matter">
+        <i:name><i:english>Excited Photonic Matter</i:english></i:name>
+    </i:item>
+    <i:item key="fabric">
+        <i:name><i:english>Fabric</i:english></i:name>
+    </i:item>
+    <i:item key="ficsite_ingot">
+        <i:name><i:english>Ficsite Ingot</i:english></i:name>
+    </i:item>
+    <i:item key="ficsite_trigon">
+        <i:name><i:english>Ficsite Trigon</i:english></i:name>
+    </i:item>
+    <i:item key="ficsonium">
+        <i:name><i:english>Ficsonium</i:english></i:name>
+    </i:item>
+    <i:item key="ficsonium_fuel_rod">
+        <i:name><i:english>Ficsonium Fuel Rod</i:english></i:name>
+    </i:item>
+    <i:item key="fuel">
+        <i:name><i:english>Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="fused_modular_frame">
+        <i:name><i:english>Fused Modular Frame</i:english></i:name>
+    </i:item>
+    <i:item key="gas_mask">
+        <i:name><i:english>Gas Mask</i:english></i:name>
+    </i:item>
+    <i:item key="hazmat_suit">
+        <i:name><i:english>Hazmat Suit</i:english></i:name>
+    </i:item>
+    <i:item key="heat_sink">
+        <i:name><i:english>Heat Sink</i:english></i:name>
+    </i:item>
+    <i:item key="heavy_modular_frame">
+        <i:name><i:english>Heavy Modular Frame</i:english></i:name>
+    </i:item>
+    <i:item key="high_speed_connector">
+        <i:name><i:english>High-Speed Connector</i:english></i:name>
+    </i:item>
+    <i:item key="hoverpack">
+        <i:name><i:english>Hoverpack</i:english></i:name>
+    </i:item>
+    <i:item key="iron_ore">
+        <i:name><i:english>Iron Ore</i:english></i:name>
+    </i:item>
+    <i:item key="ionized_fuel">
+        <i:name><i:english>Ionized Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="jetpack">
+        <i:name><i:english>Jetpack</i:english></i:name>
+    </i:item>
+    <i:item key="liquid_biofuel">
+        <i:name><i:english>Liquid Biofuel</i:english></i:name>
+    </i:item>
+    <i:item key="magnetic_field_generator">
+        <i:name><i:english>Magnetic Field Generator</i:english></i:name>
+    </i:item>
+    <i:item key="medicinal_inhaler">
+        <i:name><i:english>Medicinal Inhaler</i:english></i:name>
+    </i:item>
+    <i:item key="mercer_sphere">
+        <i:name><i:english>Mercer Sphere</i:english></i:name>
+    </i:item>
+    <i:item key="miner">
+        <i:name><i:english>Miner</i:english></i:name>
+    </i:item>
+    <i:item key="modular_engine">
+        <i:name><i:english>Modular Engine</i:english></i:name>
+    </i:item>
+    <i:item key="modular_frame">
+        <i:name><i:english>Modular Frame</i:english></i:name>
+    </i:item>
+    <i:item key="motor">
+        <i:name><i:english>Motor</i:english></i:name>
+    </i:item>
+    <i:item key="neural_quantum_processor">
+        <i:name><i:english>Neural-Quantum Processor</i:english></i:name>
+    </i:item>
+    <i:item key="nitric_acid">
+        <i:name><i:english>Nitric Acid</i:english></i:name>
+    </i:item>
+    <i:item key="nobelisk_detonator">
+        <i:name><i:english>Nobelisk Detonator</i:english></i:name>
+    </i:item>
+    <i:item key="non_fissile_uranium">
+        <i:name><i:english>Non-Fissile Uranium</i:english></i:name>
+    </i:item>
+    <i:item key="nuclear_pasta">
+        <i:name><i:english>Nuclear Pasta</i:english></i:name>
+    </i:item>
+    <i:item key="object_scanner">
+        <i:name><i:english>Object Scanner</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_alumina_solution">
+        <i:name><i:english>Packaged Alumina Solution</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_fuel">
+        <i:name><i:english>Packaged Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_heavy_oil_residue">
+        <i:name><i:english>Packaged Heavy Oil Residue</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_ionized_fuel">
+        <i:name><i:english>Packaged Ionized Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_liquid_biofuel">
+        <i:name><i:english>Packaged Liquid Biofuel</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_nitric_acid">
+        <i:name><i:english>Packaged Nitric Acid</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_nitrogen_gas">
+        <i:name><i:english>Packaged Nitrogen Gas</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_oil">
+        <i:name><i:english>Packaged Oil</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_rocket_fuel">
+        <i:name><i:english>Packaged Rocket Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_sulfuric_acid">
+        <i:name><i:english>Packaged Sulfuric Acid</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_turbofuel">
+        <i:name><i:english>Packaged Turbofuel</i:english></i:name>
+    </i:item>
+    <i:item key="packaged_water">
+        <i:name><i:english>Packaged Water</i:english></i:name>
+    </i:item>
+    <i:item key="paleberry">
+        <i:name><i:english>Paleberry</i:english></i:name>
+    </i:item>
+    <i:item key="parachute">
+        <i:name><i:english>Parachute</i:english></i:name>
+    </i:item>
+    <i:item key="plutonium_fuel_rod">
+        <i:name><i:english>Plutonium Fuel Rod</i:english></i:name>
+    </i:item>
+    <i:item key="plutonium_pellet">
+        <i:name><i:english>Plutonium Pellet</i:english></i:name>
+    </i:item>
+    <i:item key="plutonium_waste">
+        <i:name><i:english>Plutonium Waste</i:english></i:name>
+    </i:item>
+    <i:item key="polymer_resin">
+        <i:name><i:english>Polymer Resin</i:english></i:name>
+    </i:item>
+    <i:item key="power_shard">
+        <i:name><i:english>Power Shard</i:english></i:name>
+    </i:item>
+    <i:item key="power_slug">
+        <i:name><i:english>Power Slug</i:english></i:name>
+    </i:item>
+    <i:item key="pressure_conversion_cube">
+        <i:name><i:english>Pressure Conversion Cube</i:english></i:name>
+    </i:item>
+    <i:item key="quartz_crystal">
+        <i:name><i:english>Quartz Crystal</i:english></i:name>
+    </i:item>
+    <i:item key="radio_control_unit">
+        <i:name><i:english>Radio Control Unit</i:english></i:name>
+    </i:item>
+    <i:item key="raw_quartz">
+        <i:name><i:english>Raw Quartz</i:english></i:name>
+    </i:item>
+    <i:item key="reanimated_sam">
+        <i:name><i:english>Reanimated SAM</i:english></i:name>
+    </i:item>
+    <i:item key="rebar_gun">
+        <i:name><i:english>Rebar Gun</i:english></i:name>
+    </i:item>
+    <i:item key="rifle">
+        <i:name><i:english>Rifle</i:english></i:name>
+    </i:item>
+    <i:item key="rocket_fuel">
+        <i:name><i:english>Rocket Fuel</i:english></i:name>
+    </i:item>
+    <i:item key="rotor">
+        <i:name><i:english>Rotor</i:english></i:name>
+    </i:item>
+    <i:item key="sam_fluctuator">
+        <i:name><i:english>SAM Fluctuator</i:english></i:name>
+    </i:item>
+    <i:item key="singularity_cell">
+        <i:name><i:english>Singularity Cell</i:english></i:name>
+    </i:item>
+    <i:item key="smart_plating">
+        <i:name><i:english>Smart Plating</i:english></i:name>
+    </i:item>
+    <i:item key="smokeless_powder">
+        <i:name><i:english>Smokeless Powder</i:english></i:name>
+    </i:item>
+    <i:item key="solid_biofuel">
+        <i:name><i:english>Solid Biofuel</i:english></i:name>
+    </i:item>
+    <i:item key="somersloop">
+        <i:name><i:english>Somersloop</i:english></i:name>
+    </i:item>
+    <i:item key="stator">
+        <i:name><i:english>Stator</i:english></i:name>
+    </i:item>
+    <i:item key="steel_pipe">
+        <i:name><i:english>Steel Pipe</i:english></i:name>
+    </i:item>
+    <i:item key="supercomputer">
+        <i:name><i:english>Supercomputer</i:english></i:name>
+    </i:item>
+    <i:item key="superposition_oscillator">
+        <i:name><i:english>Superposition Oscillator</i:english></i:name>
+    </i:item>
+    <i:item key="thermal_propulsion_rocket">
+        <i:name><i:english>Thermal Propulsion Rocket</i:english></i:name>
+    </i:item>
+    <i:item key="time_crystal">
+        <i:name><i:english>Time Crystal</i:english></i:name>
+    </i:item>
+    <i:item key="turbo_motor">
+        <i:name><i:english>Turbo Motor</i:english></i:name>
+    </i:item>
+    <i:item key="turbofuel">
+        <i:name><i:english>Turbofuel</i:english></i:name>
+    </i:item>
+    <i:item key="uranium_fuel_rod">
+        <i:name><i:english>Uranium Fuel Rod</i:english></i:name>
+    </i:item>
+    <i:item key="uranium_waste">
+        <i:name><i:english>Uranium Waste</i:english></i:name>
+    </i:item>
+    <i:item key="versatile_framework">
+        <i:name><i:english>Versatile Framework</i:english></i:name>
+    </i:item>
+    <i:item key="xeno_basher">
+        <i:name><i:english>Xeno-Basher</i:english></i:name>
+    </i:item>
+    <i:item key="xeno_zapper">
+        <i:name><i:english>Xeno-Zapper</i:english></i:name>
+    </i:item>
+    <i:item key="zipline">
+        <i:name><i:english>Zipline</i:english></i:name>
+    </i:item>
+    <i:item key="hatcher_protein">
+        <i:name><i:english>Hatcher Protein</i:english></i:name>
+    </i:item>
+    <i:item key="hog_protein">
+        <i:name><i:english>Hog Protein</i:english></i:name>
+    </i:item>
+    <i:item key="spitter_protein">
+        <i:name><i:english>Spitter Protein</i:english></i:name>
+    </i:item>
+    <i:item key="stinger_protein">
+        <i:name><i:english>Stinger Protein</i:english></i:name>
+    </i:item>
 </i:items>

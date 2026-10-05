@@ -25,6 +25,8 @@ import java.util.Map;
 @Repository
 public class ItemRepository extends BaseRepository<Item>
 {
+    private static final String FALLBACK_ICON_PATH = "images/items/uranium_pellet.png";
+
     @Autowired
     private BuildingRepository buildingRepository;
     private final Map<String, Item> items = new HashMap<>();
@@ -71,7 +73,7 @@ public class ItemRepository extends BaseRepository<Item>
         return new Item()
             .setKey(data.key)
             .setName(name)
-            .setIcon(data.icon)
+            .setIcon(data.icon == null || data.icon.isBlank() ? FALLBACK_ICON_PATH : data.icon)
             .setProductions(productions);
     }
 }

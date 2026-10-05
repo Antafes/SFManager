@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,10 @@ public class RecipeRepository extends BaseRepository<Recipe>
 
     private List<Item> toEntityItems(List<RecipesData.ItemData> items)
     {
+        if (items == null) {
+            return Collections.emptyList();
+        }
+
         return items.stream()
             .map(item -> new Item()
                 .setResource(this.itemRepository.findOne(item.resource))

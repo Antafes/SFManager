@@ -807,4 +807,220 @@
             </product>
         </products>
     </recipe>
+    <recipe key="burner_leaves">
+        <name>
+            <english>Leaves</english>
+        </name>
+        <producedIn>burner</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>leaves</resource>
+                <amount>120</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="burner_wood">
+        <name>
+            <english>Wood</english>
+        </name>
+        <producedIn>burner</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>wood</resource>
+                <amount>18</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="burner_mycelia">
+        <name>
+            <english>Mycelia</english>
+        </name>
+        <producedIn>burner</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>mycelia</resource>
+                <amount>90</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="burner_biomass">
+        <name>
+            <english>Biomass</english>
+        </name>
+        <producedIn>burner</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>biomass</resource>
+                <amount>10</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="burner_solid_biofuel">
+        <name>
+            <english>Solid Biofuel</english>
+        </name>
+        <producedIn>burner</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>solid_biofuel</resource>
+                <amount>4</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="coal_generator_coal">
+        <name>
+            <english>Coal</english>
+        </name>
+        <producedIn>coal_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>coal</resource>
+                <amount>15</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="coal_generator_petroleum_coke">
+        <name>
+            <english>Petroleum Coke</english>
+        </name>
+        <producedIn>coal_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>petroleum_coke</resource>
+                <amount>25</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="coal_generator_compacted_coal">
+        <name>
+            <english>Compacted Coal</english>
+        </name>
+        <producedIn>coal_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>compacted_coal</resource>
+                <amount>7.143</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="fuel_generator_fuel">
+        <name>
+            <english>Fuel</english>
+        </name>
+        <producedIn>fuel_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>fuel</resource>
+                <amount>20</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="fuel_generator_liquid_biofuel">
+        <name>
+            <english>Liquid Biofuel</english>
+        </name>
+        <producedIn>fuel_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>liquid_biofuel</resource>
+                <amount>20</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="fuel_generator_turbofuel">
+        <name>
+            <english>Turbofuel</english>
+        </name>
+        <producedIn>fuel_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>turbofuel</resource>
+                <amount>7.5</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="fuel_generator_rocket_fuel">
+        <name>
+            <english>Rocket Fuel</english>
+        </name>
+        <producedIn>fuel_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>rocket_fuel</resource>
+                <amount>4.1666666666</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="fuel_generator_ionized_fuel">
+        <name>
+            <english>Ionized Fuel</english>
+        </name>
+        <producedIn>fuel_generator</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>ionized_fuel</resource>
+                <amount>3</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
+    <recipe key="nuclear_power_plant_uranium_fuel_rod">
+        <name>
+            <english>Uranium Fuel Rod</english>
+        </name>
+        <producedIn>nuclear_power_plant</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>uranium_fuel_rod</resource>
+                <amount>0.2</amount>
+            </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>240</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>uranium_waste</resource>
+                <amount>10</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="nuclear_power_plant_plutonium_fuel_rod">
+        <name>
+            <english>Plutonium Fuel Rod</english>
+        </name>
+        <producedIn>nuclear_power_plant</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>plutonium_fuel_rod</resource>
+                <amount>0.1</amount>
+            </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>240</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>plutonium_waste</resource>
+                <amount>1</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="nuclear_power_plant_ficsonium_fuel_rod">
+        <name>
+            <english>Ficsonium Fuel Rod</english>
+        </name>
+        <producedIn>nuclear_power_plant</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>ficsonium_fuel_rod</resource>
+                <amount>1</amount>
+            </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>240</amount>
+            </ingredient>
+        </ingredients>
+    </recipe>
 </recipes>
