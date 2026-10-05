@@ -41,6 +41,9 @@ public class NewProductionDialog extends JDialog
         this.initComponents();
         this.init();
         this.setFieldTexts();
+        int width = this.getWidth();
+        this.pack();
+        this.setSize(width, this.getHeight());
     }
 
     /**

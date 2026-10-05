@@ -209,10 +209,34 @@ public class NewProductionPanel extends BasePanel
 
     private void updateSummaryVisibility(boolean visible)
     {
+        boolean visibilityChanged = this.ingredientsPanel.isVisible() != visible
+            || this.productionPanel.isVisible() != visible
+            || this.consumptionLabel.isVisible() != visible
+            || this.consumptionInfoLabel.isVisible() != visible;
         this.ingredientsPanel.setVisible(visible);
         this.productionPanel.setVisible(visible);
         this.consumptionLabel.setVisible(visible);
         this.consumptionInfoLabel.setVisible(visible);
+        if (visibilityChanged) {
+            this.resizeDialogToContent();
+        }
+    }
+
+    private void resizeDialogToContent()
+    {
+        JDialog dialog = this.getParentDialog();
+        if (!dialog.isDisplayable()) {
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            if (!dialog.isDisplayable()) {
+                return;
+            }
+            int width = dialog.getWidth();
+            dialog.pack();
+            dialog.setSize(width, dialog.getHeight());
+        });
     }
 
     private boolean hasRecipes(Building building)
@@ -350,6 +374,8 @@ public class NewProductionPanel extends BasePanel
 
     private void updateSummaries()
     {
+        int ingredientCount = this.ingredientsPanel.getComponentCount();
+        int productionCount = this.productionPanel.getComponentCount();
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
         Double amount = this.parseNonNegativeNumber(this.amountField.getText());
@@ -367,6 +393,10 @@ public class NewProductionPanel extends BasePanel
             this.productionPanel.revalidate();
             this.productionPanel.repaint();
             this.consumptionInfoLabel.setText("");
+            if (ingredientCount != this.ingredientsPanel.getComponentCount()
+                || productionCount != this.productionPanel.getComponentCount()) {
+                this.resizeDialogToContent();
+            }
             return;
         }
 
@@ -396,6 +426,10 @@ public class NewProductionPanel extends BasePanel
             somersloopSlots
         ) * amount;
         this.consumptionInfoLabel.setText(this.numberFormat.format(consumption) + " MW");
+        if (ingredientCount != this.ingredientsPanel.getComponentCount()
+            || productionCount != this.productionPanel.getComponentCount()) {
+            this.resizeDialogToContent();
+        }
     }
 
     private void initComponents()
