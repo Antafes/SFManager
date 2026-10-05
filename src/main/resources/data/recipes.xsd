@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:r="http://www.w3schools.com/SFManager/recipes" targetNamespace="http://www.w3schools.com/SFManager/recipes">
+    <xs:element name="recipes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="recipe" type="r:recipe" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="recipe">
+        <xs:sequence>
+            <xs:element name="name" type="r:name" />
+            <xs:element name="producedIn" type="xs:string" />
+            <xs:element name="alternate" type="xs:boolean" minOccurs="0" default="false" />
+            <xs:element name="ingredients">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="ingredient" type="r:item" maxOccurs="4" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="products">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="product" type="r:item" maxOccurs="2" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="key" type="xs:string" use="required" />
+    </xs:complexType>
+    <xs:complexType name="name">
+        <xs:sequence>
+            <xs:element name="english" type="xs:string" />
+            <xs:element name="german" minOccurs="0" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="item">
+        <xs:sequence>
+            <xs:element name="resource" type="xs:string" />
+            <xs:element name="amount" type="xs:decimal" />
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

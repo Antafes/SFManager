@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<b:buildings xmlns:b="http://www.w3schools.com/SFManager/buildings" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <b:building key="sink">
+        <b:name>
+            <b:english>AWESOME Sink</b:english>
+            <b:german>AWESOME Schredder</b:german>
+        </b:name>
+        <b:category>special</b:category>
+        <b:power>-30</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="miner_1">
+        <b:name>
+            <b:english>Miner Mk.1</b:english>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-5</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="miner_2">
+        <b:name>
+            <b:english>Miner Mk.2</b:english>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-15</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="miner_3">
+        <b:name>
+            <b:english>Miner Mk.3</b:english>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-45</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="water_extractor">
+        <b:name>
+            <b:english>Water Extractor</b:english>
+            <b:german>Wasserextraktor</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-20</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="oil_extractor">
+        <b:name>
+            <b:english>Oil Extractor</b:english>
+            <b:german>Ölpumpe</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-40</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="well_pressurizer">
+        <b:name>
+            <b:english>Resource Well Pressurizer</b:english>
+            <b:german>Quellenkompressor</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-150</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="well_extractor">
+        <b:name>
+            <b:english>Resource Well Extractor</b:english>
+            <b:german>Quellenextraktor</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>0</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="smelter">
+        <b:name>
+            <b:english>Smelter</b:english>
+            <b:german>Schmelzofen</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-4</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>1</b:somersloopSlots>
+    </b:building>
+    <b:building key="foundry">
+        <b:name>
+            <b:english>Foundry</b:english>
+            <b:german>Gießerei</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-16</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>1</b:somersloopSlots>
+    </b:building>
+    <b:building key="constructor">
+        <b:name>
+            <b:english>Constructor</b:english>
+            <b:german>Konstruktor</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-4</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>1</b:somersloopSlots>
+    </b:building>
+    <b:building key="assembler">
+        <b:name>
+            <b:english>Assembler</b:english>
+            <b:german>Fabrikator</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-15</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>2</b:somersloopSlots>
+    </b:building>
+    <b:building key="manufacturer">
+        <b:name>
+            <b:english>Manufacturer</b:english>
+            <b:german>Manufaktor</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-55</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>4</b:somersloopSlots>
+    </b:building>
+    <b:building key="packager">
+        <b:name>
+            <b:english>Packager</b:english>
+            <b:german>Umfüllanlage</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-10</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="refinery">
+        <b:name>
+            <b:english>Refinery</b:english>
+            <b:german>Raffinerie</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-30</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>2</b:somersloopSlots>
+    </b:building>
+    <b:building key="blender">
+        <b:name>
+            <b:english>Blender</b:english>
+            <b:german>Mixer</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>-75</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>4</b:somersloopSlots>
+    </b:building>
+    <b:building key="accelerator">
+        <b:name>
+            <b:english>Particle Accelerator</b:english>
+            <b:german>Teilchenbeschleuniger</b:german>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power xsi:nil="true" />
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>4</b:somersloopSlots>
+    </b:building>
+    <b:building key="encoder">
+        <b:name>
+            <b:english>Quantum Encoder</b:english>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>1000</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>4</b:somersloopSlots>
+    </b:building>
+    <b:building key="converter">
+        <b:name>
+            <b:english>Converter</b:english>
+        </b:name>
+        <b:category>production</b:category>
+        <b:power>250</b:power>
+        <b:overclockable>true</b:overclockable>
+        <b:somersloopSlots>2</b:somersloopSlots>
+    </b:building>
+    <b:building key="burner">
+        <b:name>
+            <b:english>Biomass Burner</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>30</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="coal_generator">
+        <b:name>
+            <b:english>Coal-Powered Generator</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>75</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="fuel_generator">
+        <b:name>
+            <b:english>Fuel-Powered Generator</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>250</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="geothermal_generator">
+        <b:name>
+            <b:english>Geothermal Generator</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>200</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="nuclear_power_plant">
+        <b:name>
+            <b:english>Nuclear Power Plant</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>2500</b:power>
+        <b:overclockable>true</b:overclockable>
+    </b:building>
+    <b:building key="power_augmenter">
+        <b:name>
+            <b:english>Alien Power Augmenter</b:english>
+        </b:name>
+        <b:category>power</b:category>
+        <b:power>500</b:power>
+        <b:powerPercentage>10</b:powerPercentage>
+        <b:boostedPowerPercentage>30</b:boostedPowerPercentage>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="pump_1">
+        <b:name>
+            <b:english>Pipeline Pump Mk.1</b:english>
+        </b:name>
+        <b:category>logistics</b:category>
+        <b:power>-4</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="pump_2">
+        <b:name>
+            <b:english>Pipeline Pump Mk.2</b:english>
+        </b:name>
+        <b:category>logistics</b:category>
+        <b:power>-8</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="truck_station">
+        <b:name>
+            <b:english>Truck Station</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-20</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="drone_port">
+        <b:name>
+            <b:english>Drone Port</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-100</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="train_station">
+        <b:name>
+            <b:english>Train Station</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-50</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="freight_platform">
+        <b:name>
+            <b:english>Freight Platform</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-50</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="fluid_freight_platform">
+        <b:name>
+            <b:english>Fluid Freight Platform</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-50</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="locomotive">
+        <b:name>
+            <b:english>Electric Locomotive</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-110</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="hypertube_entrance">
+        <b:name>
+            <b:english>Hypertube Entrance</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-10</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="jump_pad">
+        <b:name>
+            <b:english>Jump Pad</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-5</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="landing_pad">
+        <b:name>
+            <b:english>U-Jelly Landing Pad</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-5</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="elevator">
+        <b:name>
+            <b:english>Personnel Elevator</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-20</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="main_portal">
+        <b:name>
+            <b:english>Main Portal</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-250</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="satellite_portal">
+        <b:name>
+            <b:english>Satellite Portal</b:english>
+        </b:name>
+        <b:category>transportation</b:category>
+        <b:power>-250</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="wall_light">
+        <b:name>
+            <b:english>Wall-Mounted Flood Light</b:english>
+        </b:name>
+        <b:category>organization</b:category>
+        <b:power>-6</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="street_light">
+        <b:name>
+            <b:english>Street Light</b:english>
+        </b:name>
+        <b:category>organization</b:category>
+        <b:power>-1</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="tower_light">
+        <b:name>
+            <b:english>Flood Light Tower</b:english>
+        </b:name>
+        <b:category>organization</b:category>
+        <b:power>-6</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="ceiling_light">
+        <b:name>
+            <b:english>Ceiling Light</b:english>
+        </b:name>
+        <b:category>organization</b:category>
+        <b:power>-2</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+    <b:building key="radar_tower">
+        <b:name>
+            <b:english>Radar Tower</b:english>
+        </b:name>
+        <b:category>organization</b:category>
+        <b:power>-30</b:power>
+        <b:overclockable>false</b:overclockable>
+    </b:building>
+</b:buildings>

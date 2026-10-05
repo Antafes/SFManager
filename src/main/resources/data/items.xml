@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<i:items xmlns:i="http://www.w3schools.com/SFManager/items">
+    <i:item key="iron">
+        <i:name>
+            <i:english>Iron Ore</i:english>
+            <i:german>Eisenerz</i:german>
+        </i:name>
+        <i:icon>images/items/iron_ore.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="copper">
+        <i:name>
+            <i:english>Copper Ore</i:english>
+            <i:german>Kupfererz</i:german>
+        </i:name>
+        <i:icon>images/items/copper_ore.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="limestone">
+        <i:name>
+            <i:english>Limestone</i:english>
+            <i:german>Kalkstein</i:german>
+        </i:name>
+        <i:icon>images/items/limestone.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="coal">
+        <i:name>
+            <i:english>Coal</i:english>
+            <i:german>Kohle</i:german>
+        </i:name>
+        <i:icon>images/items/coal.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="water">
+        <i:name>
+            <i:english>Water</i:english>
+            <i:german>Wasser</i:german>
+        </i:name>
+        <i:icon>images/items/water.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>water_extractor</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>well_extractor</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="oil">
+        <i:name>
+            <i:english>Crude Oil</i:english>
+            <i:german>Rohöl</i:german>
+        </i:name>
+        <i:icon>images/items/crude_oil.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>oil_extractor</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>well_extractor</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="caterium">
+        <i:name>
+            <i:english>Caterium Ore</i:english>
+            <i:german>Caterium-Erz</i:german>
+        </i:name>
+        <i:icon>images/items/caterium_ore.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="bauxite">
+        <i:name>
+            <i:english>Bauxite</i:english>
+            <i:german>Bauxit</i:german>
+        </i:name>
+        <i:icon>images/items/bauxite.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="quartz">
+        <i:name>
+            <i:english>Raw Quartz</i:english>
+            <i:german>Rohquarz</i:german>
+        </i:name>
+        <i:icon>images/items/raw_quartz.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="sulfur">
+        <i:name>
+            <i:english>Sulfur</i:english>
+            <i:german>Schwefel</i:german>
+        </i:name>
+        <i:icon>images/items/sulfur.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="uranium">
+        <i:name>
+            <i:english>Uranium</i:english>
+            <i:german>Uran</i:german>
+        </i:name>
+        <i:icon>images/items/uranium.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="nitrogen">
+        <i:name>
+            <i:english>Nitrogen Gas</i:english>
+            <i:german>Stickstoffgas</i:german>
+        </i:name>
+        <i:icon>images/items/nitrogen_gas.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>well_extractor</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="sam">
+        <i:name>
+            <i:english>SAM</i:english>
+            <i:german>SAM-Erz</i:german>
+        </i:name>
+        <i:icon>images/items/sam.webp</i:icon>
+        <i:productions>
+            <i:production>
+                <i:buildingKey>miner_1</i:buildingKey>
+                <i:amount>60</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_2</i:buildingKey>
+                <i:amount>120</i:amount>
+            </i:production>
+            <i:production>
+                <i:buildingKey>miner_3</i:buildingKey>
+                <i:amount>240</i:amount>
+            </i:production>
+        </i:productions>
+    </i:item>
+    <i:item key="iron_ingot">
+        <i:name>
+            <i:english>Iron Ingot</i:english>
+            <i:german>Eisenbarren</i:german>
+        </i:name>
+        <i:icon>images/items/iron_ingot.webp</i:icon>
+    </i:item>
+    <i:item key="sulfuric_acid">
+        <i:name>
+            <i:english>Sulfuric Acid</i:english>
+        </i:name>
+        <i:icon>images/items/sulfuric_acid.webp</i:icon>
+    </i:item>
+    <i:item key="iron_plate">
+        <i:name>
+            <i:english>Iron Plate</i:english>
+        </i:name>
+        <i:icon>images/items/iron_plate.webp</i:icon>
+    </i:item>
+    <i:item key="plastic">
+        <i:name>
+            <i:english>Plastic</i:english>
+        </i:name>
+        <i:icon>images/items/plastic.webp</i:icon>
+    </i:item>
+    <i:item key="steel_ingot">
+        <i:name>
+            <i:english>Steel Ingot</i:english>
+        </i:name>
+        <i:icon>images/items/steel_ingot.webp</i:icon>
+    </i:item>
+    <i:item key="iron_rod">
+        <i:name>
+            <i:english>Iron Rod</i:english>
+        </i:name>
+        <i:icon>images/items/iron_rod.webp</i:icon>
+    </i:item>
+    <i:item key="aluminum_ingot">
+        <i:name>
+            <i:english>Aluminum Ingot</i:english>
+        </i:name>
+        <i:icon>images/items/aluminum_ingot.webp</i:icon>
+    </i:item>
+    <i:item key="copper_ingot">
+        <i:name>
+            <i:english>Copper Ingot</i:english>
+        </i:name>
+        <i:icon>images/items/copper_ingot.webp</i:icon>
+    </i:item>
+    <i:item key="petroleum_coke">
+        <i:name>
+            <i:english>Petroleum Coke</i:english>
+        </i:name>
+        <i:icon>images/items/petroleum_coke.webp</i:icon>
+    </i:item>
+    <i:item key="wire">
+        <i:name>
+            <i:english>Wire</i:english>
+        </i:name>
+        <i:icon>images/items/wire.webp</i:icon>
+    </i:item>
+    <i:item key="caterium_ingot">
+        <i:name>
+            <i:english>Caterium Ingot</i:english>
+        </i:name>
+        <i:icon>images/items/caterium_ingot.webp</i:icon>
+    </i:item>
+    <i:item key="cable">
+        <i:name>
+            <i:english>Cable</i:english>
+        </i:name>
+        <i:icon>images/items/cable.webp</i:icon>
+    </i:item>
+    <i:item key="heavy_oil_residue">
+        <i:name>
+            <i:english>Heavy Oil Residue</i:english>
+        </i:name>
+        <i:icon>images/items/heavy_oil_residue.webp</i:icon>
+    </i:item>
+    <i:item key="rubber">
+        <i:name>
+            <i:english>Rubber</i:english>
+        </i:name>
+        <i:icon>images/items/rubber.png</i:icon>
+    </i:item>
+    <i:item key="quickwire">
+        <i:name>
+            <i:english>Quickwire</i:english>
+        </i:name>
+        <i:icon>images/items/quickwire.webp</i:icon>
+    </i:item>
+    <i:item key="silica">
+        <i:name>
+            <i:english>Silica</i:english>
+        </i:name>
+        <i:icon>images/items/silica.webp</i:icon>
+    </i:item>
+    <i:item key="concrete">
+        <i:name>
+            <i:english>Concrete</i:english>
+        </i:name>
+        <i:icon>images/items/concrete.png</i:icon>
+    </i:item>
+    <i:item key="screws">
+        <i:name>
+            <i:english>Screws</i:english>
+        </i:name>
+        <i:icon>images/items/screws.webp</i:icon>
+    </i:item>
+    <i:item key="steel_beam">
+        <i:name>
+            <i:english>Steel Beam</i:english>
+        </i:name>
+        <i:icon>images/items/steel_beam.webp</i:icon>
+    </i:item>
+    <i:item key="reinforced_iron_plate">
+        <i:name>
+            <i:english>Reinforced Iron Plate</i:english>
+        </i:name>
+        <i:icon>images/items/reinforced_iron_plate.webp</i:icon>
+    </i:item>
+    <i:item key="biomass">
+        <i:name>
+            <i:english>Biomass</i:english>
+        </i:name>
+        <i:icon>images/items/biomass.webp</i:icon>
+    </i:item>
+    <i:item key="alien_protein">
+        <i:name>
+            <i:english>Alien Protein</i:english>
+        </i:name>
+        <i:icon>images/items/alien_protein.webp</i:icon>
+    </i:item>
+    <i:item key="leaves">
+        <i:name>
+            <i:english>Leaves</i:english>
+        </i:name>
+        <i:icon>images/items/leaves.webp</i:icon>
+    </i:item>
+    <i:item key="mycelia">
+        <i:name>
+            <i:english>Mycelia</i:english>
+        </i:name>
+        <i:icon>images/items/mycelia.webp</i:icon>
+    </i:item>
+    <i:item key="wood">
+        <i:name>
+            <i:english>Wood</i:english>
+        </i:name>
+        <i:icon>images/items/wood.webp</i:icon>
+    </i:item>
+</i:items>

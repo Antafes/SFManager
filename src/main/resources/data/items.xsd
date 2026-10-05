@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:i="http://www.w3schools.com/SFManager/items" targetNamespace="http://www.w3schools.com/SFManager/items">
+    <xs:element name="items">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="item" type="i:item" maxOccurs="unbounded" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="item">
+        <xs:sequence>
+            <xs:element name="name" type="i:name" />
+            <xs:element name="icon" type="xs:string" />
+            <xs:element name="productions" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="production" type="i:production" maxOccurs="3" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="key" type="xs:ID" use="required" />
+    </xs:complexType>
+    <xs:complexType name="name">
+        <xs:sequence>
+            <xs:element name="english" type="xs:string" />
+            <xs:element name="german" minOccurs="0" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="production">
+        <xs:sequence>
+            <xs:element name="buildingKey" type="xs:string" />
+            <xs:element name="amount" type="xs:integer" />
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

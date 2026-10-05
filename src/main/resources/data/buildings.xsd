@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:b="http://www.w3schools.com/SFManager/buildings" targetNamespace="http://www.w3schools.com/SFManager/buildings">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd" />
+    <xs:element name="buildings">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="building" type="b:building" maxOccurs="unbounded" />
+            </xs:sequence>
+            <xs:attribute ref="xml:base" />
+        </xs:complexType>
+    </xs:element>
+    <xs:complexType name="building">
+        <xs:sequence>
+            <xs:element name="name" type="b:name" />
+            <xs:element name="category" type="b:category" />
+            <xs:element name="power" type="xs:integer" nillable="true" />
+            <xs:element name="powerPercentage" type="xs:integer" default="0" minOccurs="0" />
+            <xs:element name="boostedPowerPercentage" type="xs:integer" default="0" minOccurs="0" />
+            <xs:element name="overclockable" type="xs:boolean" />
+            <xs:element name="somersloopSlots" type="xs:integer" default="0" minOccurs="0" />
+        </xs:sequence>
+        <xs:attribute name="key" type="xs:ID" use="required" />
+    </xs:complexType>
+    <xs:complexType name="name">
+        <xs:sequence>
+            <xs:element name="english" type="xs:string" />
+            <xs:element name="german" minOccurs="0" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="category">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="special" />
+            <xs:enumeration value="production" />
+            <xs:enumeration value="power" />
+            <xs:enumeration value="logistics" />
+            <xs:enumeration value="transportation" />
+            <xs:enumeration value="organization" />
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
