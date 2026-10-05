@@ -308,7 +308,7 @@
     </b:building>
     <b:building key="landing_pad">
         <b:name>
-            <b:english>U-Jelly Landing Pad</b:english>
+            <b:english>Jelly Landing Pad</b:english>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-5</b:power>

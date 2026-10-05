@@ -15,6 +15,7 @@ import jakarta.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
@@ -22,6 +23,7 @@ import java.util.Vector;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class NewProductionPanel extends BasePanel
 {
+    private final String selectedLanguage;
     private JLabel buildingSelectLabel;
     private JComboBox<Building> buildingSelect;
     private JLabel recipeSelectLabel;
@@ -53,6 +55,7 @@ public class NewProductionPanel extends BasePanel
     public NewProductionPanel(JDialog parent, Configuration configuration)
     {
         super(parent, configuration);
+        this.selectedLanguage = configuration.getLanguage().getName();
     }
 
     @PostConstruct
@@ -105,11 +108,38 @@ public class NewProductionPanel extends BasePanel
         this.setFocusTraversalPolicyProvider(true);
     }
 
+    private String getBuildingDisplayName(Building building)
+    {
+        if (building == null || building.getName() == null) {
+            return "";
+        }
+        return building.getName().getLocalizedName(this.selectedLanguage);
+    }
+
     private void initComponents()
     {
         this.buildingSelectLabel = new JLabel();
         this.buildingSelect = new JComboBox<>();
-        this.buildingRepository.findAll().values().forEach(this.buildingSelect::addItem);
+        this.buildingSelect.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+            ) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                this.setText(value instanceof Building building
+                    ? NewProductionPanel.this.getBuildingDisplayName(building)
+                    : "");
+                return this;
+            }
+        });
+        this.buildingRepository.findAll().values().stream()
+            .sorted(Comparator.comparing(this::getBuildingDisplayName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Building::getKey))
+            .forEach(this.buildingSelect::addItem);
         this.recipeSelectLabel = new JLabel();
         this.recipeSelect = new JComboBox<>();
         this.amountLabel = new JLabel();

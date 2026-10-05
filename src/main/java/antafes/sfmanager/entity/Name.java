@@ -9,4 +9,18 @@ public class Name
 {
     private String english;
     private String german;
+
+    public String getLocalizedName(String language)
+    {
+        if (language == null) {
+            return this.english;
+        }
+
+        String localizedName = switch (language) {
+            case "English" -> this.english;
+            case "German" -> this.german;
+            default -> null;
+        };
+        return localizedName != null ? localizedName : this.english;
+    }
 }
