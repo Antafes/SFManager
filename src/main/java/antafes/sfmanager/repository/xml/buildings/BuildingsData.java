@@ -28,6 +28,7 @@ public class BuildingsData
         public Integer boostedPowerPercentage;
         public Boolean overclockable;
         public Integer somersloopSlots;
+        public Boolean resourceBuilding;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)

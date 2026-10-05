@@ -16,6 +16,7 @@
         <b:category>production</b:category>
         <b:power>-5</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="miner_2">
         <b:name>
@@ -24,6 +25,7 @@
         <b:category>production</b:category>
         <b:power>-15</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="miner_3">
         <b:name>
@@ -32,6 +34,7 @@
         <b:category>production</b:category>
         <b:power>-45</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="water_extractor">
         <b:name>
@@ -41,6 +44,7 @@
         <b:category>production</b:category>
         <b:power>-20</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="oil_extractor">
         <b:name>
@@ -50,6 +54,7 @@
         <b:category>production</b:category>
         <b:power>-40</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="well_pressurizer">
         <b:name>
@@ -59,6 +64,7 @@
         <b:category>production</b:category>
         <b:power>-150</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="well_extractor">
         <b:name>
@@ -68,6 +74,7 @@
         <b:category>production</b:category>
         <b:power>0</b:power>
         <b:overclockable>false</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
     </b:building>
     <b:building key="smelter">
         <b:name>

@@ -18,6 +18,7 @@
             <xs:element name="boostedPowerPercentage" type="xs:integer" default="0" minOccurs="0" />
             <xs:element name="overclockable" type="xs:boolean" />
             <xs:element name="somersloopSlots" type="xs:integer" default="0" minOccurs="0" />
+            <xs:element name="resourceBuilding" type="xs:boolean" default="false" minOccurs="0" />
         </xs:sequence>
         <xs:attribute name="key" type="xs:ID" use="required" />
     </xs:complexType>

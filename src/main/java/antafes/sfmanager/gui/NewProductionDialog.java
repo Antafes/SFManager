@@ -34,7 +34,7 @@ public class NewProductionDialog extends JDialog
         this.configuration = configuration;
 
         this.setResizable(false);
-        this.setSize(400, 300);
+        this.setSize(480, 420);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         this.language = configuration.getLanguageObject();

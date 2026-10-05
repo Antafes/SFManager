@@ -4,9 +4,13 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.entity.recipe.Item;
 import antafes.sfmanager.repository.BuildingRepository;
+import antafes.sfmanager.repository.ProductionRepository;
+import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.util.PowerCalculator;
+import antafes.sfmanager.util.ProductionCalculator;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
-import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -14,9 +18,11 @@ import org.springframework.context.annotation.Scope;
 import jakarta.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.Locale;
 import java.util.Vector;
 
 @org.springframework.stereotype.Component
@@ -24,6 +30,8 @@ import java.util.Vector;
 public class NewProductionPanel extends BasePanel
 {
     private final String selectedLanguage;
+    private final NumberFormat numberFormat;
+    private LocalizedNameRenderer<Recipe> recipeRenderer;
     private JLabel buildingSelectLabel;
     private JComboBox<Building> buildingSelect;
     private JLabel recipeSelectLabel;
@@ -41,9 +49,9 @@ public class NewProductionPanel extends BasePanel
     private JLabel usedSomersloopsLabel;
     private JTextField usedSomersloopsField;
     private JLabel ingredientsLabel;
-    private final List<JLabel> ingredientLabels = new ArrayList<>();
+    private JPanel ingredientsPanel;
     private JLabel productionLabel;
-    private final List<JLabel> productionLabels = new ArrayList<>();
+    private JPanel productionPanel;
     private JLabel consumptionLabel;
     private JLabel consumptionInfoLabel;
     private JButton okButton;
@@ -51,11 +59,19 @@ public class NewProductionPanel extends BasePanel
 
     @Autowired
     private BuildingRepository buildingRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private ProductionRepository productionRepository;
 
     public NewProductionPanel(JDialog parent, Configuration configuration)
     {
         super(parent, configuration);
         this.selectedLanguage = configuration.getLanguage().getName();
+        Locale locale = this.selectedLanguage.equals("German") ? Locale.GERMAN : Locale.ENGLISH;
+        this.numberFormat = NumberFormat.getNumberInstance(locale);
+        this.numberFormat.setMaximumFractionDigits(2);
+        this.numberFormat.setMinimumFractionDigits(0);
     }
 
     @PostConstruct
@@ -88,6 +104,7 @@ public class NewProductionPanel extends BasePanel
         this.consumptionLabel.setText(this.getLanguage().translate("consumption"));
         this.okButton.setText(this.getLanguage().translate("ok"));
         this.cancelButton.setText(this.getLanguage().translate("cancel"));
+        this.updateSummaries();
     }
 
     @Override
@@ -108,8 +125,223 @@ public class NewProductionPanel extends BasePanel
         this.setFocusTraversalPolicyProvider(true);
     }
 
+    private void addFieldRow(int row, JLabel label, Component field)
+    {
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = row;
+        labelConstraints.weightx = 0;
+        labelConstraints.insets = new Insets(3, 4, 3, 8);
+        labelConstraints.anchor = GridBagConstraints.LINE_START;
+        this.add(label, labelConstraints);
+
+        GridBagConstraints fieldConstraints = new GridBagConstraints();
+        fieldConstraints.gridx = 1;
+        fieldConstraints.gridy = row;
+        fieldConstraints.gridwidth = 3;
+        fieldConstraints.weightx = 1;
+        fieldConstraints.fill = GridBagConstraints.HORIZONTAL;
+        fieldConstraints.insets = new Insets(3, 4, 3, 4);
+        this.add(field, fieldConstraints);
+    }
+
+    private void addFullWidthRow(int row, Component component)
+    {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = row;
+        constraints.gridwidth = 4;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(4, 4, 3, 4);
+        this.add(component, constraints);
+    }
+
+    private void updateRecipes()
+    {
+        Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+        boolean overclockable = selectedBuilding != null && selectedBuilding.isOverclockable();
+        this.clockSpeedField.setEnabled(overclockable);
+        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedField.getText());
+        if (!overclockable && (clockSpeed == null || Double.compare(clockSpeed, 100.0) != 0)) {
+            this.clockSpeedField.setText("100");
+        }
+
+        boolean hasSomersloopSlots = selectedBuilding != null && selectedBuilding.getSomersloopSlots() > 0;
+        this.usedSomersloopsField.setEnabled(hasSomersloopSlots);
+        if (!hasSomersloopSlots && !"0".equals(this.usedSomersloopsField.getText())) {
+            this.usedSomersloopsField.setText("0");
+        }
+
+        this.recipeSelect.removeAllItems();
+        this.recipeSelect.setEnabled(false);
+        this.puritySelect.setEnabled(selectedBuilding != null && selectedBuilding.isResourceBuilding());
+        if (selectedBuilding == null) {
+            this.updateSummaryVisibility(false);
+            this.updateSummaries();
+            return;
+        }
+
+        this.recipeRepository.findAll().values().stream()
+            .filter(recipe -> recipe.getProducedIn() != null
+                && selectedBuilding.getKey().equals(recipe.getProducedIn().getKey()))
+            .sorted(Comparator.comparing(this.recipeRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Recipe::getKey))
+            .forEach(this.recipeSelect::addItem);
+        this.recipeSelect.setEnabled(this.recipeSelect.getItemCount() > 0);
+        this.updateSummaryVisibility(this.recipeSelect.getItemCount() > 0);
+        this.updateSummaries();
+    }
+
+    private void updateSummaryVisibility(boolean visible)
+    {
+        this.ingredientsPanel.setVisible(visible);
+        this.productionPanel.setVisible(visible);
+        this.consumptionLabel.setVisible(visible);
+        this.consumptionInfoLabel.setVisible(visible);
+    }
+
+    private boolean hasRecipes(Building building)
+    {
+        return this.recipeRepository.findAll().values().stream()
+            .anyMatch(recipe -> recipe.getProducedIn() != null
+                && building.getKey().equals(recipe.getProducedIn().getKey()));
+    }
+
+    private void addSummaryListener(JTextField field)
+    {
+        field.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateSummaries();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateSummaries();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.updateSummaries();
+            }
+        });
+    }
+
+    private Double parseNonNegativeNumber(String value)
+    {
+        String text = value.trim();
+        if (text.isEmpty()) {
+            return null;
+        }
+
+        ParsePosition position = new ParsePosition(0);
+        Number number = this.numberFormat.parse(text, position);
+        if (number == null || position.getIndex() != text.length()) {
+            return null;
+        }
+
+        double parsedValue = number.doubleValue();
+        return Double.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : null;
+    }
+
+    private Integer parseNonNegativeInteger(String value)
+    {
+        try {
+            int parsedValue = Integer.parseInt(value.trim());
+            return parsedValue >= 0 ? parsedValue : null;
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    private void updateItemSummary(
+        JPanel panel,
+        JLabel heading,
+        List<Item> items,
+        double amount,
+        double clockSpeed,
+        int usedSomersloops,
+        int somersloopSlots
+    )
+    {
+        panel.removeAll();
+        panel.add(heading);
+        for (Item item : items) {
+            String name = item.getResource().getName().getLocalizedName(this.selectedLanguage);
+            double itemRate = ProductionCalculator.calculateProduction(
+                item.getAmount(),
+                clockSpeed,
+                usedSomersloops,
+                somersloopSlots
+            ) * amount;
+            JLabel itemLabel = new JLabel(name + ": " + this.numberFormat.format(itemRate) + " / min");
+            itemLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(itemLabel);
+        }
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    private void updateSummaries()
+    {
+        Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
+        Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+        Double amount = this.parseNonNegativeNumber(this.amountField.getText());
+        Double clockSpeed = this.parseNonNegativeNumber(this.clockSpeedField.getText());
+        Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
+
+        if (selectedRecipe == null || selectedBuilding == null || amount == null || clockSpeed == null
+            || usedSomersloops == null || usedSomersloops > selectedBuilding.getSomersloopSlots()) {
+            this.ingredientsPanel.removeAll();
+            this.ingredientsPanel.add(this.ingredientsLabel);
+            this.ingredientsPanel.revalidate();
+            this.ingredientsPanel.repaint();
+            this.productionPanel.removeAll();
+            this.productionPanel.add(this.productionLabel);
+            this.productionPanel.revalidate();
+            this.productionPanel.repaint();
+            this.consumptionInfoLabel.setText("");
+            return;
+        }
+
+        int somersloopSlots = selectedBuilding.getSomersloopSlots();
+        this.updateItemSummary(
+            this.ingredientsPanel,
+            this.ingredientsLabel,
+            selectedRecipe.getIngredients(),
+            amount,
+            clockSpeed,
+            usedSomersloops,
+            somersloopSlots
+        );
+        this.updateItemSummary(
+            this.productionPanel,
+            this.productionLabel,
+            selectedRecipe.getProducts(),
+            amount,
+            clockSpeed,
+            usedSomersloops,
+            somersloopSlots
+        );
+        double consumption = PowerCalculator.calculateConsumption(
+            (double) Math.abs(selectedBuilding.getPower()),
+            clockSpeed,
+            usedSomersloops,
+            somersloopSlots
+        ) * amount;
+        this.consumptionInfoLabel.setText(this.numberFormat.format(consumption) + " MW");
+    }
+
     private void initComponents()
     {
+        this.buildingRepository.init();
+        this.recipeRepository.init();
+        this.productionRepository.init();
+
         this.buildingSelectLabel = new JLabel();
         this.buildingSelect = new JComboBox<>();
         LocalizedNameRenderer<Building> buildingRenderer = new LocalizedNameRenderer<>(
@@ -123,54 +355,102 @@ public class NewProductionPanel extends BasePanel
             .forEach(this.buildingSelect::addItem);
         this.recipeSelectLabel = new JLabel();
         this.recipeSelect = new JComboBox<>();
+        this.recipeRenderer = new LocalizedNameRenderer<>(Recipe::getName, this.selectedLanguage);
+        this.recipeSelect.setRenderer(this.recipeRenderer);
         this.amountLabel = new JLabel();
         this.amountField = new JTextField();
+        this.amountField.setText("1");
         this.groupLabel = new JLabel();
-        this.groupField = new JComboBox<>();
+        this.groupField = new JComboBox<>(this.productionRepository.findGroups().toArray(String[]::new));
+        this.groupField.setEditable(true);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField();
         this.puritySelectLabel = new JLabel();
         this.puritySelect = new JComboBox<>();
+        for (Purity purity : Purity.values()) {
+            this.puritySelect.addItem(purity);
+        }
+        this.puritySelect.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+            ) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                this.setText(value instanceof Purity purity ? NewProductionPanel.this.getLanguage()
+                    .translate(purity.getKey()) : "");
+                return this;
+            }
+        });
         this.clockSpeedLabel = new JLabel();
         this.clockSpeedField = new JTextField();
+        this.clockSpeedField.setText("100");
         this.usedSomersloopsLabel = new JLabel();
         this.usedSomersloopsField = new JTextField();
+        this.usedSomersloopsField.setText("0");
         this.ingredientsLabel = new JLabel();
+        this.ingredientsPanel = new JPanel();
+        this.ingredientsPanel.setLayout(new BoxLayout(this.ingredientsPanel, BoxLayout.Y_AXIS));
         this.productionLabel = new JLabel();
+        this.productionPanel = new JPanel();
+        this.productionPanel.setLayout(new BoxLayout(this.productionPanel, BoxLayout.Y_AXIS));
         this.consumptionLabel = new JLabel();
         this.consumptionInfoLabel = new JLabel();
         this.okButton = new JButton();
         this.cancelButton = new JButton();
+        this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
 
-        GridBagLayout layout = new GridBagLayout();
-        this.setLayout(layout);
-        GridBagConstraints constraints = this.setupConstraints();
+        this.setLayout(new GridBagLayout());
+        this.addFieldRow(0, this.buildingSelectLabel, this.buildingSelect);
+        this.addFieldRow(1, this.recipeSelectLabel, this.recipeSelect);
+        this.addFieldRow(2, this.amountLabel, this.amountField);
+        this.addFieldRow(3, this.groupLabel, this.groupField);
+        this.addFieldRow(4, this.positionLabel, this.positionField);
+        this.addFieldRow(5, this.puritySelectLabel, this.puritySelect);
+        this.addFieldRow(6, this.clockSpeedLabel, this.clockSpeedField);
+        this.addFieldRow(7, this.usedSomersloopsLabel, this.usedSomersloopsField);
 
-        constraints.gridwidth = 2;
-        this.add(this.buildingSelectLabel, constraints);
-        constraints.gridx += 3;
-        this.add(this.buildingSelect, constraints);
-        constraints.gridx = 0;
-        constraints.gridy++;
+        int row = 8;
+        this.ingredientsPanel.add(this.ingredientsLabel);
+        this.productionPanel.add(this.productionLabel);
+        this.addFullWidthRow(row++, this.ingredientsPanel);
+        this.addFullWidthRow(row++, this.productionPanel);
+        GridBagConstraints consumptionConstraints = new GridBagConstraints();
+        consumptionConstraints.gridx = 0;
+        consumptionConstraints.gridy = row++;
+        consumptionConstraints.insets = new Insets(4, 4, 3, 8);
+        consumptionConstraints.anchor = GridBagConstraints.LINE_START;
+        this.add(this.consumptionLabel, consumptionConstraints);
+        consumptionConstraints.gridx = 1;
+        consumptionConstraints.gridwidth = 3;
+        consumptionConstraints.weightx = 1;
+        consumptionConstraints.fill = GridBagConstraints.HORIZONTAL;
+        consumptionConstraints.insets = new Insets(4, 4, 3, 4);
+        this.add(this.consumptionInfoLabel, consumptionConstraints);
 
-        this.add(this.recipeSelectLabel, constraints);
-        constraints.gridx += 3;
-        this.add(this.recipeSelect, constraints);
-        constraints.gridx = 0;
-        constraints.gridy++;
+        GridBagConstraints buttonConstraints = new GridBagConstraints();
+        buttonConstraints.gridy = row;
+        buttonConstraints.gridx = 2;
+        buttonConstraints.insets = new Insets(8, 4, 4, 4);
+        buttonConstraints.anchor = GridBagConstraints.LINE_END;
+        this.add(this.okButton, buttonConstraints);
+        buttonConstraints.gridx = 3;
+        this.add(this.cancelButton, buttonConstraints);
+
+        this.buildingSelect.addActionListener(event -> this.updateRecipes());
+        this.recipeSelect.addActionListener(event -> this.updateSummaries());
+        this.addSummaryListener(this.amountField);
+        this.addSummaryListener(this.clockSpeedField);
+        this.addSummaryListener(this.usedSomersloopsField);
+        this.buildingRepository.findAll().values().stream()
+            .filter(this::hasRecipes)
+            .min(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Building::getKey))
+            .ifPresent(this.buildingSelect::setSelectedItem);
+        this.updateRecipes();
     }
 
-    private @NonNull GridBagConstraints setupConstraints()
-    {
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridwidth = 1;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.ipady = 2;
-        constraints.insets.set(2, 2, 2, 2);
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-
-        return constraints;
-    }
 }

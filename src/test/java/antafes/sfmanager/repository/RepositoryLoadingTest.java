@@ -10,8 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RepositoryLoadingTest extends BaseTest
 {
@@ -44,6 +46,11 @@ public class RepositoryLoadingTest extends BaseTest
         assertNotNull(smelter);
         assertEquals("smelter", smelter.getKey());
         assertEquals(-4, smelter.getPower());
+        assertFalse(smelter.isResourceBuilding());
+
+        Building miner = repository.findOne("miner_1");
+        assertNotNull(miner);
+        assertTrue(miner.isResourceBuilding());
     }
 
     @Test

@@ -54,6 +54,14 @@ public class ProductionRepository extends BaseRepository<Production>
         return null;
     }
 
+    public Set<String> findGroups()
+    {
+        return this.productions.values().stream()
+            .map(Production::getGroup)
+            .filter(group -> group != null && !group.isBlank())
+            .collect(java.util.stream.Collectors.toCollection(TreeSet::new));
+    }
+
     public void saveData()
     {
         try {
@@ -83,11 +91,18 @@ public class ProductionRepository extends BaseRepository<Production>
             File productionsFile = new File(this.configuration.getBasePath() + "productions.xml");
             this.checkFileExists(productionsFile);
 
+            if (productionsFile.length() == 0) {
+                return;
+            }
+
             Unmarshaller unmarshaller = JAXBContext.newInstance(ProductionList.class).createUnmarshaller();
             unmarshaller.setAdapter(BuildingAdapter.class, new BuildingAdapter(this.buildingRepository));
             unmarshaller.setAdapter(RecipeAdapter.class, new RecipeAdapter(this.recipeRepository));
             unmarshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "productions.xsd")));
-            ProductionList list = (ProductionList) unmarshaller.unmarshal(new FileInputStream(productionsFile));
+            ProductionList list;
+            try (FileInputStream input = new FileInputStream(productionsFile)) {
+                list = (ProductionList) unmarshaller.unmarshal(input);
+            }
             list.productionList.forEach(production -> this.productions.put(production.getId(), production));
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);

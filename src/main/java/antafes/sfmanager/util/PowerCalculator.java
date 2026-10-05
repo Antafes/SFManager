@@ -11,7 +11,9 @@ public class PowerCalculator
 
     public Double calculateConsumption(Double baseConsumption, Double clockSpeed, int usedSomersloops, int somersloopSlots)
     {
-        Double multiplier = Math.pow(1 + ((double) usedSomersloops / somersloopSlots), 2);
-        return baseConsumption * usedSomersloops * Math.pow(clockSpeed / 100, 1.321928);
+        double somersloopMultiplier = somersloopSlots <= 0
+            ? 1
+            : 1 + ((double) usedSomersloops / somersloopSlots);
+        return baseConsumption * Math.pow(somersloopMultiplier, 2) * Math.pow(clockSpeed / 100, 1.321928);
     }
 }

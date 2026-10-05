@@ -15,4 +15,5 @@ public class Building
     private int boostedPowerPercentage;
     private boolean overclockable;
     private int somersloopSlots;
+    private boolean resourceBuilding;
 }

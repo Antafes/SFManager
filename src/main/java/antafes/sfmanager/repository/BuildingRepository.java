@@ -69,6 +69,7 @@ public class BuildingRepository extends BaseRepository<Building>
             .setPowerPercentage(data.powerPercentage == null ? 0 : data.powerPercentage)
             .setBoostedPowerPercentage(data.boostedPowerPercentage == null ? 0 : data.boostedPowerPercentage)
             .setOverclockable(Boolean.TRUE.equals(data.overclockable))
-            .setSomersloopSlots(data.somersloopSlots == null ? 0 : data.somersloopSlots);
+            .setSomersloopSlots(data.somersloopSlots == null ? 0 : data.somersloopSlots)
+            .setResourceBuilding(Boolean.TRUE.equals(data.resourceBuilding));
     }
 }
