@@ -14,6 +14,8 @@ import antafes.sfmanager.service.event.ProductionSavedEvent;
 import antafes.sfmanager.service.dto.FactoryOverviewData;
 import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
 import antafes.sfmanager.service.dto.FactoryOverviewPowerSource;
+import antafes.sfmanager.service.dto.GeneratorProductionEntry;
+import antafes.sfmanager.service.dto.GeneratorProductionIngredient;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
@@ -135,6 +137,44 @@ public class ProductionService
         return this.getCurrentFactoryProductions().stream()
             .filter(production -> production.getSelectedBuilding() != null
                 && "well_pressurizer".equals(production.getSelectedBuilding().getKey()))
+            .toList();
+    }
+
+    public List<Building> getGeneratorBuildingsWithProductions()
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        Map<String, Building> generatorBuildings = new LinkedHashMap<>();
+        for (Production production : this.getCurrentFactoryProductions()) {
+            Building building = production.getSelectedBuilding();
+            if (building == null) {
+                throw new IllegalStateException("A factory production has no selected building.");
+            }
+            if (building.getCategory() == Category.POWER) {
+                if (building.getKey() == null) {
+                    throw new IllegalStateException("A power production building has no key.");
+                }
+                generatorBuildings.putIfAbsent(building.getKey(), building);
+            }
+        }
+        return List.copyOf(generatorBuildings.values());
+    }
+
+    public List<GeneratorProductionEntry> getGeneratorProductions(Building building)
+    {
+        if (building == null || building.getKey() == null || building.getCategory() != Category.POWER) {
+            throw new IllegalArgumentException("A power generator building is required.");
+        }
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        return this.getCurrentFactoryProductions().stream()
+            .filter(production -> production.getSelectedBuilding() != null
+                && building.getKey().equals(production.getSelectedBuilding().getKey()))
+            .map(this::toGeneratorProductionEntry)
             .toList();
     }
 
@@ -392,6 +432,32 @@ public class ProductionService
             this.getClockSpeed(production),
             production.getUsedSomersloops(),
             building.getSomersloopSlots()
+        );
+    }
+
+    private GeneratorProductionEntry toGeneratorProductionEntry(Production production)
+    {
+        Building building = production.getSelectedBuilding();
+        double clockSpeed = this.getClockSpeed(production);
+        List<GeneratorProductionIngredient> ingredients = List.of();
+        Recipe recipe = production.getSelectedRecipe();
+        if (recipe != null && recipe.getIngredients() != null) {
+            ingredients = recipe.getIngredients().stream()
+                .map(ingredient -> {
+                    if (ingredient.getResource() == null || ingredient.getAmount() == null) {
+                        throw new IllegalStateException("A generator recipe ingredient is incomplete.");
+                    }
+                    return new GeneratorProductionIngredient(
+                        ingredient.getResource(),
+                        ingredient.getAmount() * clockSpeed / 100
+                    );
+                })
+                .toList();
+        }
+        return new GeneratorProductionEntry(
+            production,
+            building.getPower() * clockSpeed / 100,
+            ingredients
         );
     }
 

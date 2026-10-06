@@ -51,6 +51,7 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("availablePower", "Available power");
         this.getTranslations().put("generatedPower", "Generated power");
         this.getTranslations().put("consumption", "Consumption");
+        this.getTranslations().put("usedMaterials", "Used Materials");
         this.getTranslations().put("productionSavingFailed", "Could not save the production.");
     }
 

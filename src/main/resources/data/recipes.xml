@@ -877,6 +877,10 @@
                 <resource>coal</resource>
                 <amount>15</amount>
             </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>45</amount>
+            </ingredient>
         </ingredients>
     </recipe>
     <recipe key="coal_generator_petroleum_coke">
@@ -889,6 +893,10 @@
                 <resource>petroleum_coke</resource>
                 <amount>25</amount>
             </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>45</amount>
+            </ingredient>
         </ingredients>
     </recipe>
     <recipe key="coal_generator_compacted_coal">
@@ -900,6 +908,10 @@
             <ingredient>
                 <resource>compacted_coal</resource>
                 <amount>7.143</amount>
+            </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>45</amount>
             </ingredient>
         </ingredients>
     </recipe>

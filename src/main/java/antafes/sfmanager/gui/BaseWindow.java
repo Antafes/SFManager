@@ -4,6 +4,7 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.*;
+import antafes.sfmanager.gui.order.LocalizedBuildingOrder;
 import antafes.sfmanager.gui.order.LocalizedItemOrder;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
@@ -222,6 +223,12 @@ public class BaseWindow extends JFrame
             selectedLanguage,
             item -> item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
             item -> this.applicationContext.getBean(ResourceProductionPanel.class, item)
+        );
+        LocalizedBuildingOrder.addTabs(
+            this.panel,
+            this.productionService.getGeneratorBuildingsWithProductions(),
+            selectedLanguage,
+            building -> this.applicationContext.getBean(GeneratorProductionPanel.class, building)
         );
     }
 

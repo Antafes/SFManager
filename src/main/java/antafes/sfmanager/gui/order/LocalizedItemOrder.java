@@ -1,6 +1,7 @@
 package antafes.sfmanager.gui.order;
 
 import antafes.sfmanager.entity.Item;
+import lombok.experimental.UtilityClass;
 
 import javax.swing.JTabbedPane;
 import java.awt.Component;
@@ -11,13 +12,10 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Function;
 
-public final class LocalizedItemOrder
+@UtilityClass
+public class LocalizedItemOrder
 {
-    private LocalizedItemOrder()
-    {
-    }
-
-    public static Comparator<Item> comparator(String language)
+    public Comparator<Item> comparator(String language)
     {
         Collator collator = Collator.getInstance(Locale.forLanguageTag(
             "German".equalsIgnoreCase(language) ? "de" : "en"
@@ -37,12 +35,12 @@ public final class LocalizedItemOrder
         };
     }
 
-    public static boolean isRawResource(Item item)
+    public boolean isRawResource(Item item)
     {
         return item.getProductions() != null && !item.getProductions().isEmpty();
     }
 
-    public static void addTabs(
+    public void addTabs(
         JTabbedPane tabs,
         String overviewTitle,
         Component overviewPanel,
@@ -58,7 +56,7 @@ public final class LocalizedItemOrder
             .forEach(item -> tabs.addTab(titleProvider.apply(item), panelProvider.apply(item)));
     }
 
-    private static String displayName(Item item, String language)
+    private String displayName(Item item, String language)
     {
         return item.getName() == null
             ? Objects.toString(item.getKey(), "")
