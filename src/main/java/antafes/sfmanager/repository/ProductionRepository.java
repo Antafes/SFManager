@@ -1,7 +1,6 @@
 package antafes.sfmanager.repository;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.repository.adapter.BuildingAdapter;
 import antafes.sfmanager.repository.adapter.RecipeAdapter;
@@ -12,7 +11,7 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
 
@@ -24,39 +23,31 @@ import java.io.IOException;
 import java.util.*;
 
 @Repository
-public class ProductionRepository extends BaseRepository<Production>
+public class ProductionRepository extends BaseRepository<Production, UUID>
 {
-    private final BuildingRepository buildingRepository;
-    private final RecipeRepository recipeRepository;
-    private final Configuration configuration;
-    private final Map<UUID, Production> productions = new HashMap<>();
+    @Autowired
+    private BuildingRepository buildingRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private Configuration configuration;
 
-    public ProductionRepository(
-        BuildingRepository buildingRepository,
-        RecipeRepository recipeRepository,
-        Configuration configuration
-    )
+    public List<Production> findByBuildingKey(String buildingKey)
     {
-        this.buildingRepository = buildingRepository;
-        this.recipeRepository = recipeRepository;
-        this.configuration = configuration;
-    }
-
-    @Override
-    public Map<String, Production> findAll()
-    {
-        return Map.of();
-    }
-
-    @Override
-    public Production findOne(String key)
-    {
-        return null;
+        return this.entities.values().stream()
+            .filter(production -> production.getSelectedBuilding() != null
+                && buildingKey.equals(production.getSelectedBuilding().getKey()))
+            .sorted(Comparator.comparing(
+                    Production::getGroup,
+                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+                )
+                .thenComparing(production -> Objects.toString(production.getId(), "")))
+            .toList();
     }
 
     public Set<String> findGroups()
     {
-        return this.productions.values().stream()
+        return this.entities.values().stream()
             .map(Production::getGroup)
             .filter(group -> group != null && !group.isBlank())
             .collect(java.util.stream.Collectors.toCollection(TreeSet::new));
@@ -74,8 +65,8 @@ public class ProductionRepository extends BaseRepository<Production>
             marshaller.setAdapter(RecipeAdapter.class, new RecipeAdapter(this.recipeRepository));
             marshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "productions.xsd")));
             ProductionList list = new ProductionList();
-            this.productions.forEach((key, production) -> list.productionList.add(production));
-            marshaller.marshal(this.productions, productionsFile);
+            this.entities.forEach((key, production) -> list.productionList.add(production));
+            marshaller.marshal(this.entities, productionsFile);
         } catch (IOException | JAXBException | SAXException e) {
             throw new RuntimeException(e);
         }
@@ -103,7 +94,7 @@ public class ProductionRepository extends BaseRepository<Production>
             try (FileInputStream input = new FileInputStream(productionsFile)) {
                 list = (ProductionList) unmarshaller.unmarshal(input);
             }
-            list.productionList.forEach(production -> this.productions.put(production.getId(), production));
+            list.productionList.forEach(production -> this.entities.put(production.getId(), production));
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);
         }

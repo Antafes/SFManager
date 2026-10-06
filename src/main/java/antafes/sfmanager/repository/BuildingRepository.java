@@ -17,26 +17,10 @@ import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 @Repository
-public class BuildingRepository extends BaseRepository<Building>
+public class BuildingRepository extends BaseRepository<Building, String>
 {
-    private final Map<String, Building> buildings = new HashMap<>();
-
-    @Override
-    public Map<String, Building> findAll()
-    {
-        return this.buildings;
-    }
-
-    @Override
-    public Building findOne(String key)
-    {
-        return this.buildings.get(key);
-    }
-
     @Override
     protected void loadData()
     {
@@ -46,7 +30,7 @@ public class BuildingRepository extends BaseRepository<Building>
             Unmarshaller unmarshaller = JAXBContext.newInstance(BuildingsData.class).createUnmarshaller();
             unmarshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "buildings.xsd")));
             BuildingsData list = (BuildingsData) unmarshaller.unmarshal(data.getInputStream());
-            list.buildings.forEach(building -> this.buildings.put(building.key, this.toEntity(building)));
+            list.buildings.forEach(building -> this.entities.put(building.key, this.toEntity(building)));
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);
         }

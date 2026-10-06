@@ -26,7 +26,7 @@ public class BaseWindow extends JFrame
     private JTabbedPane panel;
     private JMenu fileMenu;
     private JMenuItem closeMenuItem;
-    private JMenuItem newMenuItem;
+    private JMenuItem newProductionMenuItem;
 
     public BaseWindow(ApplicationContext applicationContext, Configuration configuration)
     {
@@ -64,14 +64,14 @@ public class BaseWindow extends JFrame
         JMenuBar menuBar = new JMenuBar();
         this.fileMenu = new JMenu();
         this.closeMenuItem = new JMenuItem();
-        this.newMenuItem = new JMenuItem();
+        this.newProductionMenuItem = new JMenuItem();
 
-        this.fileMenu.add(this.newMenuItem);
+        this.fileMenu.add(this.newProductionMenuItem);
         this.fileMenu.add(this.closeMenuItem);
         menuBar.add(this.fileMenu);
 
-        this.newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-        this.newMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
+        this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
+        this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
 
         this.closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         this.closeMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new CloseProgramEvent()));
@@ -144,8 +144,8 @@ public class BaseWindow extends JFrame
     {
         this.fileMenu.setText(this.language.translate("file"));
         this.fileMenu.setMnemonic(this.language.translate("fileMnemonic").charAt(0));
-        this.newMenuItem.setText(this.language.translate("new"));
-        this.newMenuItem.setMnemonic(this.language.translate("newMnemonic").charAt(0));
+        this.newProductionMenuItem.setText(this.language.translate("newProductionMenu"));
+        this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
         this.closeMenuItem.setText(this.language.translate("quit"));
         this.closeMenuItem.setMnemonic(this.language.translate("quitMnemonic").charAt(0));
     }

@@ -23,6 +23,8 @@ public class Production
     @XmlElement(type = Purity.class)
     private Purity purity;
     @XmlElement
+    private UUID pressurizerId;
+    @XmlElement
     private Double clockSpeed;
     @XmlElement
     private int usedSomersloops;

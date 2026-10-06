@@ -18,31 +18,16 @@ import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Repository
-public class RecipeRepository extends BaseRepository<Recipe>
+public class RecipeRepository extends BaseRepository<Recipe, String>
 {
     @Autowired
     private BuildingRepository buildingRepository;
     @Autowired
     private ItemRepository itemRepository;
-    private final Map<String, Recipe> recipes = new HashMap<>();
-
-    @Override
-    public Map<String, Recipe> findAll()
-    {
-        return this.recipes;
-    }
-
-    @Override
-    public Recipe findOne(String key)
-    {
-        return this.recipes.get(key);
-    }
 
     @Override
     protected void loadData()
@@ -55,7 +40,7 @@ public class RecipeRepository extends BaseRepository<Recipe>
             Unmarshaller unmarshaller = JAXBContext.newInstance(RecipesData.class).createUnmarshaller();
             unmarshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "recipes.xsd")));
             RecipesData list = (RecipesData) unmarshaller.unmarshal(data.getInputStream());
-            list.recipes.forEach(recipe -> this.recipes.put(recipe.key, this.toEntity(recipe)));
+            list.recipes.forEach(recipe -> this.entities.put(recipe.key, this.toEntity(recipe)));
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);
         }

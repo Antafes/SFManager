@@ -4,6 +4,7 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Category;
 import antafes.sfmanager.entity.Purity;
+import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.entity.recipe.Item;
 import antafes.sfmanager.repository.BuildingRepository;
@@ -19,14 +20,11 @@ import org.springframework.context.annotation.Scope;
 import jakarta.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
-import java.util.Comparator;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.text.DecimalFormatSymbols;
-import java.util.Locale;
-import java.util.Vector;
+import java.util.List;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -39,6 +37,8 @@ public class NewProductionPanel extends BasePanel
     private LocalizedNameRenderer<Recipe> recipeRenderer;
     private JLabel buildingSelectLabel;
     private JComboBox<Building> buildingSelect;
+    private JLabel pressurizerSelectLabel;
+    private JComboBox<Production> pressurizerSelect;
     private JLabel recipeSelectLabel;
     private JComboBox<Recipe> recipeSelect;
     private JLabel amountLabel;
@@ -52,6 +52,7 @@ public class NewProductionPanel extends BasePanel
     private JLabel clockSpeedLabel;
     private JSlider clockSpeedSlider;
     private JTextField clockSpeedValueField;
+    private UUID selectedPressurizerId;
     private JLabel usedSomersloopsLabel;
     private JTextField usedSomersloopsField;
     private JLabel ingredientsLabel;
@@ -104,6 +105,7 @@ public class NewProductionPanel extends BasePanel
     protected void setFieldTexts()
     {
         this.buildingSelectLabel.setText(this.getLanguage().translate("building"));
+        this.pressurizerSelectLabel.setText(this.getLanguage().translate("pressurizer"));
         this.recipeSelectLabel.setText(this.getLanguage().translate("recipe"));
         this.amountLabel.setText(this.getLanguage().translate("amount"));
         this.groupLabel.setText(this.getLanguage().translate("group"));
@@ -124,6 +126,7 @@ public class NewProductionPanel extends BasePanel
     {
         Vector<Component> order = new Vector<>();
         order.add(this.buildingSelect);
+        order.add(this.pressurizerSelect);
         order.add(this.recipeSelect);
         order.add(this.amountField);
         order.add(this.groupField);
@@ -173,10 +176,30 @@ public class NewProductionPanel extends BasePanel
     private void updateRecipes()
     {
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+        boolean requiresPressurizer = selectedBuilding != null
+            && "well_extractor".equals(selectedBuilding.getKey());
+        boolean pressurizerVisibilityChanged = this.pressurizerSelect.isVisible() != requiresPressurizer;
+        this.pressurizerSelect.removeAllItems();
+        if (requiresPressurizer) {
+            this.productionRepository.findByBuildingKey("well_pressurizer")
+                .forEach(this.pressurizerSelect::addItem);
+            this.restoreSelectedPressurizer();
+        } else {
+            this.selectedPressurizerId = null;
+        }
+        this.pressurizerSelectLabel.setVisible(requiresPressurizer);
+        this.pressurizerSelect.setVisible(requiresPressurizer);
+        this.pressurizerSelect.setEnabled(requiresPressurizer && this.pressurizerSelect.getItemCount() > 0);
+        if (pressurizerVisibilityChanged) {
+            this.resizeDialogToContent();
+        }
+
         boolean overclockable = selectedBuilding != null && selectedBuilding.isOverclockable();
         this.clockSpeedSlider.setEnabled(overclockable);
         this.clockSpeedValueField.setEnabled(overclockable);
-        if (!overclockable) {
+        if (requiresPressurizer) {
+            this.syncClockSpeedFromSelectedPressurizer();
+        } else if (!overclockable) {
             this.clockSpeed = 100;
             this.clockSpeedSlider.setValue(100);
             this.syncClockSpeedFieldFromSlider();
@@ -203,6 +226,51 @@ public class NewProductionPanel extends BasePanel
                 .thenComparing(Recipe::getKey))
             .forEach(this.recipeSelect::addItem);
         this.recipeSelect.setEnabled(this.recipeSelect.getItemCount() > 0);
+        this.updateSummaries();
+    }
+
+    private void restoreSelectedPressurizer()
+    {
+        if (this.selectedPressurizerId == null) {
+            this.pressurizerSelect.setSelectedIndex(-1);
+            return;
+        }
+
+        for (int index = 0; index < this.pressurizerSelect.getItemCount(); index++) {
+            Production production = this.pressurizerSelect.getItemAt(index);
+            if (production != null && Objects.equals(production.getId(), this.selectedPressurizerId)) {
+                this.pressurizerSelect.setSelectedIndex(index);
+                return;
+            }
+        }
+
+        this.pressurizerSelect.setSelectedIndex(-1);
+    }
+
+    private void syncClockSpeedFromSelectedPressurizer()
+    {
+        if (this.pressurizerSelect.getItemCount() == 0) {
+            this.clockSpeed = 100;
+            this.clockSpeedSlider.setValue(100);
+            this.syncClockSpeedFieldFromSlider();
+            return;
+        }
+
+        Production selectedPressurizer = (Production) this.pressurizerSelect.getSelectedItem();
+        if (selectedPressurizer == null || selectedPressurizer.getClockSpeed() == null) {
+            this.clockSpeed = 100;
+            this.clockSpeedSlider.setValue(100);
+            this.syncClockSpeedFieldFromSlider();
+            return;
+        }
+
+        this.clockSpeed = selectedPressurizer.getClockSpeed();
+        this.syncingClockSpeedFromSlider = true;
+        this.clockSpeedSlider.setValue((int) Math.round(this.clockSpeed));
+        this.syncingClockSpeedFromSlider = false;
+        this.syncingClockSpeedFromText = true;
+        this.clockSpeedValueField.setText(this.clockSpeedFormat.format(this.clockSpeed));
+        this.syncingClockSpeedFromText = false;
         this.updateSummaries();
     }
 
@@ -539,6 +607,33 @@ public class NewProductionPanel extends BasePanel
             .sorted(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))
             .forEach(this.buildingSelect::addItem);
+        this.pressurizerSelectLabel = new JLabel();
+        this.pressurizerSelect = new JComboBox<>();
+        this.pressurizerSelect.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+            ) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Production production) {
+                    String group = production.getGroup();
+                    String id = Objects.toString(production.getId(), "");
+                    String shortId = id.substring(0, Math.min(8, id.length()));
+                    this.setText(group == null || group.isBlank()
+                        ? NewProductionPanel.this.getLanguage().translate("pressurizer") + " " + shortId
+                        : group + " (" + shortId + ")");
+                } else {
+                    this.setText("");
+                }
+                return this;
+            }
+        });
+        this.pressurizerSelectLabel.setVisible(false);
+        this.pressurizerSelect.setVisible(false);
         this.recipeSelectLabel = new JLabel();
         this.recipeSelect = new JComboBox<>();
         this.recipeRenderer = new LocalizedNameRenderer<>(Recipe::getName, this.selectedLanguage);
@@ -608,18 +703,26 @@ public class NewProductionPanel extends BasePanel
         this.okButton = new JButton();
         this.cancelButton = new JButton();
         this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
+        this.pressurizerSelect.addActionListener(event -> {
+            Production selectedPressurizer = (Production) this.pressurizerSelect.getSelectedItem();
+            this.selectedPressurizerId = selectedPressurizer == null ? null : selectedPressurizer.getId();
+            if (selectedPressurizer != null && selectedPressurizer.getClockSpeed() != null) {
+                this.syncClockSpeedFromSelectedPressurizer();
+            }
+        });
 
         this.setLayout(new GridBagLayout());
         this.addFieldRow(0, this.buildingSelectLabel, this.buildingSelect);
-        this.addFieldRow(1, this.recipeSelectLabel, this.recipeSelect);
-        this.addFieldRow(2, this.amountLabel, this.amountField);
-        this.addFieldRow(3, this.groupLabel, this.groupField);
-        this.addFieldRow(4, this.positionLabel, this.positionField);
-        this.addFieldRow(5, this.puritySelectLabel, this.puritySelect);
-        this.addFieldRow(6, this.clockSpeedLabel, clockSpeedInput);
-        this.addFieldRow(7, this.usedSomersloopsLabel, this.usedSomersloopsField);
+        this.addFieldRow(1, this.pressurizerSelectLabel, this.pressurizerSelect);
+        this.addFieldRow(2, this.recipeSelectLabel, this.recipeSelect);
+        this.addFieldRow(3, this.amountLabel, this.amountField);
+        this.addFieldRow(4, this.groupLabel, this.groupField);
+        this.addFieldRow(5, this.positionLabel, this.positionField);
+        this.addFieldRow(6, this.puritySelectLabel, this.puritySelect);
+        this.addFieldRow(7, this.clockSpeedLabel, clockSpeedInput);
+        this.addFieldRow(8, this.usedSomersloopsLabel, this.usedSomersloopsField);
 
-        int row = 8;
+        int row = 9;
         this.ingredientsPanel.add(this.ingredientsLabel);
         this.productionPanel.add(this.productionLabel);
         this.addFullWidthRow(row++, this.ingredientsPanel);

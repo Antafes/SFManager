@@ -12,12 +12,15 @@ public class English extends antafes.utilities.language.English
     private void general()
     {
         this.getTranslations().put("title", "Satisfactory Manager");
+        this.getTranslations().put("newProductionMenu", "New Production");
+        this.getTranslations().put("newProductionMnemonic", "P");
     }
 
     private void newProduction()
     {
         this.getTranslations().put("newProduction", "Create new productions");
         this.getTranslations().put("building", "Building");
+        this.getTranslations().put("pressurizer", "Resource well pressurizer");
         this.getTranslations().put("recipe", "Recipe");
         this.getTranslations().put("amount", "Amount");
         this.getTranslations().put("group", "Group");

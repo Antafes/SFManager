@@ -18,30 +18,15 @@ import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Repository
-public class ItemRepository extends BaseRepository<Item>
+public class ItemRepository extends BaseRepository<Item, String>
 {
     private static final String FALLBACK_ICON_PATH = "images/items/uranium_pellet.png";
 
     @Autowired
     private BuildingRepository buildingRepository;
-    private final Map<String, Item> items = new HashMap<>();
-
-    @Override
-    public Map<String, Item> findAll()
-    {
-        return this.items;
-    }
-
-    @Override
-    public Item findOne(String key)
-    {
-        return this.items.get(key);
-    }
 
     @Override
     protected void loadData()
@@ -53,7 +38,7 @@ public class ItemRepository extends BaseRepository<Item>
             Unmarshaller unmarshaller = JAXBContext.newInstance(ItemsData.class).createUnmarshaller();
             unmarshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "items.xsd")));
             ItemsData list = (ItemsData) unmarshaller.unmarshal(data.getInputStream());
-            list.items.forEach(item -> this.items.put(item.key, this.toEntity(item)));
+            list.items.forEach(item -> this.entities.put(item.key, this.toEntity(item)));
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);
         }

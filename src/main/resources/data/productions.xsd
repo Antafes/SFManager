@@ -13,6 +13,7 @@
             <xs:element name="selectedRecipe" type="xs:string" minOccurs="0" />
             <xs:element name="group" type="xs:string" minOccurs="0" />
             <xs:element name="purity" type="xs:string" minOccurs="0" />
+            <xs:element name="pressurizerId" type="xs:string" minOccurs="0" />
             <xs:element name="clockSpeed" type="xs:decimal" minOccurs="0" />
             <xs:element name="usedSomersloops" type="xs:integer" minOccurs="0" />
         </xs:sequence>

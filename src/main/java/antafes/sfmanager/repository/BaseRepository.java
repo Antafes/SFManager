@@ -22,13 +22,16 @@
 
 package antafes.sfmanager.repository;
 
+import antafes.sfmanager.entity.Building;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 
+import java.util.HashMap;
 import java.util.Map;
 
-abstract class BaseRepository<T>
+abstract class BaseRepository<T, K>
 {
+    protected final Map<K, T> entities = new HashMap<>();
     @Autowired
     protected ResourceLoader resourceLoader;
     private boolean dataLoaded = false;
@@ -41,7 +44,15 @@ abstract class BaseRepository<T>
         }
     }
 
-    abstract public T findOne(String key);
-    abstract public Map<String, T> findAll();
+    public Map<K, T> findAll()
+    {
+        return this.entities;
+    }
+
+    public T findOne(K key)
+    {
+        return this.entities.get(key);
+    }
+
     abstract protected void loadData();
 }
