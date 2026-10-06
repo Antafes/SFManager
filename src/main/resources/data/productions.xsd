@@ -17,6 +17,6 @@
             <xs:element name="clockSpeed" type="xs:decimal" minOccurs="0" />
             <xs:element name="usedSomersloops" type="xs:integer" minOccurs="0" />
         </xs:sequence>
-        <xs:attribute name="id" type="xs:ID" use="required" />
+        <xs:attribute name="id" type="xs:string" use="required" />
     </xs:complexType>
 </xs:schema>
