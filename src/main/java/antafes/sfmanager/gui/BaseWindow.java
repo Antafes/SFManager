@@ -4,10 +4,10 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.*;
-import antafes.sfmanager.repository.FactoryRepository;
+import antafes.sfmanager.service.FactoryService;
+import antafes.sfmanager.service.event.FactorySelectedEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
@@ -31,11 +31,9 @@ public class BaseWindow extends JFrame
     @Autowired
     private Configuration configuration;
     @Autowired
-    private FactoryRepository factoryRepository;
+    private FactoryService factoryService;
 
     private LanguageInterface language;
-    @Getter
-    private Factory activeFactory;
     private JTabbedPane panel;
     private JLabel activeFactoryLabel;
     private JMenuItem openFactoryMenuItem;
@@ -52,7 +50,6 @@ public class BaseWindow extends JFrame
     private void initializeWindow()
     {
         this.language = this.configuration.getLanguageObject();
-        this.factoryRepository.init();
         this.initComponents();
         this.registerEvents();
         this.init();
@@ -81,8 +78,6 @@ public class BaseWindow extends JFrame
                 .addComponent(this.panel, javax.swing.GroupLayout.DEFAULT_SIZE, 654, Short.MAX_VALUE)
         );
         this.setContentPane(contentPanel);
-        this.newProductionMenuItem.setEnabled(false);
-        this.openFactoryMenuItem.setEnabled(!this.factoryRepository.findAll().isEmpty());
         this.updateActiveFactoryLabel();
 
         pack();
@@ -108,9 +103,11 @@ public class BaseWindow extends JFrame
 
         this.openFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         this.openFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new OpenFactoryEvent()));
+        this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
+        this.newProductionMenuItem.setEnabled(false);
 
         this.closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         this.closeMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new CloseProgramEvent()));
@@ -144,14 +141,15 @@ public class BaseWindow extends JFrame
 
     private void openNewProductionDialog()
     {
-        if (this.activeFactory == null) {
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
             return;
         }
 
         int x, y, width, height;
 
         NewProductionDialog dialog = this.applicationContext.getBean(
-            NewProductionDialog.class, this, true, this.activeFactory
+            NewProductionDialog.class, this, true, currentFactory
         );
         dialog.setVisible(false);
 
@@ -171,12 +169,12 @@ public class BaseWindow extends JFrame
         );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
-        this.openFactoryMenuItem.setEnabled(!this.factoryRepository.findAll().isEmpty());
+        this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
     }
 
     private void openFactoryDialog()
     {
-        if (this.factoryRepository.findAll().isEmpty()) {
+        if (this.factoryService.getFactories().isEmpty()) {
             this.openFactoryMenuItem.setEnabled(false);
             return;
         }
@@ -190,16 +188,19 @@ public class BaseWindow extends JFrame
     @EventListener
     private void onFactorySelected(FactorySelectedEvent event)
     {
-        this.activeFactory = event.factory();
-        this.newProductionMenuItem.setEnabled(true);
-        this.updateActiveFactoryLabel();
+        SwingUtilities.invokeLater(() -> {
+            Factory currentFactory = this.factoryService.getCurrentFactory();
+            this.newProductionMenuItem.setEnabled(currentFactory != null);
+            this.updateActiveFactoryLabel();
+        });
     }
 
     private void updateActiveFactoryLabel()
     {
-        this.activeFactoryLabel.setText(this.activeFactory == null
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        this.activeFactoryLabel.setText(currentFactory == null
             ? this.language.translate("noFactoryOpen")
-            : this.activeFactory.getName());
+            : currentFactory.getName());
     }
 
     private void registerEscapeCloseOperation(JDialog dialog)

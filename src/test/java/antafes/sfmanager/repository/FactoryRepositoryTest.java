@@ -1,13 +1,12 @@
 package antafes.sfmanager.repository;
 
-import antafes.sfmanager.Configuration;
+import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.util.FactoryName;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,10 +14,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FactoryRepositoryTest
+public class FactoryRepositoryTest extends BaseTest
 {
-    @TempDir
-    private Path tempDirectory;
+    @Autowired
+    private FactoryRepository factoryRepository;
 
     @Test
     public void testNormalizesFactoryNamesToAsciiDirectoryNames()
@@ -39,13 +38,13 @@ public class FactoryRepositoryTest
     public void testCreatesAndReloadsFactoryInItsNamedDirectory() throws IOException
     {
         Factory created;
-        try (AnnotationConfigApplicationContext context = this.createContext()) {
-            FactoryRepository repository = context.getBean(FactoryRepository.class);
-            repository.init();
-            assertTrue(repository.findAll().isEmpty());
+        try (AnnotationConfigApplicationContext context = this.createContext(FactoryRepository.class)) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
+            assertTrue(this.factoryRepository.findAll().isEmpty());
 
-            created = repository.createFactory("Crème Factory 42");
-            repository.createFactory("Second Factory");
+            created = this.factoryRepository.createFactory("Crème Factory 42");
+            this.factoryRepository.createFactory("Second Factory");
 
             assertNotNull(created.getId());
             assertEquals("Crème Factory 42", created.getName());
@@ -53,32 +52,32 @@ public class FactoryRepositoryTest
             assertTrue(this.tempDirectory.resolve("creme-factory-42").resolve("factory.xml").toFile().isFile());
             assertTrue(this.tempDirectory.resolve("second-factory").resolve("factory.xml").toFile().isFile());
             created.getProductions().add("550e8400-e29b-41d4-a716-446655440000");
-            repository.saveFactory(created);
+            this.factoryRepository.saveFactory(created);
         }
 
-        try (AnnotationConfigApplicationContext context = this.createContext()) {
-            FactoryRepository repository = context.getBean(FactoryRepository.class);
-            repository.init();
+        try (AnnotationConfigApplicationContext context = this.createContext(FactoryRepository.class)) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
 
-            Factory loaded = repository.findOne(created.getId());
+            Factory loaded = this.factoryRepository.findOne(created.getId());
             assertNotNull(loaded);
             assertEquals(created.getId(), loaded.getId());
             assertEquals(created.getName(), loaded.getName());
             assertEquals(List.of("550e8400-e29b-41d4-a716-446655440000"), loaded.getProductions());
-            assertEquals(2, repository.findAll().size());
+            assertEquals(2, this.factoryRepository.findAll().size());
         }
     }
 
     @Test
     public void testRejectsDuplicateNormalizedFactoryDirectory() throws IOException
     {
-        try (AnnotationConfigApplicationContext context = this.createContext()) {
-            FactoryRepository repository = context.getBean(FactoryRepository.class);
-            repository.createFactory("Café");
+        try (AnnotationConfigApplicationContext context = this.createContext(FactoryRepository.class)) {
+            this.autowireTest(context);
+            this.factoryRepository.createFactory("Café");
 
-            assertThrows(IllegalArgumentException.class, () -> repository.createFactory("Cafe"));
-            assertFalse(repository.findAll().isEmpty());
-            assertEquals(1, repository.findAll().size());
+            assertThrows(IllegalArgumentException.class, () -> this.factoryRepository.createFactory("Cafe"));
+            assertFalse(this.factoryRepository.findAll().isEmpty());
+            assertEquals(1, this.factoryRepository.findAll().size());
         }
     }
 
@@ -90,35 +89,10 @@ public class FactoryRepositoryTest
             "<factory xmlns=\"http://www.w3schools.com/SFManager/factory\""
                 + " id=\"550e8400-e29b-41d4-a716-446655440000\"><name>Invalid</name></factory>");
 
-        try (AnnotationConfigApplicationContext context = this.createContext()) {
-            FactoryRepository repository = context.getBean(FactoryRepository.class);
+        try (AnnotationConfigApplicationContext context = this.createContext(FactoryRepository.class)) {
+            this.autowireTest(context);
 
-            assertThrows(RuntimeException.class, repository::init);
-        }
-    }
-
-    private AnnotationConfigApplicationContext createContext()
-    {
-        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.registerBean(Configuration.class, () -> new TestConfiguration(this.tempDirectory.toFile()));
-        context.register(FactoryRepository.class);
-        context.refresh();
-        return context;
-    }
-
-    private static class TestConfiguration extends Configuration
-    {
-        private final File saveDirectory;
-
-        private TestConfiguration(File saveDirectory)
-        {
-            this.saveDirectory = saveDirectory;
-        }
-
-        @Override
-        public File getSaveDirPath()
-        {
-            return this.saveDirectory;
+            assertThrows(RuntimeException.class, this.factoryRepository::init);
         }
     }
 }

@@ -1,7 +1,7 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.repository.FactoryRepository;
+import antafes.sfmanager.service.FactoryService;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class NewFactoryPanel extends BasePanel
     private JButton cancelButton;
 
     @Autowired
-    private FactoryRepository factoryRepository;
+    private FactoryService factoryService;
 
     public NewFactoryPanel(JDialog parent, Configuration configuration)
     {
@@ -99,7 +99,7 @@ public class NewFactoryPanel extends BasePanel
     private void createFactory()
     {
         try {
-            this.factoryRepository.createFactory(this.nameField.getText());
+            this.factoryService.createFactory(this.nameField.getText());
             this.getParentDialog().dispose();
         } catch (IOException | RuntimeException exception) {
             String message = Objects.toString(

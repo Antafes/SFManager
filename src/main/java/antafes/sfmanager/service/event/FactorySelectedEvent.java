@@ -1,4 +1,4 @@
-package antafes.sfmanager.gui.event;
+package antafes.sfmanager.service.event;
 
 import antafes.sfmanager.entity.Factory;
 

@@ -4,8 +4,8 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.gui.event.RegisterEscapeCloseOperationEvent;
-import antafes.sfmanager.gui.event.FactorySelectedEvent;
-import antafes.sfmanager.repository.FactoryRepository;
+import antafes.sfmanager.service.FactoryService;
+import antafes.sfmanager.service.event.FactorySelectedEvent;
 import jakarta.annotation.PostConstruct;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
 import antafes.utilities.language.LanguageInterface;
@@ -27,7 +27,7 @@ public class OpenFactoryDialog extends JDialog
     @Autowired
     private Configuration configuration;
     @Autowired
-    private FactoryRepository factoryRepository;
+    private FactoryService factoryService;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
     private LanguageInterface language;
@@ -43,14 +43,13 @@ public class OpenFactoryDialog extends JDialog
     private void initializeDialog()
     {
         this.language = this.configuration.getLanguageObject();
-        this.factoryRepository.init();
         this.setTitle(this.language.translate("openFactory"));
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setResizable(false);
         SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
 
         this.factorySelect = new JComboBox<>();
-        this.factoryRepository.findAll().values().stream()
+        this.factoryService.getFactories().stream()
             .sorted(Comparator.comparing(Factory::getName, String.CASE_INSENSITIVE_ORDER))
             .forEach(this.factorySelect::addItem);
         this.factorySelect.setRenderer(new DefaultListCellRenderer() {
