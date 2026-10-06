@@ -3,9 +3,12 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.entity.Factory;
+import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.gui.event.*;
 import antafes.sfmanager.service.FactoryService;
+import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
+import antafes.sfmanager.service.event.ProductionSavedEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,8 @@ public class BaseWindow extends JFrame
     private Configuration configuration;
     @Autowired
     private FactoryService factoryService;
+    @Autowired
+    private ProductionService productionService;
 
     private LanguageInterface language;
     private JTabbedPane panel;
@@ -63,6 +68,7 @@ public class BaseWindow extends JFrame
         this.activeFactoryLabel = new JLabel();
         this.activeFactoryLabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.panel = new JTabbedPane();
+        this.refreshResourceTabs();
         JPanel contentPanel = new JPanel();
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(contentPanel);
         contentPanel.setLayout(layout);
@@ -192,7 +198,29 @@ public class BaseWindow extends JFrame
             Factory currentFactory = this.factoryService.getCurrentFactory();
             this.newProductionMenuItem.setEnabled(currentFactory != null);
             this.updateActiveFactoryLabel();
+            this.refreshResourceTabs();
         });
+    }
+
+    @EventListener
+    private void onProductionSaved(ProductionSavedEvent event)
+    {
+        SwingUtilities.invokeLater(this::refreshResourceTabs);
+    }
+
+    private void refreshResourceTabs()
+    {
+        this.panel.removeAll();
+        for (Item item : this.productionService.getResourceItemsWithProductions()) {
+            String title = item.getName() == null
+                ? item.getKey()
+                : item.getName().getLocalizedName(this.configuration.getLanguage().getName());
+            ResourceProductionPanel resourceProductionPanel = this.applicationContext.getBean(
+                ResourceProductionPanel.class,
+                item
+            );
+            this.panel.addTab(title, resourceProductionPanel);
+        }
     }
 
     private void updateActiveFactoryLabel()

@@ -274,6 +274,66 @@ public class ProductionServiceTest extends BaseTest
     }
 
     @Test
+    public void testReturnsOnlyResourceItemsWithCurrentFactoryProductions() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            assertTrue(this.productionService.getResourceItemsWithProductions().isEmpty());
+
+            Factory factory = this.factoryService.createFactory("Resource Tabs Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            assertTrue(this.productionService.getResourceItemsWithProductions().isEmpty());
+
+            Building miner = this.productionService.getBuildings().stream()
+                .filter(candidate -> "miner_1".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item iron = this.productionService.getItemsForBuilding(miner.getKey()).stream()
+                .filter(item -> "iron".equals(item.getKey()))
+                .findFirst()
+                .orElseThrow();
+            this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(miner)
+                .setSelectedItem(iron)
+                .setAmount(1.0)
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+
+            assertEquals(List.of("iron"), this.productionService.getResourceItemsWithProductions().stream()
+                .map(Item::getKey)
+                .toList());
+
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(candidate -> "smelter".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe ironIngot = this.productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(recipe -> "iron_ingot".equals(recipe.getKey()))
+                .findFirst()
+                .orElseThrow();
+            this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(ironIngot)
+                .setAmount(1.0)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+
+            assertEquals(List.of("iron"), this.productionService.getResourceItemsWithProductions().stream()
+                .map(Item::getKey)
+                .toList());
+        }
+    }
+
+    @Test
     public void testSavesAndReloadsSelectedResourceItem() throws IOException
     {
         UUID productionId;

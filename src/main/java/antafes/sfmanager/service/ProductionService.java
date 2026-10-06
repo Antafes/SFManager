@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductionService
@@ -54,6 +57,67 @@ public class ProductionService
             .filter(item -> item.getProductions() != null && item.getProductions().stream()
                 .anyMatch(production -> production.getBuilding() != null
                     && Objects.equals(buildingKey, production.getBuilding().getKey())))
+            .toList();
+    }
+
+    public List<Item> getResourceItems()
+    {
+        return this.itemRepository.findAll().values().stream()
+            .filter(item -> item.getProductions() != null && !item.getProductions().isEmpty())
+            .toList();
+    }
+
+    public List<Item> getResourceItemsWithProductions()
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        Map<String, Item> resourceItemsByKey = this.getResourceItems().stream()
+            .collect(Collectors.toMap(Item::getKey, Function.identity()));
+        return this.getCurrentFactoryProductions().stream()
+            .filter(production -> production.getSelectedItem() != null
+                && production.getSelectedBuilding() != null)
+            .map(production -> {
+                Item item = resourceItemsByKey.get(production.getSelectedItem().getKey());
+                if (item == null) {
+                    return null;
+                }
+                boolean hasBuildingMapping = item.getProductions().stream()
+                    .anyMatch(mapping -> mapping.getBuilding() != null
+                        && Objects.equals(
+                            production.getSelectedBuilding().getKey(),
+                            mapping.getBuilding().getKey()
+                        ));
+                return hasBuildingMapping ? item : null;
+            })
+            .filter(Objects::nonNull)
+            .distinct()
+            .toList();
+    }
+
+    public List<ResourceProductionEntry> getResourceProductions(Item item)
+    {
+        if (item == null || item.getKey() == null) {
+            throw new IllegalArgumentException("A resource item is required.");
+        }
+        if (item.getProductions() == null || item.getProductions().isEmpty()) {
+            throw new IllegalArgumentException("The item has no resource production mappings.");
+        }
+
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
+            return List.of();
+        }
+        List<Production> factoryProductions = this.getCurrentFactoryProductions();
+        Map<UUID, Production> productionsById = factoryProductions.stream()
+            .filter(production -> production.getId() != null)
+            .collect(Collectors.toMap(Production::getId, Function.identity()));
+
+        return factoryProductions.stream()
+            .filter(production -> production.getSelectedItem() != null
+                && item.getKey().equals(production.getSelectedItem().getKey()))
+            .map(production -> this.toResourceProductionEntry(item, production, productionsById))
             .toList();
     }
 
@@ -193,6 +257,35 @@ public class ProductionService
                 throw new IllegalArgumentException("The selected pressurizer production does not exist.");
             }
         }
+    }
+
+    private ResourceProductionEntry toResourceProductionEntry(
+        Item item,
+        Production production,
+        Map<UUID, Production> productionsById
+    )
+    {
+        if (production.getSelectedBuilding() == null) {
+            throw new IllegalStateException("A resource production has no selected building.");
+        }
+        String buildingKey = production.getSelectedBuilding().getKey();
+        antafes.sfmanager.entity.item.Production mapping = item.getProductions().stream()
+            .filter(candidate -> candidate.getBuilding() != null
+                && Objects.equals(buildingKey, candidate.getBuilding().getKey()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException(
+                "The selected building does not produce resource item " + item.getKey() + "."
+            ));
+
+        Production pressurizer = null;
+        if ("well_extractor".equals(buildingKey)) {
+            pressurizer = productionsById.get(production.getPressurizerId());
+            if (pressurizer == null || pressurizer.getSelectedBuilding() == null
+                || !"well_pressurizer".equals(pressurizer.getSelectedBuilding().getKey())) {
+                throw new IllegalStateException("A well extractor is missing its factory pressurizer production.");
+            }
+        }
+        return new ResourceProductionEntry(production, mapping.getAmount(), pressurizer);
     }
 
     private List<Production> getCurrentFactoryProductions()
