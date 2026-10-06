@@ -95,20 +95,23 @@ public class GeneratorProductionPanelTest extends BaseTest
             GeneratorProductionPanel panel = context.getBean(GeneratorProductionPanel.class, coalGenerator);
             JTable table = panel.getTable();
             assertEquals(1, table.getRowCount());
-            assertEquals(6, table.getColumnCount());
+            assertEquals(7, table.getColumnCount());
             assertEquals("Position", table.getColumnName(0));
             assertEquals("Group", table.getColumnName(1));
             assertEquals("Clock speed", table.getColumnName(2));
             assertEquals("Production", table.getColumnName(3));
             assertEquals("Used Materials", table.getColumnName(4));
             assertEquals("", table.getColumnName(5));
-            assertEquals(80, table.getColumnModel().getColumn(5).getPreferredWidth());
+            assertEquals("", table.getColumnName(6));
+            assertEquals(40, table.getColumnModel().getColumn(5).getPreferredWidth());
+            assertEquals(40, table.getColumnModel().getColumn(6).getPreferredWidth());
             assertEquals("C1", table.getValueAt(0, 0));
             assertEquals("Coal Group", table.getValueAt(0, 1));
             assertEquals("150%", table.getValueAt(0, 2));
             assertEquals("112.5 MW", table.getValueAt(0, 3));
             assertEquals("Coal (22.5), Water (67.5)", table.getValueAt(0, 4));
             assertTrue(table.getValueAt(0, 5) instanceof java.util.UUID);
+            assertTrue(table.getValueAt(0, 6) instanceof java.util.UUID);
             assertTrue(table.getColumnModel().getColumn(5).getCellRenderer()
                 .getTableCellRendererComponent(table, table.getValueAt(0, 5), false, false, 0, 5) instanceof JButton);
 
@@ -134,10 +137,10 @@ public class GeneratorProductionPanelTest extends BaseTest
             );
             JButton button = (JButton) deleteButton.getTableCellEditorComponent(
                 table,
-                table.getValueAt(0, 5),
+                table.getValueAt(0, 6),
                 false,
                 0,
-                5
+                6
             );
             button.doClick();
             assertEquals(0, table.getRowCount());

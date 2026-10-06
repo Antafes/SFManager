@@ -276,6 +276,84 @@ public class ProductionServiceTest extends BaseTest
     }
 
     @Test
+    public void testEditsAllowedProductionFieldsAndPersistsThem() throws IOException
+    {
+        UUID productionId;
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Edit Production Service Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe recipe = this.productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(recipe)
+                .setGroup("Original Group")
+                .setPosition("A1")
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            productionId = production.getId();
+
+            Production edited = this.productionService.editProduction(
+                productionId,
+                125.0,
+                " Edited Group ",
+                " B2 ",
+                1
+            );
+
+            assertEquals(productionId, edited.getId());
+            assertEquals(smelter, edited.getSelectedBuilding());
+            assertEquals(recipe, edited.getSelectedRecipe());
+            assertNull(edited.getSelectedItem());
+            assertEquals("Edited Group", edited.getGroup());
+            assertEquals("B2", edited.getPosition());
+            assertEquals(125.0, edited.getClockSpeed(), 0.0001);
+            assertEquals(1, edited.getUsedSomersloops());
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProduction(productionId, 251, "Other", "C3", 0)
+            );
+            assertEquals("Edited Group", production.getGroup());
+            assertEquals(125.0, production.getClockSpeed(), 0.0001);
+        }
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Production loadedProduction = this.productionRepository.findOne(productionId);
+            assertNotNull(loadedProduction);
+            assertEquals("smelter", loadedProduction.getSelectedBuilding().getKey());
+            assertEquals("iron_ingot", loadedProduction.getSelectedRecipe().getKey());
+            assertEquals("Edited Group", loadedProduction.getGroup());
+            assertEquals("B2", loadedProduction.getPosition());
+            assertEquals(125.0, loadedProduction.getClockSpeed(), 0.0001);
+            assertEquals(1, loadedProduction.getUsedSomersloops());
+        }
+    }
+
+    @Test
     public void testDeletesProductionAndItsLinkedWellExtractors() throws IOException
     {
         UUID factoryId;

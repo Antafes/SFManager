@@ -246,6 +246,11 @@ public class ProductionService
             .toList();
     }
 
+    public Production getProductionForEditing(UUID productionId)
+    {
+        return this.getCurrentFactoryProduction(productionId);
+    }
+
     public List<Building> getMinerUpgradeBuildings(UUID productionId)
     {
         Production production = this.getCurrentFactoryProduction(productionId);
@@ -500,6 +505,44 @@ public class ProductionService
         return List.copyOf(productionsToDelete);
     }
 
+    public Production editProduction(
+        UUID productionId,
+        double clockSpeed,
+        String group,
+        String position,
+        int usedSomersloops
+    ) throws IOException
+    {
+        Production production = this.getCurrentFactoryProduction(productionId);
+        Building building = production.getSelectedBuilding();
+        if (!building.isOverclockable() && Double.compare(clockSpeed, production.getClockSpeed()) != 0) {
+            throw new IllegalArgumentException("The selected building cannot be overclocked.");
+        }
+
+        Double originalClockSpeed = production.getClockSpeed();
+        String originalGroup = production.getGroup();
+        String originalPosition = production.getPosition();
+        int originalUsedSomersloops = production.getUsedSomersloops();
+        production
+            .setClockSpeed(clockSpeed)
+            .setGroup(this.normalizeOptionalText(group))
+            .setPosition(this.normalizeOptionalText(position))
+            .setUsedSomersloops(usedSomersloops);
+        try {
+            this.validateProduction(production, this.factoryService.getCurrentFactory());
+            this.productionRepository.updateProduction(this.factoryService.getCurrentFactory(), production);
+        } catch (IOException | RuntimeException failure) {
+            production
+                .setClockSpeed(originalClockSpeed)
+                .setGroup(originalGroup)
+                .setPosition(originalPosition)
+                .setUsedSomersloops(originalUsedSomersloops);
+            throw failure;
+        }
+        this.eventPublisher.publishEvent(new ProductionSavedEvent(production));
+        return production;
+    }
+
     public Production upgradeMiner(UUID productionId, String targetBuildingKey) throws IOException
     {
         Production production = this.getCurrentFactoryProduction(productionId);
@@ -716,6 +759,15 @@ public class ProductionService
     private int getMinerMark(String buildingKey)
     {
         return MINER_BUILDING_KEYS.indexOf(buildingKey) + 1;
+    }
+
+    private String normalizeOptionalText(String value)
+    {
+        if (value == null) {
+            return null;
+        }
+        String normalizedValue = value.trim();
+        return normalizedValue.isEmpty() ? null : normalizedValue;
     }
 
     private double getClockSpeed(Production production)

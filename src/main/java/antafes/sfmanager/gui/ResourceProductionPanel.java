@@ -7,6 +7,7 @@ import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
 import antafes.sfmanager.gui.editor.MinerUpgrade;
 import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
 import antafes.sfmanager.service.ProductionService;
@@ -17,6 +18,7 @@ import antafes.utilities.language.LanguageInterface;
 import lombok.Getter;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 
 import javax.swing.*;
@@ -40,6 +42,8 @@ public class ResourceProductionPanel extends JPanel
     private ProductionService productionService;
     @Autowired
     private Configuration configuration;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Getter
     private final Item item;
@@ -67,11 +71,13 @@ public class ResourceProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return (column == 8 && this.getValueAt(row, column) != null) || column == 9;
+                return (column == 8 && this.getValueAt(row, column) != null)
+                    || column == 9 || column == 10;
             }
         };
         this.table = new JTable(this.tableModel);
         this.installUpgradeButton();
+        this.installEditButton();
         this.installDeleteButton();
         this.setColumnWidths();
 
@@ -96,8 +102,19 @@ public class ResourceProductionPanel extends JPanel
             this,
             this::refresh
         );
-        this.table.getColumnModel().getColumn(9).setCellRenderer(deleteButton);
-        this.table.getColumnModel().getColumn(9).setCellEditor(deleteButton);
+        this.table.getColumnModel().getColumn(10).setCellRenderer(deleteButton);
+        this.table.getColumnModel().getColumn(10).setCellEditor(deleteButton);
+    }
+
+    private void installEditButton()
+    {
+        ProductionEditButtonEditor editButton = new ProductionEditButtonEditor(
+            this.language,
+            this::openEditDialog,
+            this::refresh
+        );
+        this.table.getColumnModel().getColumn(9).setCellRenderer(editButton);
+        this.table.getColumnModel().getColumn(9).setCellEditor(editButton);
     }
 
     private void installUpgradeButton()
@@ -125,6 +142,7 @@ public class ResourceProductionPanel extends JPanel
             this.language.translate("usage"),
             this.language.translate("consumption"),
             "",
+            "",
             ""
         };
     }
@@ -136,7 +154,7 @@ public class ResourceProductionPanel extends JPanel
             this.table.getColumnModel().getColumn(columnIndex).setPreferredWidth(85);
             this.table.getColumnModel().getColumn(columnIndex).setMaxWidth(100);
         }
-        for (int columnIndex = 8; columnIndex <= 9; columnIndex++) {
+        for (int columnIndex = 8; columnIndex <= 10; columnIndex++) {
             this.table.getColumnModel().getColumn(columnIndex).setPreferredWidth(40);
             this.table.getColumnModel().getColumn(columnIndex).setMaxWidth(50);
         }
@@ -196,6 +214,7 @@ public class ResourceProductionPanel extends JPanel
             "",
             this.megawatts(consumption),
             this.minerUpgrade(production),
+            production.getId(),
             production.getId()
         };
     }
@@ -213,6 +232,7 @@ public class ResourceProductionPanel extends JPanel
             "",
             this.megawatts(this.calculatePowerConsumption(pressurizer)),
             this.minerUpgrade(pressurizer),
+            pressurizer.getId(),
             pressurizer.getId()
         };
     }
@@ -237,6 +257,7 @@ public class ResourceProductionPanel extends JPanel
             "",
             "",
             this.minerUpgrade(production),
+            production.getId(),
             production.getId()
         };
     }
@@ -247,6 +268,23 @@ public class ResourceProductionPanel extends JPanel
         return building != null && Set.of("miner_1", "miner_2", "miner_3").contains(building.getKey())
             ? new MinerUpgrade(production.getId(), building.getKey())
             : null;
+    }
+
+    private boolean openEditDialog(UUID productionId)
+    {
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (!(window instanceof Frame frame)) {
+            throw new IllegalStateException("The production panel has no frame owner.");
+        }
+        EditProductionDialog dialog = this.applicationContext.getBean(
+            EditProductionDialog.class,
+            frame,
+            true,
+            productionId
+        );
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+        return dialog.isSaved();
     }
 
     private Double calculatePowerConsumption(Production production)

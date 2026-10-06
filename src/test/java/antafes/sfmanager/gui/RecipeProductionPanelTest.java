@@ -117,7 +117,7 @@ public class RecipeProductionPanelTest extends BaseTest
             RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, ironIngotItem);
             JTable table = panel.getTable();
             assertEquals(2, table.getRowCount());
-            assertEquals(8, table.getColumnCount());
+            assertEquals(9, table.getColumnCount());
             assertEquals("Used Materials", table.getColumnName(0));
             assertEquals("Recipe", table.getColumnName(1));
             assertEquals("Clock speed", table.getColumnName(2));
@@ -126,7 +126,9 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("Usage", table.getColumnName(5));
             assertEquals("Consumption", table.getColumnName(6));
             assertEquals("", table.getColumnName(7));
-            assertEquals(80, table.getColumnModel().getColumn(7).getPreferredWidth());
+            assertEquals("", table.getColumnName(8));
+            assertEquals(40, table.getColumnModel().getColumn(7).getPreferredWidth());
+            assertEquals(40, table.getColumnModel().getColumn(8).getPreferredWidth());
             assertEquals("Iron Ore (60)", table.getValueAt(0, 0));
             assertEquals("Iron Ingot", table.getValueAt(0, 1));
             assertEquals("100%", table.getValueAt(0, 2));
@@ -135,6 +137,7 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("", table.getValueAt(0, 5));
             assertEquals("16 MW", table.getValueAt(0, 6));
             assertTrue(table.getValueAt(0, 7) instanceof java.util.UUID);
+            assertTrue(table.getValueAt(0, 8) instanceof java.util.UUID);
             assertEquals("Iron Ore (50), Limestone (80)", table.getValueAt(1, 0));
             assertEquals("Basic Iron Ingot", table.getValueAt(1, 1));
             assertEquals("Iron Ingot (100)", table.getValueAt(1, 4));
@@ -210,7 +213,7 @@ public class RecipeProductionPanelTest extends BaseTest
                 production.getId(),
                 false,
                 0,
-                7
+                8
             );
             cancelButton.doClick();
             assertEquals(1, productionService.getRecipeProductions(outputItem).size());
@@ -229,7 +232,7 @@ public class RecipeProductionPanelTest extends BaseTest
                 production.getId(),
                 false,
                 0,
-                7
+                8
             );
             assertEquals("", deleteButton.getText());
             assertNotNull(deleteButton.getIcon());

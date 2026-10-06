@@ -7,6 +7,7 @@ import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
@@ -123,7 +124,7 @@ public class ResourceProductionPanelTest extends BaseTest
             );
             JTable table = panel.getTable();
             assertEquals(5, table.getRowCount());
-            assertEquals(10, table.getColumnCount());
+            assertEquals(11, table.getColumnCount());
             assertEquals("Building", table.getColumnName(0));
             assertEquals("Position", table.getColumnName(1));
             assertEquals("Group", table.getColumnName(2));
@@ -134,11 +135,13 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("Consumption", table.getColumnName(7));
             assertEquals("", table.getColumnName(8));
             assertEquals("", table.getColumnName(9));
+            assertEquals("", table.getColumnName(10));
             for (int column = 1; column <= 5; column++) {
                 assertTrue(table.getColumnModel().getColumn(column).getPreferredWidth() <= 100);
             }
             assertTrue(table.getColumnModel().getColumn(8).getPreferredWidth() <= 50);
             assertTrue(table.getColumnModel().getColumn(9).getPreferredWidth() <= 50);
+            assertTrue(table.getColumnModel().getColumn(10).getPreferredWidth() <= 50);
             assertEquals("Resource Well Pressurizer", table.getValueAt(0, 0));
             assertEquals("W1", table.getValueAt(0, 1));
             assertEquals("Well Group", table.getValueAt(0, 2));
@@ -168,6 +171,7 @@ public class ResourceProductionPanelTest extends BaseTest
                 assertEquals("", table.getValueAt(row, 6));
                 assertEquals(null, table.getValueAt(row, 8));
                 assertNotNull(table.getValueAt(row, 9));
+                assertNotNull(table.getValueAt(row, 10));
                 assertFalse(table.isCellEditable(row, 8));
             }
             assertFalse(table.getCellRenderer(0, 8).getTableCellRendererComponent(
@@ -178,6 +182,21 @@ public class ResourceProductionPanelTest extends BaseTest
                 0,
                 8
             ) instanceof JButton);
+            ProductionEditButtonEditor editButton = new ProductionEditButtonEditor(
+                this.configuration.getLanguageObject(),
+                productionId -> productionId.equals(table.getValueAt(0, 9)),
+                panel::refresh
+            );
+            JButton edit = (JButton) editButton.getTableCellEditorComponent(
+                table,
+                table.getValueAt(0, 9),
+                false,
+                0,
+                9
+            );
+            assertEquals("", edit.getText());
+            assertNotNull(edit.getIcon());
+            assertEquals("Edit", edit.getToolTipText());
             ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
                 productionService,
                 this.configuration.getLanguageObject(),
@@ -187,18 +206,18 @@ public class ResourceProductionPanelTest extends BaseTest
             );
             Component deleteRenderer = deleteButton.getTableCellRendererComponent(
                 table,
-                table.getValueAt(0, 9),
+                table.getValueAt(0, 10),
                 false,
                 false,
                 0,
-                9
+                10
             );
             JButton button = (JButton) deleteButton.getTableCellEditorComponent(
                 table,
-                table.getValueAt(0, 9),
+                table.getValueAt(0, 10),
                 false,
                 0,
-                9
+                10
             );
             assertNotSame(deleteRenderer, button);
             button.doClick();
