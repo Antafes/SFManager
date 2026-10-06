@@ -107,7 +107,7 @@ public class BaseWindow extends JFrame
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
-        this.newProductionMenuItem.setEnabled(false);
+        this.newProductionMenuItem.setEnabled(this.factoryService.getCurrentFactory() != null);
 
         this.closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         this.closeMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new CloseProgramEvent()));

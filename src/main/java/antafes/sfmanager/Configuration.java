@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.UUID;
 
 @Component
 public class Configuration extends BaseConfiguration
@@ -28,6 +29,11 @@ public class Configuration extends BaseConfiguration
         return Language.valueOf(this.getProperties().getProperty("language", Language.ENGLISH.toString()));
     }
 
+    public String getLastOpenedFactoryId()
+    {
+        return this.getProperties().getProperty("lastOpenedFactoryId");
+    }
+
     @Override
     public void loadProperties()
     {
@@ -35,6 +41,15 @@ public class Configuration extends BaseConfiguration
 
         if (!this.getProperties().containsKey("language")) {
             this.setLanguage(Language.ENGLISH);
+        }
+    }
+
+    public void setLastOpenedFactoryId(UUID factoryId)
+    {
+        if (factoryId == null) {
+            this.getProperties().remove("lastOpenedFactoryId");
+        } else {
+            this.getProperties().setProperty("lastOpenedFactoryId", factoryId.toString());
         }
     }
 

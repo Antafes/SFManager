@@ -1,5 +1,6 @@
 package antafes.sfmanager.service;
 
+import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
@@ -17,6 +18,8 @@ public class FactoryService
 {
     @Autowired
     private FactoryRepository factoryRepository;
+    @Autowired
+    private Configuration configuration;
     @Getter
     private Factory currentFactory;
 
@@ -40,6 +43,29 @@ public class FactoryService
         return this.factoryRepository.findOne(id);
     }
 
+    public Factory restoreLastOpenedFactory()
+    {
+        String factoryId = this.configuration.getLastOpenedFactoryId();
+        if (factoryId == null || factoryId.isBlank()) {
+            return null;
+        }
+
+        Factory factory;
+        try {
+            factory = this.factoryRepository.findOne(UUID.fromString(factoryId));
+        } catch (IllegalArgumentException exception) {
+            this.configuration.setLastOpenedFactoryId(null);
+            return null;
+        }
+        if (factory == null) {
+            this.configuration.setLastOpenedFactoryId(null);
+            return null;
+        }
+
+        this.currentFactory = factory;
+        return factory;
+    }
+
     @EventListener
     private void onFactorySelected(FactorySelectedEvent event)
     {
@@ -52,5 +78,6 @@ public class FactoryService
             throw new IllegalArgumentException("Selected factory is not loaded in the repository.");
         }
         this.currentFactory = repositoryFactory;
+        this.configuration.setLastOpenedFactoryId(repositoryFactory.getId());
     }
 }

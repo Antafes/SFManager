@@ -207,6 +207,45 @@ public class ProductionServiceTest extends BaseTest
     }
 
     @Test
+    public void testSavesProductionWhenFactoryWasRestoredFromConfiguration() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Restored Production Factory");
+            this.configuration.setLastOpenedFactoryId(factory.getId());
+
+            assertSame(factory, this.factoryService.restoreLastOpenedFactory());
+
+            Building building = this.productionService.getBuildings().stream()
+                .filter(candidate -> "smelter".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe recipe = this.productionService.getRecipesForBuilding(building.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(building)
+                .setSelectedRecipe(recipe)
+                .setAmount(1.0)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+
+            assertTrue(factory.getProductions().contains(production.getId().toString()));
+            assertNotNull(this.productionRepository.findOne(production.getId()));
+        }
+    }
+
+    @Test
     public void testReturnsResourceItemsFromItemProductionMappings()
     {
         try (AnnotationConfigApplicationContext context = this.createContext(

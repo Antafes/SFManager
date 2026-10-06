@@ -8,6 +8,7 @@ import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.service.FactoryService;
 import antafes.utilities.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -39,6 +40,8 @@ public class SFManager extends Application implements CommandLineRunner
     private FactoryRepository factoryRepository;
     @Autowired
     private ProductionRepository productionRepository;
+    @Autowired
+    private FactoryService factoryService;
 
     public static void main(String[] args)
     {
@@ -56,6 +59,7 @@ public class SFManager extends Application implements CommandLineRunner
     {
         SwingUtilities.invokeLater(() -> {
             this.warmUp();
+            this.factoryService.restoreLastOpenedFactory();
             BaseWindow baseWindow = this.applicationContext.getBean(BaseWindow.class);
             new Splash(Utilities.getResourceInJar("images/splash.png"), 2000, baseWindow);
             Toolkit kit = Toolkit.getDefaultToolkit();

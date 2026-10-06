@@ -59,4 +59,36 @@ public class FactoryServiceTest extends BaseTest
         }
     }
 
+    @Test
+    public void testRestoresLastOpenedFactoryFromConfiguration() throws IOException
+    {
+        UUID factoryId;
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            FactoryRepository.class, FactoryService.class
+        )) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
+            Factory factory = this.factoryService.createFactory("Remembered Factory");
+            factoryId = factory.getId();
+
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            assertEquals(factoryId.toString(), this.configuration.getLastOpenedFactoryId());
+        }
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            FactoryRepository.class, FactoryService.class
+        )) {
+            this.autowireTest(context);
+            this.configuration.setLastOpenedFactoryId(factoryId);
+            this.factoryRepository.init();
+
+            Factory restoredFactory = this.factoryService.restoreLastOpenedFactory();
+
+            assertNotNull(restoredFactory);
+            assertEquals(factoryId, restoredFactory.getId());
+            assertSame(restoredFactory, this.factoryService.getCurrentFactory());
+        }
+    }
+
 }
