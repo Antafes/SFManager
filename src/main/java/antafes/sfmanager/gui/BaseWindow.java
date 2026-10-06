@@ -218,6 +218,7 @@ public class BaseWindow extends JFrame
 
     private void refreshResourceTabs()
     {
+        String selectedTabTitle = this.getSelectedTabTitle();
         this.panel.removeAll();
         FactoryOverviewPanel overviewPanel = this.applicationContext.getBean(FactoryOverviewPanel.class);
         overviewPanel.refresh();
@@ -243,6 +244,26 @@ public class BaseWindow extends JFrame
                 item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
                 this.applicationContext.getBean(RecipeProductionPanel.class, item)
             ));
+        this.selectTab(selectedTabTitle);
+    }
+
+    private String getSelectedTabTitle()
+    {
+        int selectedIndex = this.panel.getSelectedIndex();
+        return selectedIndex < 0 ? null : this.panel.getTitleAt(selectedIndex);
+    }
+
+    private void selectTab(String title)
+    {
+        if (title == null) {
+            return;
+        }
+        for (int index = 0; index < this.panel.getTabCount(); index++) {
+            if (title.equals(this.panel.getTitleAt(index))) {
+                this.panel.setSelectedIndex(index);
+                return;
+            }
+        }
     }
 
     private void updateActiveFactoryLabel()

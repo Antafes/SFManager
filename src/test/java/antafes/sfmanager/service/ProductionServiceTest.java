@@ -191,6 +191,91 @@ public class ProductionServiceTest extends BaseTest
     }
 
     @Test
+    public void testUpgradesMinersAndPersistsTheirUnchangedProductionData() throws IOException
+    {
+        UUID productionId;
+        try (AnnotationConfigApplicationContext context = this.createContext(
+                BuildingRepository.class,
+                ItemRepository.class,
+                RecipeRepository.class,
+                ProductionRepository.class,
+                FactoryRepository.class,
+                FactoryService.class,
+                ProductionService.class
+            )) {
+                this.autowireTest(context);
+                Factory factory = this.factoryService.createFactory("Miner Upgrade Service Factory");
+                context.publishEvent(new FactorySelectedEvent(factory));
+                Building miner1 = this.productionService.getBuildings().stream()
+                    .filter(building -> "miner_1".equals(building.getKey()))
+                    .findFirst()
+                    .orElseThrow();
+                Item iron = this.productionService.getResourceItems().stream()
+                    .filter(item -> "iron".equals(item.getKey()))
+                    .findFirst()
+                    .orElseThrow();
+                Production production = this.productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner1)
+                    .setSelectedItem(iron)
+                    .setGroup("Miner Group")
+                    .setPosition("M1")
+                    .setPurity(Purity.PURE)
+                    .setClockSpeed(150.0)
+                    .setUsedSomersloops(0));
+                productionId = production.getId();
+
+                assertEquals(
+                    List.of("miner_2", "miner_3"),
+                    this.productionService.getMinerUpgradeBuildings(productionId).stream()
+                        .map(Building::getKey)
+                        .toList()
+                );
+                Production upgraded = this.productionService.upgradeMiner(productionId, "miner_2");
+
+                assertEquals(productionId, upgraded.getId());
+                assertEquals("miner_2", upgraded.getSelectedBuilding().getKey());
+                assertEquals(iron, upgraded.getSelectedItem());
+                assertEquals("Miner Group", upgraded.getGroup());
+                assertEquals("M1", upgraded.getPosition());
+                assertEquals(Purity.PURE, upgraded.getPurity());
+                assertEquals(150.0, upgraded.getClockSpeed(), 0.0001);
+                assertEquals(0, upgraded.getUsedSomersloops());
+                assertEquals(List.of("miner_3"), this.productionService.getMinerUpgradeBuildings(productionId)
+                    .stream().map(Building::getKey).toList());
+                assertThrows(
+                    IllegalArgumentException.class,
+                    () -> this.productionService.upgradeMiner(productionId, "miner_1")
+                );
+                this.productionService.upgradeMiner(productionId, "miner_3");
+                assertTrue(this.productionService.getMinerUpgradeBuildings(productionId).isEmpty());
+                assertThrows(
+                    IllegalArgumentException.class,
+                    () -> this.productionService.upgradeMiner(productionId, "water_extractor")
+                );
+            }
+
+            try (AnnotationConfigApplicationContext context = this.createContext(
+                BuildingRepository.class,
+                ItemRepository.class,
+                RecipeRepository.class,
+                ProductionRepository.class,
+                FactoryRepository.class,
+                FactoryService.class,
+                ProductionService.class
+            )) {
+                this.autowireTest(context);
+                Production loadedProduction = this.productionRepository.findOne(productionId);
+                assertNotNull(loadedProduction);
+                assertEquals("miner_3", loadedProduction.getSelectedBuilding().getKey());
+                assertEquals("iron", loadedProduction.getSelectedItem().getKey());
+                assertEquals("Miner Group", loadedProduction.getGroup());
+                assertEquals("M1", loadedProduction.getPosition());
+                assertEquals(Purity.PURE, loadedProduction.getPurity());
+                assertEquals(150.0, loadedProduction.getClockSpeed(), 0.0001);
+        }
+    }
+
+    @Test
     public void testDeletesProductionAndItsLinkedWellExtractors() throws IOException
     {
         UUID factoryId;

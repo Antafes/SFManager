@@ -55,9 +55,12 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("somersloops", "Somersloops");
         this.getTranslations().put("producedMaterials", "Produced Materials");
         this.getTranslations().put("delete", "Delete");
+        this.getTranslations().put("upgrade", "Upgrade");
+        this.getTranslations().put("upgradeMiner", "Upgrade miner");
         this.getTranslations().put("deleteProduction", "Delete production");
         this.getTranslations().put("confirmDeleteProduction", "Are you sure you want to delete this production?");
         this.getTranslations().put("productionDeletionFailed", "Could not delete the production.");
+        this.getTranslations().put("productionUpgradeFailed", "Could not upgrade the production.");
         this.getTranslations().put("productionSavingFailed", "Could not save the production.");
     }
 

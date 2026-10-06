@@ -102,6 +102,16 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         }
     }
 
+    public synchronized void updateProduction(Factory factory, Production production) throws IOException
+    {
+        this.validateFactory(factory);
+        this.validateProductionId(production);
+        if (!this.entities.containsKey(production.getId())) {
+            throw new IllegalArgumentException("The production does not exist.");
+        }
+        this.saveData(factory);
+    }
+
     public synchronized void deleteProductions(Factory factory, List<UUID> ids) throws IOException
     {
         this.validateFactory(factory);

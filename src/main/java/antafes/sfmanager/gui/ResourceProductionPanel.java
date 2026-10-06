@@ -7,6 +7,8 @@ import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sfmanager.gui.editor.MinerUpgrade;
+import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
@@ -65,10 +67,11 @@ public class ResourceProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return column == 8;
+                return (column == 8 && this.getValueAt(row, column) != null) || column == 9;
             }
         };
         this.table = new JTable(this.tableModel);
+        this.installUpgradeButton();
         this.installDeleteButton();
         this.setColumnWidths();
 
@@ -93,8 +96,21 @@ public class ResourceProductionPanel extends JPanel
             this,
             this::refresh
         );
-        this.table.getColumnModel().getColumn(8).setCellRenderer(deleteButton);
-        this.table.getColumnModel().getColumn(8).setCellEditor(deleteButton);
+        this.table.getColumnModel().getColumn(9).setCellRenderer(deleteButton);
+        this.table.getColumnModel().getColumn(9).setCellEditor(deleteButton);
+    }
+
+    private void installUpgradeButton()
+    {
+        ProductionUpgradeButtonEditor upgradeButton = new ProductionUpgradeButtonEditor(
+            this.productionService,
+            this.language,
+            this.selectedLanguage,
+            this,
+            this::refresh
+        );
+        this.table.getColumnModel().getColumn(8).setCellRenderer(upgradeButton);
+        this.table.getColumnModel().getColumn(8).setCellEditor(upgradeButton);
     }
 
     private String[] columnNames()
@@ -108,6 +124,7 @@ public class ResourceProductionPanel extends JPanel
             this.language.translate("production"),
             this.language.translate("usage"),
             this.language.translate("consumption"),
+            "",
             ""
         };
     }
@@ -119,8 +136,10 @@ public class ResourceProductionPanel extends JPanel
             this.table.getColumnModel().getColumn(columnIndex).setPreferredWidth(85);
             this.table.getColumnModel().getColumn(columnIndex).setMaxWidth(100);
         }
-        this.table.getColumnModel().getColumn(8).setPreferredWidth(80);
-        this.table.getColumnModel().getColumn(8).setMaxWidth(100);
+        for (int columnIndex = 8; columnIndex <= 9; columnIndex++) {
+            this.table.getColumnModel().getColumn(columnIndex).setPreferredWidth(40);
+            this.table.getColumnModel().getColumn(columnIndex).setMaxWidth(50);
+        }
     }
 
     private List<Object[]> createRows(List<ResourceProductionEntry> entries)
@@ -176,6 +195,7 @@ public class ResourceProductionPanel extends JPanel
             this.perMinute(output),
             "",
             this.megawatts(consumption),
+            this.minerUpgrade(production),
             production.getId()
         };
     }
@@ -192,6 +212,7 @@ public class ResourceProductionPanel extends JPanel
             "",
             "",
             this.megawatts(this.calculatePowerConsumption(pressurizer)),
+            this.minerUpgrade(pressurizer),
             pressurizer.getId()
         };
     }
@@ -215,8 +236,17 @@ public class ResourceProductionPanel extends JPanel
             this.perMinute(output),
             "",
             "",
+            this.minerUpgrade(production),
             production.getId()
         };
+    }
+
+    private MinerUpgrade minerUpgrade(Production production)
+    {
+        Building building = production.getSelectedBuilding();
+        return building != null && Set.of("miner_1", "miner_2", "miner_3").contains(building.getKey())
+            ? new MinerUpgrade(production.getId(), building.getKey())
+            : null;
     }
 
     private Double calculatePowerConsumption(Production production)

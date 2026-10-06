@@ -30,7 +30,8 @@ public class ProductionDeleteButtonEditor extends AbstractCellEditor
     private final Component parent;
     private final Runnable onDeleted;
     private final BooleanSupplier confirmation;
-    private final JButton button = new JButton();
+    private final JButton rendererButton = new JButton();
+    private final JButton editorButton = new JButton();
     private UUID productionId;
 
     public ProductionDeleteButtonEditor(
@@ -65,10 +66,9 @@ public class ProductionDeleteButtonEditor extends AbstractCellEditor
         this.onDeleted = onDeleted;
         this.confirmation = confirmation;
         String deleteLabel = this.language.translate("delete");
-        this.button.setIcon(new TrashCanIcon());
-        this.button.setToolTipText(deleteLabel);
-        this.button.getAccessibleContext().setAccessibleName(deleteLabel);
-        this.button.addActionListener(event -> this.deleteProduction());
+        this.configureButton(this.rendererButton, deleteLabel);
+        this.configureButton(this.editorButton, deleteLabel);
+        this.editorButton.addActionListener(event -> this.deleteProduction());
     }
 
     @Override
@@ -87,7 +87,8 @@ public class ProductionDeleteButtonEditor extends AbstractCellEditor
     )
     {
         this.productionId = value instanceof UUID id ? id : null;
-        return this.button;
+        this.editorButton.setEnabled(this.productionId != null);
+        return this.editorButton;
     }
 
     @Override
@@ -100,8 +101,16 @@ public class ProductionDeleteButtonEditor extends AbstractCellEditor
         int column
     )
     {
-        this.button.setEnabled(value instanceof UUID);
-        return this.button;
+        this.rendererButton.setEnabled(value instanceof UUID);
+        return this.rendererButton;
+    }
+
+    private void configureButton(JButton button, String deleteLabel)
+    {
+        button.setIcon(new TrashCanIcon());
+        button.setDisabledIcon(new TrashCanIcon());
+        button.setToolTipText(deleteLabel);
+        button.getAccessibleContext().setAccessibleName(deleteLabel);
     }
 
     private void deleteProduction()

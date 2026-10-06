@@ -7,6 +7,7 @@ import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
@@ -21,12 +22,14 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import javax.swing.JButton;
 import javax.swing.JTable;
+import java.awt.Component;
 import java.io.IOException;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ResourceProductionPanelTest extends BaseTest
@@ -120,7 +123,7 @@ public class ResourceProductionPanelTest extends BaseTest
             );
             JTable table = panel.getTable();
             assertEquals(5, table.getRowCount());
-            assertEquals(9, table.getColumnCount());
+            assertEquals(10, table.getColumnCount());
             assertEquals("Building", table.getColumnName(0));
             assertEquals("Position", table.getColumnName(1));
             assertEquals("Group", table.getColumnName(2));
@@ -130,10 +133,12 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("Usage", table.getColumnName(6));
             assertEquals("Consumption", table.getColumnName(7));
             assertEquals("", table.getColumnName(8));
+            assertEquals("", table.getColumnName(9));
             for (int column = 1; column <= 5; column++) {
                 assertTrue(table.getColumnModel().getColumn(column).getPreferredWidth() <= 100);
             }
-            assertTrue(table.getColumnModel().getColumn(8).getPreferredWidth() <= 100);
+            assertTrue(table.getColumnModel().getColumn(8).getPreferredWidth() <= 50);
+            assertTrue(table.getColumnModel().getColumn(9).getPreferredWidth() <= 50);
             assertEquals("Resource Well Pressurizer", table.getValueAt(0, 0));
             assertEquals("W1", table.getValueAt(0, 1));
             assertEquals("Well Group", table.getValueAt(0, 2));
@@ -161,8 +166,18 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("20 MW", table.getValueAt(4, 7));
             for (int row = 0; row < table.getRowCount(); row++) {
                 assertEquals("", table.getValueAt(row, 6));
-                assertNotNull(table.getValueAt(row, 8));
+                assertEquals(null, table.getValueAt(row, 8));
+                assertNotNull(table.getValueAt(row, 9));
+                assertFalse(table.isCellEditable(row, 8));
             }
+            assertFalse(table.getCellRenderer(0, 8).getTableCellRendererComponent(
+                table,
+                table.getValueAt(0, 8),
+                false,
+                false,
+                0,
+                8
+            ) instanceof JButton);
             ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
                 productionService,
                 this.configuration.getLanguageObject(),
@@ -170,13 +185,22 @@ public class ResourceProductionPanelTest extends BaseTest
                 panel::refresh,
                 () -> true
             );
-            JButton button = (JButton) deleteButton.getTableCellEditorComponent(
+            Component deleteRenderer = deleteButton.getTableCellRendererComponent(
                 table,
-                table.getValueAt(0, 8),
+                table.getValueAt(0, 9),
+                false,
                 false,
                 0,
-                8
+                9
             );
+            JButton button = (JButton) deleteButton.getTableCellEditorComponent(
+                table,
+                table.getValueAt(0, 9),
+                false,
+                0,
+                9
+            );
+            assertNotSame(deleteRenderer, button);
             button.doClick();
             assertEquals(1, table.getRowCount());
             assertEquals("Water Extractor", table.getValueAt(0, 0));
@@ -226,6 +250,130 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals(0, panel.getTable().getRowCount());
             assertFalse(firstFactory.getProductions().isEmpty());
             assertTrue(secondFactory.getProductions().isEmpty());
+        }
+    }
+
+    @Test
+    public void testUpgradesOnlyMinersAndPreservesTheProduction() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+                BuildingRepository.class,
+                ItemRepository.class,
+                RecipeRepository.class,
+                ProductionRepository.class,
+                FactoryRepository.class,
+                FactoryService.class,
+                ProductionService.class,
+                ResourceProductionPanel.class
+            )) {
+                this.autowireTest(context);
+                ProductionService productionService = context.getBean(ProductionService.class);
+                Factory factory = context.getBean(FactoryService.class).createFactory("Miner Upgrade Factory");
+                context.publishEvent(new FactorySelectedEvent(factory));
+                Item iron = this.findItem(productionService, "iron");
+                Building miner1 = this.findBuilding(productionService, "miner_1");
+                Building miner3 = this.findBuilding(productionService, "miner_3");
+                Production firstMiner = productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner1)
+                    .setSelectedItem(iron)
+                    .setGroup("Mine Group")
+                    .setPosition("M1")
+                    .setPurity(Purity.PURE)
+                    .setClockSpeed(150.0)
+                    .setUsedSomersloops(0));
+                Production thirdMiner = productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner3)
+                    .setSelectedItem(iron)
+                    .setPurity(Purity.NORMAL)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+
+                ResourceProductionPanel panel = context.getBean(ResourceProductionPanel.class, iron);
+                JTable table = panel.getTable();
+                assertEquals(2, table.getRowCount());
+                Component firstRenderer = table.getCellRenderer(0, 8).getTableCellRendererComponent(
+                    table,
+                    table.getValueAt(0, 8),
+                    false,
+                    false,
+                    0,
+                    8
+                );
+                boolean firstRendererEnabled = ((JButton) firstRenderer).isEnabled();
+                Component thirdRenderer = table.getCellRenderer(1, 8).getTableCellRendererComponent(
+                    table,
+                    table.getValueAt(1, 8),
+                    false,
+                    false,
+                    1,
+                    8
+                );
+                assertTrue(firstRenderer instanceof JButton);
+                assertTrue(firstRendererEnabled);
+                assertTrue(thirdRenderer instanceof JButton);
+                assertFalse(((JButton) thirdRenderer).isEnabled());
+                assertNotNull(((JButton) thirdRenderer).getDisabledIcon());
+                JButton firstEditor = (JButton) table.getCellEditor(0, 8).getTableCellEditorComponent(
+                    table,
+                    table.getValueAt(0, 8),
+                    true,
+                    0,
+                    8
+                );
+                assertTrue(firstEditor.isEnabled());
+                assertNotSame(firstRenderer, firstEditor);
+
+                ProductionUpgradeButtonEditor upgradeButton = new ProductionUpgradeButtonEditor(
+                    productionService,
+                    this.configuration.getLanguageObject(),
+                    this.configuration.getLanguage().getName(),
+                    panel,
+                    panel::refresh,
+                    upgrades -> upgrades.get(1)
+                );
+                JButton button = (JButton) upgradeButton.getTableCellEditorComponent(
+                    table,
+                    table.getValueAt(0, 8),
+                    false,
+                    0,
+                    8
+                );
+                button.doClick();
+                assertEquals("Miner Mk.3", table.getValueAt(0, 0));
+                assertEquals(firstMiner.getId(), productionService.getResourceProductions(iron)
+                    .getFirst().production().getId());
+                assertEquals("miner_3", firstMiner.getSelectedBuilding().getKey());
+                assertEquals("Mine Group", firstMiner.getGroup());
+                assertEquals("M1", firstMiner.getPosition());
+                assertEquals(Purity.PURE, firstMiner.getPurity());
+                assertEquals(150.0, firstMiner.getClockSpeed(), 0.0001);
+                assertEquals(iron, firstMiner.getSelectedItem());
+
+                Production canceledMiner = productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner1)
+                    .setSelectedItem(iron)
+                    .setPurity(Purity.NORMAL)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+                panel.refresh();
+                int canceledRow = 2;
+                ProductionUpgradeButtonEditor cancelButton = new ProductionUpgradeButtonEditor(
+                    productionService,
+                    this.configuration.getLanguageObject(),
+                    this.configuration.getLanguage().getName(),
+                    panel,
+                    panel::refresh,
+                    upgrades -> null
+                );
+                JButton cancel = (JButton) cancelButton.getTableCellEditorComponent(
+                    table,
+                    table.getValueAt(canceledRow, 8),
+                    false,
+                    canceledRow,
+                    8
+                );
+                cancel.doClick();
+                assertEquals("miner_1", canceledMiner.getSelectedBuilding().getKey());
         }
     }
 

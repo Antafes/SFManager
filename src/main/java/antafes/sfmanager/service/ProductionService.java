@@ -39,6 +39,8 @@ import java.util.stream.Collectors;
 @Service
 public class ProductionService
 {
+    private static final List<String> MINER_BUILDING_KEYS = List.of("miner_1", "miner_2", "miner_3");
+
     @Autowired
     private BuildingRepository buildingRepository;
     @Autowired
@@ -241,6 +243,19 @@ public class ProductionService
             .filter(group -> group != null && !group.isBlank())
             .distinct()
             .sorted(String.CASE_INSENSITIVE_ORDER)
+            .toList();
+    }
+
+    public List<Building> getMinerUpgradeBuildings(UUID productionId)
+    {
+        Production production = this.getCurrentFactoryProduction(productionId);
+        String buildingKey = production.getSelectedBuilding().getKey();
+        int currentMark = this.getMinerMark(buildingKey);
+        if (currentMark == 0 || currentMark == MINER_BUILDING_KEYS.size()) {
+            return List.of();
+        }
+        return MINER_BUILDING_KEYS.subList(currentMark, MINER_BUILDING_KEYS.size()).stream()
+            .map(this.buildingRepository::findOne)
             .toList();
     }
 
@@ -485,6 +500,33 @@ public class ProductionService
         return List.copyOf(productionsToDelete);
     }
 
+    public Production upgradeMiner(UUID productionId, String targetBuildingKey) throws IOException
+    {
+        Production production = this.getCurrentFactoryProduction(productionId);
+        String currentBuildingKey = production.getSelectedBuilding().getKey();
+        int currentMark = this.getMinerMark(currentBuildingKey);
+        int targetMark = this.getMinerMark(targetBuildingKey);
+        if (currentMark == 0 || targetMark <= currentMark) {
+            throw new IllegalArgumentException("The selected miner mark is not a valid upgrade.");
+        }
+
+        Building targetBuilding = this.buildingRepository.findOne(targetBuildingKey);
+        if (targetBuilding == null || !targetBuilding.isResourceBuilding()) {
+            throw new IllegalArgumentException("The selected miner is not available.");
+        }
+
+        Building currentBuilding = production.getSelectedBuilding();
+        production.setSelectedBuilding(targetBuilding);
+        try {
+            this.productionRepository.updateProduction(this.factoryService.getCurrentFactory(), production);
+        } catch (IOException | RuntimeException failure) {
+            production.setSelectedBuilding(currentBuilding);
+            throw failure;
+        }
+        this.eventPublisher.publishEvent(new ProductionSavedEvent(production));
+        return production;
+    }
+
     private void validateProduction(Production production, Factory currentFactory)
     {
         if (production == null || production.getSelectedBuilding() == null
@@ -649,6 +691,31 @@ public class ProductionService
             .setPressurizerId(production.getPressurizerId())
             .setClockSpeed(production.getClockSpeed())
             .setUsedSomersloops(production.getUsedSomersloops());
+    }
+
+    private Production getCurrentFactoryProduction(UUID productionId)
+    {
+        if (productionId == null) {
+            throw new IllegalArgumentException("A production ID is required.");
+        }
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
+            throw new IllegalStateException("Open a factory before updating a production.");
+        }
+        if (!currentFactory.getProductions().contains(productionId.toString())) {
+            throw new IllegalArgumentException("The production does not belong to the active factory.");
+        }
+        Production production = this.productionRepository.findOne(productionId);
+        if (production == null || production.getSelectedBuilding() == null
+            || production.getSelectedBuilding().getKey() == null) {
+            throw new IllegalStateException("The production assigned to the active factory could not be loaded.");
+        }
+        return production;
+    }
+
+    private int getMinerMark(String buildingKey)
+    {
+        return MINER_BUILDING_KEYS.indexOf(buildingKey) + 1;
     }
 
     private double getClockSpeed(Production production)
