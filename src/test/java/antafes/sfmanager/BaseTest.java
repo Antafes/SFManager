@@ -39,6 +39,8 @@ import java.nio.file.Path;
 @ActiveProfiles("test")
 public abstract class BaseTest
 {
+    private static final ThreadLocal<Path> TEST_BASE_PATH = new ThreadLocal<>();
+
     @Autowired
     protected Configuration configuration;
 
@@ -64,7 +66,14 @@ public abstract class BaseTest
     protected AnnotationConfigApplicationContext createContext(Class<?>... configurationClasses)
     {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-        context.registerBean(Configuration.class, () -> new TestConfiguration(this.tempDirectory.toFile()));
+        context.registerBean(Configuration.class, () -> {
+            TEST_BASE_PATH.set(this.tempDirectory);
+            try {
+                return new TestConfiguration(this.tempDirectory.toFile());
+            } finally {
+                TEST_BASE_PATH.remove();
+            }
+        });
         context.register(configurationClasses);
         context.refresh();
         return context;
@@ -88,6 +97,16 @@ public abstract class BaseTest
         public File getSaveDirPath()
         {
             return this.saveDirectory;
+        }
+
+        @Override
+        public String getBasePath()
+        {
+            Path initialBasePath = TEST_BASE_PATH.get();
+            if (initialBasePath != null) {
+                return initialBasePath.toAbsolutePath() + File.separator;
+            }
+            return this.saveDirectory.getAbsolutePath() + File.separator;
         }
     }
 }

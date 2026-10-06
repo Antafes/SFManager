@@ -1,16 +1,17 @@
 package antafes.sfmanager.repository;
 
 import antafes.sfmanager.Configuration;
+import antafes.sfmanager.entity.Building;
+import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.repository.adapter.BuildingAdapter;
-import antafes.sfmanager.repository.adapter.RecipeAdapter;
+import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.repository.xml.productions.ProductionData;
+import antafes.sfmanager.repository.xml.productions.ProductionsData;
 import antafes.utilities.Utilities;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
@@ -18,9 +19,18 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class ProductionRepository extends BaseRepository<Production, UUID>
@@ -32,7 +42,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
     @Autowired
     private Configuration configuration;
 
-    public List<Production> findByBuildingKey(String buildingKey)
+    public synchronized List<Production> findByBuildingKey(String buildingKey)
     {
         return this.entities.values().stream()
             .filter(production -> production.getSelectedBuilding() != null
@@ -45,77 +55,188 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             .toList();
     }
 
-    public Set<String> findGroups()
+    public synchronized Set<String> findGroups()
     {
         return this.entities.values().stream()
             .map(Production::getGroup)
             .filter(group -> group != null && !group.isBlank())
-            .collect(java.util.stream.Collectors.toCollection(TreeSet::new));
+            .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public void saveData()
+    public synchronized void saveProduction(Production production) throws IOException
     {
-        try {
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            File productionsFile = new File(this.configuration.getBasePath() + "productions.xml");
-            this.checkFileExists(productionsFile);
+        this.init();
+        if (production == null || production.getId() == null) {
+            throw new IllegalArgumentException("A production with an ID is required.");
+        }
+        if (this.entities.containsKey(production.getId())) {
+            throw new IllegalArgumentException("A production with this ID already exists.");
+        }
 
-            Marshaller marshaller = JAXBContext.newInstance(ProductionList.class).createMarshaller();
-            marshaller.setAdapter(BuildingAdapter.class, new BuildingAdapter(this.buildingRepository));
-            marshaller.setAdapter(RecipeAdapter.class, new RecipeAdapter(this.recipeRepository));
-            marshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "productions.xsd")));
-            ProductionList list = new ProductionList();
-            this.entities.forEach((key, production) -> list.productionList.add(production));
-            marshaller.marshal(this.entities, productionsFile);
-        } catch (IOException | JAXBException | SAXException e) {
-            throw new RuntimeException(e);
+        this.entities.put(production.getId(), production);
+        try {
+            this.saveData();
+        } catch (IOException | RuntimeException failure) {
+            this.entities.remove(production.getId());
+            throw failure;
+        }
+    }
+
+    public synchronized void deleteProduction(UUID id) throws IOException
+    {
+        this.init();
+        Production production = this.entities.remove(id);
+        if (production == null) {
+            return;
+        }
+
+        try {
+            this.saveData();
+        } catch (IOException | RuntimeException failure) {
+            this.entities.put(id, production);
+            throw failure;
+        }
+    }
+
+    public synchronized void saveData() throws IOException
+    {
+        this.init();
+        Path productionFile = this.getProductionFile().toPath();
+        Path parentDirectory = productionFile.getParent();
+        Files.createDirectories(parentDirectory);
+        Path temporaryFile = Files.createTempFile(parentDirectory, "productions-", ".xml");
+        try {
+            Marshaller marshaller = this.createMarshaller();
+            ProductionsData list = new ProductionsData();
+            this.entities.values().stream()
+                .map(this::toData)
+                .forEach(list.productions::add);
+            marshaller.marshal(list, temporaryFile.toFile());
+            Files.move(temporaryFile, productionFile, StandardCopyOption.REPLACE_EXISTING);
+        } catch (JAXBException | SAXException | IOException | RuntimeException exception) {
+            IOException failure = exception instanceof IOException ioException
+                ? ioException
+                : new IOException("Could not save production data.", exception);
+            try {
+                Files.deleteIfExists(temporaryFile);
+            } catch (IOException cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+            }
+            throw failure;
         }
     }
 
     @Override
-    protected void loadData()
+    protected synchronized void loadData()
     {
         try {
             this.buildingRepository.init();
             this.recipeRepository.init();
-            SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            File productionsFile = new File(this.configuration.getBasePath() + "productions.xml");
-            this.checkFileExists(productionsFile);
-
-            if (productionsFile.length() == 0) {
+            File productionFile = this.getProductionFile();
+            if (!productionFile.isFile() || productionFile.length() == 0) {
                 return;
             }
 
-            Unmarshaller unmarshaller = JAXBContext.newInstance(ProductionList.class).createUnmarshaller();
-            unmarshaller.setAdapter(BuildingAdapter.class, new BuildingAdapter(this.buildingRepository));
-            unmarshaller.setAdapter(RecipeAdapter.class, new RecipeAdapter(this.recipeRepository));
-            unmarshaller.setSchema(sf.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "productions.xsd")));
-            ProductionList list;
-            try (FileInputStream input = new FileInputStream(productionsFile)) {
-                list = (ProductionList) unmarshaller.unmarshal(input);
+            Unmarshaller unmarshaller = this.createUnmarshaller();
+            ProductionsData list;
+            try (InputStream input = Files.newInputStream(productionFile.toPath())) {
+                list = (ProductionsData) unmarshaller.unmarshal(input);
             }
-            list.productionList.forEach(production -> this.entities.put(production.getId(), production));
-        } catch (JAXBException | IOException | SAXException e) {
-            throw new RuntimeException(e);
+            for (ProductionData productionData : list.productions) {
+                Production production = this.toEntity(productionData);
+                if (production.getId() == null || this.entities.putIfAbsent(production.getId(), production) != null) {
+                    throw new IllegalStateException("Duplicate or missing production ID in " + productionFile);
+                }
+            }
+        } catch (JAXBException | IOException | SAXException exception) {
+            throw new RuntimeException(exception);
         }
     }
 
-    private void checkFileExists(File productionsFile) throws IOException
+    private File getProductionFile()
     {
-        if (!productionsFile.exists()) {
-            if (!productionsFile.getParentFile().exists()) {
-                productionsFile.getParentFile().mkdirs();
-            }
-
-            productionsFile.createNewFile();
-            productionsFile.setWritable(true);
-        }
+        return Path.of(this.configuration.getBasePath()).resolve("productions.xml").toFile();
     }
 
-    @XmlRootElement(name = "productions", namespace = "http://www.w3schools.com/SFManager/productions")
-    public static class ProductionList
+    private Marshaller createMarshaller() throws JAXBException, SAXException
     {
-        @XmlElement(name = "production")
-        private final List<Production> productionList = new ArrayList<>();
+        Marshaller marshaller = JAXBContext.newInstance(ProductionsData.class).createMarshaller();
+        marshaller.setSchema(this.createSchema());
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        return marshaller;
+    }
+
+    private Unmarshaller createUnmarshaller() throws JAXBException, SAXException
+    {
+        Unmarshaller unmarshaller = JAXBContext.newInstance(ProductionsData.class).createUnmarshaller();
+        unmarshaller.setSchema(this.createSchema());
+        return unmarshaller;
+    }
+
+    private Production toEntity(ProductionData data)
+    {
+        UUID id = UUID.fromString(data.id);
+        Building selectedBuilding = this.buildingRepository.findOne(data.selectedBuilding);
+        if (selectedBuilding == null) {
+            throw new IllegalStateException("Unknown production building: " + data.selectedBuilding);
+        }
+
+        Recipe selectedRecipe = data.selectedRecipe == null
+            ? null
+            : this.recipeRepository.findOne(data.selectedRecipe);
+        if (data.selectedRecipe != null && selectedRecipe == null) {
+            throw new IllegalStateException("Unknown production recipe: " + data.selectedRecipe);
+        }
+
+        return new Production()
+            .setId(id)
+            .setSelectedBuilding(selectedBuilding)
+            .setSelectedRecipe(selectedRecipe)
+            .setGroup(data.group)
+            .setPosition(data.position)
+            .setAmount(data.amount)
+            .setPurity(this.toPurity(data.purity))
+            .setPressurizerId(data.pressurizerId == null ? null : UUID.fromString(data.pressurizerId))
+            .setClockSpeed(data.clockSpeed)
+            .setUsedSomersloops(data.usedSomersloops);
+    }
+
+    private ProductionData toData(Production production)
+    {
+        ProductionData data = new ProductionData();
+        data.id = production.getId().toString();
+        data.selectedBuilding = production.getSelectedBuilding().getKey();
+        data.selectedRecipe = production.getSelectedRecipe() == null
+            ? null
+            : production.getSelectedRecipe().getKey();
+        data.group = production.getGroup();
+        data.position = production.getPosition();
+        data.amount = production.getAmount();
+        data.purity = production.getPurity() == null ? null : production.getPurity().name();
+        data.pressurizerId = production.getPressurizerId() == null
+            ? null
+            : production.getPressurizerId().toString();
+        data.clockSpeed = production.getClockSpeed();
+        data.usedSomersloops = production.getUsedSomersloops();
+        return data;
+    }
+
+    private Purity toPurity(String value)
+    {
+        if (value == null) {
+            return null;
+        }
+        for (Purity purity : Purity.values()) {
+            if (purity.name().equals(value) || purity.getKey().equals(value)) {
+                return purity;
+            }
+        }
+        throw new IllegalStateException("Unknown production purity: " + value);
+    }
+
+    private javax.xml.validation.Schema createSchema() throws SAXException
+    {
+        SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        return schemaFactory.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "productions.xsd"));
     }
 }

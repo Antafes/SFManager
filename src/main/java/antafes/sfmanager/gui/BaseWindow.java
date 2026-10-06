@@ -149,7 +149,7 @@ public class BaseWindow extends JFrame
         int x, y, width, height;
 
         NewProductionDialog dialog = this.applicationContext.getBean(
-            NewProductionDialog.class, this, true, currentFactory
+            NewProductionDialog.class, this, true
         );
         dialog.setVisible(false);
 

@@ -1,16 +1,13 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Category;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.entity.recipe.Item;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
@@ -26,13 +23,13 @@ import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.io.IOException;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class NewProductionPanel extends BasePanel
 {
     private final String selectedLanguage;
-    private final Factory factory;
     private final NumberFormat numberFormat;
     private final NumberFormat clockSpeedFormat;
     private double clockSpeed = 100;
@@ -69,16 +66,11 @@ public class NewProductionPanel extends BasePanel
     private boolean syncingClockSpeedFromSlider;
 
     @Autowired
-    private BuildingRepository buildingRepository;
-    @Autowired
-    private RecipeRepository recipeRepository;
-    @Autowired
-    private ProductionRepository productionRepository;
+    private ProductionService productionService;
 
-    public NewProductionPanel(JDialog parent, Configuration configuration, Factory factory)
+    public NewProductionPanel(JDialog parent, Configuration configuration)
     {
         super(parent, configuration);
-        this.factory = factory;
         this.selectedLanguage = configuration.getLanguage().getName();
         Locale locale = this.selectedLanguage.equals("German") ? Locale.GERMAN : Locale.ENGLISH;
         this.numberFormat = NumberFormat.getNumberInstance(locale);
@@ -88,11 +80,6 @@ public class NewProductionPanel extends BasePanel
         this.clockSpeedFormat.setGroupingUsed(false);
         this.clockSpeedFormat.setMaximumFractionDigits(10);
         this.clockSpeedFormat.setMinimumFractionDigits(0);
-    }
-
-    public Factory getFactory()
-    {
-        return this.factory;
     }
 
     @PostConstruct
@@ -181,6 +168,64 @@ public class NewProductionPanel extends BasePanel
         this.add(component, constraints);
     }
 
+    private void saveProduction()
+    {
+        try {
+            Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+            if (selectedBuilding == null) {
+                throw new IllegalArgumentException("A production building is required.");
+            }
+            Double amount = this.parseNonNegativeNumber(this.amountField.getText());
+            if (amount == null) {
+                throw new IllegalArgumentException("Production amount must be a non-negative number.");
+            }
+            Double selectedClockSpeed = this.parseNonNegativeNumber(
+                this.clockSpeedValueField.getText(),
+                this.clockSpeedFormat
+            );
+            if (selectedClockSpeed == null || selectedClockSpeed > 250) {
+                throw new IllegalArgumentException("Clock speed must be between 0 and 250.");
+            }
+            Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
+            if (usedSomersloops == null) {
+                throw new IllegalArgumentException("Somersloop count must be a non-negative integer.");
+            }
+            Object groupValue = this.groupField.getEditor().getItem();
+            String group = groupValue == null ? null : groupValue.toString().trim();
+            if (group != null && group.isEmpty()) {
+                group = null;
+            }
+            String position = this.positionField.getText().trim();
+            if (position.isEmpty()) {
+                position = null;
+            }
+
+            Production production = new Production()
+                .setSelectedBuilding(selectedBuilding)
+                .setSelectedRecipe((Recipe) this.recipeSelect.getSelectedItem())
+                .setAmount(amount)
+                .setGroup(group)
+                .setPosition(position)
+                .setPurity((Purity) this.puritySelect.getSelectedItem())
+                .setPressurizerId(this.selectedPressurizerId)
+                .setClockSpeed(selectedClockSpeed)
+                .setUsedSomersloops(usedSomersloops);
+            this.productionService.saveProduction(production);
+            this.getParentDialog().dispose();
+        } catch (IOException | RuntimeException exception) {
+            String message = Objects.toString(
+                exception.getMessage(),
+                this.getLanguage().translate("productionSavingFailed")
+            );
+            JOptionPane.showMessageDialog(
+                this.getParentDialog(),
+                message,
+                this.getLanguage().translate("newProduction"),
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
     private void updateRecipes()
     {
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
@@ -189,7 +234,7 @@ public class NewProductionPanel extends BasePanel
         boolean pressurizerVisibilityChanged = this.pressurizerSelect.isVisible() != requiresPressurizer;
         this.pressurizerSelect.removeAllItems();
         if (requiresPressurizer) {
-            this.productionRepository.findByBuildingKey("well_pressurizer")
+            this.productionService.getPressurizers()
                 .forEach(this.pressurizerSelect::addItem);
             this.restoreSelectedPressurizer();
         } else {
@@ -227,9 +272,7 @@ public class NewProductionPanel extends BasePanel
             return;
         }
 
-        this.recipeRepository.findAll().values().stream()
-            .filter(recipe -> recipe.getProducedIn() != null
-                && selectedBuilding.getKey().equals(recipe.getProducedIn().getKey()))
+        this.productionService.getRecipesForBuilding(selectedBuilding.getKey()).stream()
             .sorted(Comparator.comparing(this.recipeRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Recipe::getKey))
             .forEach(this.recipeSelect::addItem);
@@ -322,9 +365,7 @@ public class NewProductionPanel extends BasePanel
 
     private boolean hasRecipes(Building building)
     {
-        return this.recipeRepository.findAll().values().stream()
-            .anyMatch(recipe -> recipe.getProducedIn() != null
-                && building.getKey().equals(recipe.getProducedIn().getKey()));
+        return !this.productionService.getRecipesForBuilding(building.getKey()).isEmpty();
     }
 
     private void addSummaryListener(JTextField field)
@@ -596,10 +637,6 @@ public class NewProductionPanel extends BasePanel
 
     private void initComponents()
     {
-        this.buildingRepository.init();
-        this.recipeRepository.init();
-        this.productionRepository.init();
-
         this.buildingSelectLabel = new JLabel();
         this.buildingSelect = new JComboBox<>();
         LocalizedNameRenderer<Building> buildingRenderer = new LocalizedNameRenderer<>(
@@ -607,7 +644,7 @@ public class NewProductionPanel extends BasePanel
             this.selectedLanguage
         );
         this.buildingSelect.setRenderer(buildingRenderer);
-        this.buildingRepository.findAll().values().stream()
+        this.productionService.getBuildings().stream()
             .filter(building -> building.getCategory() != Category.SPECIAL
                 && building.getCategory() != Category.LOGISTICS
                 && building.getCategory() != Category.TRANSPORTATION
@@ -650,7 +687,7 @@ public class NewProductionPanel extends BasePanel
         this.amountField = new JTextField();
         this.amountField.setText("1");
         this.groupLabel = new JLabel();
-        this.groupField = new JComboBox<>(this.productionRepository.findGroups().toArray(String[]::new));
+        this.groupField = new JComboBox<>(this.productionService.getProductionGroups().toArray(String[]::new));
         this.groupField.setEditable(true);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField();
@@ -710,6 +747,7 @@ public class NewProductionPanel extends BasePanel
         this.consumptionInfoLabel = new JLabel();
         this.okButton = new JButton();
         this.cancelButton = new JButton();
+        this.okButton.addActionListener(event -> this.saveProduction());
         this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
         this.pressurizerSelect.addActionListener(event -> {
             Production selectedPressurizer = (Production) this.pressurizerSelect.getSelectedItem();
@@ -795,7 +833,7 @@ public class NewProductionPanel extends BasePanel
             }
         });
         this.addSummaryListener(this.usedSomersloopsField);
-        this.buildingRepository.findAll().values().stream()
+        this.productionService.getBuildings().stream()
             .filter(this::hasRecipes)
             .min(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))

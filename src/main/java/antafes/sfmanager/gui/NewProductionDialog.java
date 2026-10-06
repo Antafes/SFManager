@@ -2,7 +2,6 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
-import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -26,12 +25,10 @@ public class NewProductionDialog extends JDialog
     @Autowired
     private Configuration configuration;
     private LanguageInterface language;
-    private final Factory factory;
 
-    public NewProductionDialog(Frame owner, boolean modal, Factory factory)
+    public NewProductionDialog(Frame owner, boolean modal)
     {
         super(owner, modal);
-        this.factory = factory;
     }
 
     @PostConstruct
@@ -71,7 +68,7 @@ public class NewProductionDialog extends JDialog
         SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
 
         NewProductionPanel panel = this.applicationContext.getBean(
-            NewProductionPanel.class, this, this.configuration, this.factory
+            NewProductionPanel.class, this, this.configuration
         );
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
