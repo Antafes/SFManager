@@ -5,6 +5,7 @@ import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.order.LocalizedBuildingOrder;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
@@ -17,6 +18,7 @@ import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTabbedPane;
@@ -106,6 +108,9 @@ public class GeneratorProductionPanelTest extends BaseTest
             assertEquals("150%", table.getValueAt(0, 2));
             assertEquals("112.5 MW", table.getValueAt(0, 3));
             assertEquals("Coal (22.5), Water (67.5)", table.getValueAt(0, 4));
+            assertTrue(table.getValueAt(0, 5) instanceof java.util.UUID);
+            assertTrue(table.getColumnModel().getColumn(5).getCellRenderer()
+                .getTableCellRendererComponent(table, table.getValueAt(0, 5), false, false, 0, 5) instanceof JButton);
 
             GeneratorProductionPanel fuelPanel = context.getBean(GeneratorProductionPanel.class, fuelGenerator);
             assertEquals("F1", fuelPanel.getTable().getValueAt(0, 0));
@@ -119,6 +124,24 @@ public class GeneratorProductionPanelTest extends BaseTest
             assertEquals(1, geothermalPanel.getTable().getRowCount());
             assertEquals("200 MW", geothermalPanel.getTable().getValueAt(0, 3));
             assertEquals("", geothermalPanel.getTable().getValueAt(0, 4));
+
+            ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
+                productionService,
+                this.configuration.getLanguageObject(),
+                panel,
+                panel::refresh,
+                () -> true
+            );
+            JButton button = (JButton) deleteButton.getTableCellEditorComponent(
+                table,
+                table.getValueAt(0, 5),
+                false,
+                0,
+                5
+            );
+            button.doClick();
+            assertEquals(0, table.getRowCount());
+            assertEquals(0, productionService.getGeneratorProductions(coalGenerator).size());
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Generator Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));

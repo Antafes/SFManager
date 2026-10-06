@@ -15,6 +15,7 @@ import antafes.sfmanager.repository.RecipeRepository;
 import antafes.sfmanager.repository.xml.productions.ProductionData;
 import antafes.sfmanager.repository.xml.productions.ProductionsData;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
+import antafes.sfmanager.service.event.ProductionDeletedEvent;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
 import antafes.sfmanager.service.dto.FactoryOverviewData;
 import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
@@ -186,6 +187,176 @@ public class ProductionServiceTest extends BaseTest
             String productionData = Files.readString(this.tempDirectory.resolve("production-chain-factory")
                 .resolve("productions.xml"));
             assertFalse(productionData.contains("<amount>"));
+        }
+    }
+
+    @Test
+    public void testDeletesProductionAndItsLinkedWellExtractors() throws IOException
+    {
+        UUID factoryId;
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Delete Pressurizer Factory");
+            factoryId = factory.getId();
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Building pressurizerBuilding = this.productionService.getBuildings().stream()
+                .filter(building -> "well_pressurizer".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production pressurizer = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(pressurizerBuilding)
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            Building extractorBuilding = this.productionService.getBuildings().stream()
+                .filter(building -> "well_extractor".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item water = this.productionService.getResourceItems().stream()
+                .filter(item -> "water".equals(item.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production extractor = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(extractorBuilding)
+                .setSelectedItem(water)
+                .setPurity(Purity.NORMAL)
+                .setPressurizerId(pressurizer.getId())
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            AtomicReference<ProductionDeletedEvent> deletedEvent = new AtomicReference<>();
+            context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
+                if (event instanceof PayloadApplicationEvent<?> payload
+                    && payload.getPayload() instanceof ProductionDeletedEvent productionDeletedEvent) {
+                    deletedEvent.set(productionDeletedEvent);
+                }
+            });
+
+            List<Production> deleted = this.productionService.deleteProduction(pressurizer.getId());
+
+            assertEquals(List.of(pressurizer, extractor), deleted);
+            assertFalse(factory.getProductions().contains(pressurizer.getId().toString()));
+            assertFalse(factory.getProductions().contains(extractor.getId().toString()));
+            assertNull(this.productionRepository.findOne(pressurizer.getId()));
+            assertNull(this.productionRepository.findOne(extractor.getId()));
+            assertEquals(deleted, deletedEvent.get().productions());
+            String savedProductions = Files.readString(this.tempDirectory.resolve("delete-pressurizer-factory")
+                .resolve("productions.xml"));
+            assertFalse(savedProductions.contains(pressurizer.getId().toString()));
+            assertFalse(savedProductions.contains(extractor.getId().toString()));
+        }
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory loadedFactory = this.factoryService.findFactory(factoryId);
+            assertNotNull(loadedFactory);
+            assertTrue(loadedFactory.getProductions().isEmpty());
+            assertTrue(this.productionRepository.findAll().isEmpty());
+        }
+    }
+
+    @Test
+    public void testRejectsDeletingProductionFromAnotherFactory() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory ownerFactory = this.factoryService.createFactory("Production Owner Factory");
+            context.publishEvent(new FactorySelectedEvent(ownerFactory));
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe recipe = this.productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(recipe)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            Factory otherFactory = this.factoryService.createFactory("Other Production Factory");
+            context.publishEvent(new FactorySelectedEvent(otherFactory));
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.deleteProduction(production.getId())
+            );
+            assertNotNull(this.productionRepository.findOne(production.getId()));
+            assertTrue(ownerFactory.getProductions().contains(production.getId().toString()));
+        }
+    }
+
+    @Test
+    public void testRestoresProductionAndFactoryAssociationWhenDeletePersistenceFails() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Delete Rollback Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe recipe = this.productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(recipe)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            AtomicReference<ProductionDeletedEvent> deletedEvent = new AtomicReference<>();
+            context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
+                if (event instanceof PayloadApplicationEvent<?> payload
+                    && payload.getPayload() instanceof ProductionDeletedEvent productionDeletedEvent) {
+                    deletedEvent.set(productionDeletedEvent);
+                }
+            });
+            Files.delete(this.tempDirectory.resolve("delete-rollback-factory").resolve("factory.xml"));
+
+            assertThrows(
+                IOException.class,
+                () -> this.productionService.deleteProduction(production.getId())
+            );
+            assertTrue(factory.getProductions().contains(production.getId().toString()));
+            assertNotNull(this.productionRepository.findOne(production.getId()));
+            assertTrue(Files.readString(this.tempDirectory.resolve("delete-rollback-factory")
+                    .resolve("productions.xml"))
+                .contains(production.getId().toString()));
+            assertNull(deletedEvent.get());
         }
     }
 

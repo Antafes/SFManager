@@ -6,6 +6,7 @@ import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Purity;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
@@ -64,10 +65,11 @@ public class ResourceProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return false;
+                return column == 8;
             }
         };
         this.table = new JTable(this.tableModel);
+        this.installDeleteButton();
         this.setColumnWidths();
 
         this.setLayout(new BorderLayout());
@@ -81,6 +83,18 @@ public class ResourceProductionPanel extends JPanel
         List<ResourceProductionEntry> entries = this.productionService.getResourceProductions(this.item);
         List<Object[]> rows = this.createRows(entries);
         rows.forEach(this.tableModel::addRow);
+    }
+
+    private void installDeleteButton()
+    {
+        ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
+            this.productionService,
+            this.language,
+            this,
+            this::refresh
+        );
+        this.table.getColumnModel().getColumn(8).setCellRenderer(deleteButton);
+        this.table.getColumnModel().getColumn(8).setCellEditor(deleteButton);
     }
 
     private String[] columnNames()
@@ -162,7 +176,7 @@ public class ResourceProductionPanel extends JPanel
             this.perMinute(output),
             "",
             this.megawatts(consumption),
-            ""
+            production.getId()
         };
     }
 
@@ -178,7 +192,7 @@ public class ResourceProductionPanel extends JPanel
             "",
             "",
             this.megawatts(this.calculatePowerConsumption(pressurizer)),
-            ""
+            pressurizer.getId()
         };
     }
 
@@ -201,7 +215,7 @@ public class ResourceProductionPanel extends JPanel
             this.perMinute(output),
             "",
             "",
-            ""
+            production.getId()
         };
     }
 

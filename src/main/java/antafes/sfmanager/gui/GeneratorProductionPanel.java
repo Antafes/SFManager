@@ -3,6 +3,7 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Name;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.GeneratorProductionEntry;
 import antafes.sfmanager.service.dto.GeneratorProductionIngredient;
@@ -62,12 +63,11 @@ public class GeneratorProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return false;
+                return column == 5;
             }
         };
         this.table = new JTable(this.tableModel);
-        this.table.getColumnModel().getColumn(5).setPreferredWidth(80);
-        this.table.getColumnModel().getColumn(5).setMaxWidth(100);
+        this.installDeleteButton();
         this.setLayout(new BorderLayout());
         this.add(new JScrollPane(this.table), BorderLayout.CENTER);
         this.refresh();
@@ -83,9 +83,25 @@ public class GeneratorProductionPanel extends JPanel
                 entry.production().getGroup(),
                 this.percentage(entry.production().getClockSpeed()),
                 this.megawatts(entry.powerProduction()),
-                this.usedMaterials(entry.usedMaterials())
+                this.usedMaterials(entry.usedMaterials()),
+                entry.production().getId()
             });
         }
+    }
+
+    private void installDeleteButton()
+    {
+        var actionColumn = this.table.getColumnModel().getColumn(5);
+        actionColumn.setPreferredWidth(80);
+        actionColumn.setMaxWidth(100);
+        ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
+            this.productionService,
+            this.language,
+            this,
+            this::refresh
+        );
+        actionColumn.setCellRenderer(deleteButton);
+        actionColumn.setCellEditor(deleteButton);
     }
 
     private String usedMaterials(List<GeneratorProductionIngredient> ingredients)

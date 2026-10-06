@@ -3,6 +3,7 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Name;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.RecipeProductionEntry;
 import antafes.sfmanager.service.dto.RecipeProductionMaterial;
@@ -64,12 +65,11 @@ public class RecipeProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return false;
+                return column == 7;
             }
         };
         this.table = new JTable(this.tableModel);
-        this.table.getColumnModel().getColumn(7).setPreferredWidth(80);
-        this.table.getColumnModel().getColumn(7).setMaxWidth(100);
+        this.installDeleteButton();
         this.setLayout(new BorderLayout());
         this.add(new JScrollPane(this.table), BorderLayout.CENTER);
         this.refresh();
@@ -88,9 +88,24 @@ public class RecipeProductionPanel extends JPanel
                 this.materials(entry.producedMaterials()),
                 "",
                 this.consumption(entry.powerConsumption()),
-                ""
+                entry.production().getId()
             });
         }
+    }
+
+    private void installDeleteButton()
+    {
+        var actionColumn = this.table.getColumnModel().getColumn(7);
+        actionColumn.setPreferredWidth(80);
+        actionColumn.setMaxWidth(100);
+        ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
+            this.productionService,
+            this.language,
+            this,
+            this::refresh
+        );
+        actionColumn.setCellRenderer(deleteButton);
+        actionColumn.setCellEditor(deleteButton);
     }
 
     private String materials(List<RecipeProductionMaterial> materials)

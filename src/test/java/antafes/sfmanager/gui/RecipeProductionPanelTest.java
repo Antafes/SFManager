@@ -8,6 +8,7 @@ import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.order.LocalizedItemOrder;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
@@ -20,12 +21,17 @@ import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import javax.swing.JButton;
 import javax.swing.JTable;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class RecipeProductionPanelTest extends BaseTest
@@ -128,7 +134,7 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("Iron Ingot (60)", table.getValueAt(0, 4));
             assertEquals("", table.getValueAt(0, 5));
             assertEquals("16 MW", table.getValueAt(0, 6));
-            assertEquals("", table.getValueAt(0, 7));
+            assertTrue(table.getValueAt(0, 7) instanceof java.util.UUID);
             assertEquals("Iron Ore (50), Limestone (80)", table.getValueAt(1, 0));
             assertEquals("Basic Iron Ingot", table.getValueAt(1, 1));
             assertEquals("Iron Ingot (100)", table.getValueAt(1, 4));
@@ -159,6 +165,84 @@ public class RecipeProductionPanelTest extends BaseTest
 
         assertEquals("aluminum", sorted.get(0).getKey());
         assertEquals("zinc", sorted.get(1).getKey());
+    }
+
+    @Test
+    public void testDeleteButtonSupportsCancelAndDeletesConfirmedProduction() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            RecipeProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            ProductionService productionService = context.getBean(ProductionService.class);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Delete From Recipe Panel");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Building smelter = this.findBuilding(productionService, "smelter");
+            Recipe recipe = productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(recipe)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            Item outputItem = recipe.getProducts().get(0).getResource();
+            RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, outputItem);
+            JTable table = panel.getTable();
+            AtomicInteger refreshCount = new AtomicInteger();
+            ProductionDeleteButtonEditor cancelEditor = new ProductionDeleteButtonEditor(
+                productionService,
+                this.configuration.getLanguageObject(),
+                panel,
+                refreshCount::incrementAndGet,
+                () -> false
+            );
+            JButton cancelButton = (JButton) cancelEditor.getTableCellEditorComponent(
+                table,
+                production.getId(),
+                false,
+                0,
+                7
+            );
+            cancelButton.doClick();
+            assertEquals(1, productionService.getRecipeProductions(outputItem).size());
+            assertEquals(1, table.getRowCount());
+            assertEquals(0, refreshCount.get());
+
+            ProductionDeleteButtonEditor confirmEditor = new ProductionDeleteButtonEditor(
+                productionService,
+                this.configuration.getLanguageObject(),
+                panel,
+                panel::refresh,
+                () -> true
+            );
+            JButton deleteButton = (JButton) confirmEditor.getTableCellEditorComponent(
+                table,
+                production.getId(),
+                false,
+                0,
+                7
+            );
+            assertEquals("", deleteButton.getText());
+            assertNotNull(deleteButton.getIcon());
+            assertEquals("Delete", deleteButton.getToolTipText());
+            assertEquals("Delete", deleteButton.getAccessibleContext().getAccessibleName());
+            deleteButton.doClick();
+            assertNull(productionService.getRecipeProductions(outputItem).stream()
+                .filter(entry -> production.getId().equals(entry.production().getId()))
+                .findFirst()
+                .orElse(null));
+            assertFalse(factory.getProductions().contains(production.getId().toString()));
+            assertEquals(0, table.getRowCount());
+        }
     }
 
     private Building findBuilding(ProductionService productionService, String key)

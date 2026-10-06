@@ -11,6 +11,7 @@ import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
+import antafes.sfmanager.service.event.ProductionDeletedEvent;
 import antafes.sfmanager.service.dto.FactoryOverviewData;
 import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
 import antafes.sfmanager.service.dto.FactoryOverviewPowerSource;
@@ -416,6 +417,72 @@ public class ProductionService
             this.eventPublisher.publishEvent(new ProductionSavedEvent(newProduction))
         );
         return List.copyOf(newProductions);
+    }
+
+    public List<Production> deleteProduction(UUID productionId) throws IOException
+    {
+        if (productionId == null) {
+            throw new IllegalArgumentException("A production ID is required.");
+        }
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
+            throw new IllegalStateException("Open a factory before deleting a production.");
+        }
+        List<String> factoryProductionIds = currentFactory.getProductions();
+        if (factoryProductionIds == null || !factoryProductionIds.contains(productionId.toString())) {
+            throw new IllegalArgumentException("The production does not belong to the active factory.");
+        }
+
+        Production production = this.productionRepository.findOne(productionId);
+        if (production == null) {
+            throw new IllegalStateException("The production assigned to the active factory could not be loaded.");
+        }
+        List<Production> productionsToDelete = new ArrayList<>();
+        productionsToDelete.add(production);
+        if (production.getSelectedBuilding() != null
+            && "well_pressurizer".equals(production.getSelectedBuilding().getKey())) {
+            this.getCurrentFactoryProductions().stream()
+                .filter(candidate -> productionId.equals(candidate.getPressurizerId()))
+                .forEach(productionsToDelete::add);
+        }
+        List<String> productionIds = productionsToDelete.stream()
+            .map(candidate -> candidate.getId().toString())
+            .toList();
+        List<String> originalProductionIds = List.copyOf(factoryProductionIds);
+        factoryProductionIds.removeAll(productionIds);
+
+        boolean productionsDeleted = false;
+        boolean factorySaveAttempted = false;
+        try {
+            this.productionRepository.deleteProductions(
+                currentFactory,
+                productionsToDelete.stream().map(Production::getId).toList()
+            );
+            productionsDeleted = true;
+            factorySaveAttempted = true;
+            this.factoryService.saveFactory(currentFactory);
+        } catch (IOException | RuntimeException failure) {
+            factoryProductionIds.clear();
+            factoryProductionIds.addAll(originalProductionIds);
+            if (productionsDeleted) {
+                try {
+                    this.productionRepository.saveProductions(currentFactory, productionsToDelete);
+                } catch (IOException | RuntimeException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+            }
+            if (factorySaveAttempted) {
+                try {
+                    this.factoryService.saveFactory(currentFactory);
+                } catch (IOException | RuntimeException rollbackFailure) {
+                    failure.addSuppressed(rollbackFailure);
+                }
+            }
+            throw failure;
+        }
+
+        this.eventPublisher.publishEvent(new ProductionDeletedEvent(productionsToDelete));
+        return List.copyOf(productionsToDelete);
     }
 
     private void validateProduction(Production production, Factory currentFactory)

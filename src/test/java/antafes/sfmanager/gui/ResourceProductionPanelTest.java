@@ -6,6 +6,7 @@ import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
+import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
@@ -18,6 +19,7 @@ import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import javax.swing.JButton;
 import javax.swing.JTable;
 import java.io.IOException;
 import java.util.List;
@@ -159,8 +161,26 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("20 MW", table.getValueAt(4, 7));
             for (int row = 0; row < table.getRowCount(); row++) {
                 assertEquals("", table.getValueAt(row, 6));
-                assertEquals("", table.getValueAt(row, 8));
+                assertNotNull(table.getValueAt(row, 8));
             }
+            ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
+                productionService,
+                this.configuration.getLanguageObject(),
+                panel,
+                panel::refresh,
+                () -> true
+            );
+            JButton button = (JButton) deleteButton.getTableCellEditorComponent(
+                table,
+                table.getValueAt(0, 8),
+                false,
+                0,
+                8
+            );
+            button.doClick();
+            assertEquals(1, table.getRowCount());
+            assertEquals("Water Extractor", table.getValueAt(0, 0));
+            assertEquals(1, productionService.getResourceProductions(water).size());
             assertNotNull(extractor.getId());
         }
     }
