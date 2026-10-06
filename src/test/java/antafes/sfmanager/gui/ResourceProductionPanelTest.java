@@ -61,7 +61,6 @@ public class ResourceProductionPanelTest extends BaseTest
             Building pressurizerBuilding = this.findBuilding(productionService, "well_pressurizer");
             Production pressurizer = productionService.saveProduction(new Production()
                 .setSelectedBuilding(pressurizerBuilding)
-                .setAmount(1.0)
                 .setPosition("W1")
                 .setGroup("Well Group")
                 .setPurity(Purity.NORMAL)
@@ -69,19 +68,17 @@ public class ResourceProductionPanelTest extends BaseTest
                 .setUsedSomersloops(0));
             Building wellExtractorBuilding = this.findBuilding(productionService, "well_extractor");
             Item water = this.findItem(productionService, "water");
-            Production extractor = productionService.saveProduction(new Production()
+            Production extractor = productionService.saveProductions(new Production()
                 .setSelectedBuilding(wellExtractorBuilding)
                 .setSelectedItem(water)
-                .setAmount(2.0)
                 .setPurity(Purity.PURE)
                 .setClockSpeed(150.0)
                 .setGroup("Well Group")
                 .setPressurizerId(pressurizer.getId())
-                .setUsedSomersloops(0));
+                .setUsedSomersloops(0), 2).get(0);
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(wellExtractorBuilding)
                 .setSelectedItem(water)
-                .setAmount(1.0)
                 .setPurity(Purity.NORMAL)
                 .setClockSpeed(150.0)
                 .setGroup("Well Group")
@@ -91,7 +88,6 @@ public class ResourceProductionPanelTest extends BaseTest
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(waterExtractorBuilding)
                 .setSelectedItem(water)
-                .setAmount(1.5)
                 .setPurity(Purity.NORMAL)
                 .setPosition("W2")
                 .setClockSpeed(100.0)
@@ -102,26 +98,26 @@ public class ResourceProductionPanelTest extends BaseTest
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(miner)
                 .setSelectedItem(iron)
-                .setAmount(1.0)
                 .setPurity(Purity.NORMAL)
                 .setClockSpeed(100.0)
                 .setGroup("Iron Group")
                 .setUsedSomersloops(0));
 
             List<ResourceProductionEntry> entries = productionService.getResourceProductions(water);
-            assertEquals(3, entries.size());
+            assertEquals(4, entries.size());
             assertEquals(1, productionService.getResourceProductions(iron).size());
             assertEquals(pressurizer, entries.get(0).pressurizer());
             assertEquals(60, entries.get(0).baseAmount());
             assertEquals(60, entries.get(1).baseAmount());
-            assertEquals(120, entries.get(2).baseAmount());
+            assertEquals(60, entries.get(2).baseAmount());
+            assertEquals(120, entries.get(3).baseAmount());
 
             ResourceProductionPanel panel = context.getBean(
                 ResourceProductionPanel.class,
                 water
             );
             JTable table = panel.getTable();
-            assertEquals(4, table.getRowCount());
+            assertEquals(5, table.getRowCount());
             assertEquals(9, table.getColumnCount());
             assertEquals("Building", table.getColumnName(0));
             assertEquals("Position", table.getColumnName(1));
@@ -144,19 +140,23 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("Resource Well Extractor", table.getValueAt(1, 0));
             assertEquals("Well Group", table.getValueAt(1, 2));
             assertEquals("Pure", table.getValueAt(1, 3));
-            assertEquals("360 / min", table.getValueAt(1, 5));
+            assertEquals("180 / min", table.getValueAt(1, 5));
             assertEquals("", table.getValueAt(1, 1));
             assertEquals("", table.getValueAt(1, 4));
             assertEquals("", table.getValueAt(1, 7));
             assertEquals("Resource Well Extractor", table.getValueAt(2, 0));
             assertEquals("Well Group", table.getValueAt(2, 2));
-            assertEquals("Normal", table.getValueAt(2, 3));
-            assertEquals("90 / min", table.getValueAt(2, 5));
-            assertEquals("Water Extractor", table.getValueAt(3, 0));
-            assertEquals("W2", table.getValueAt(3, 1));
-            assertEquals("Water Group", table.getValueAt(3, 2));
-            assertEquals("180 / min", table.getValueAt(3, 5));
-            assertEquals("30 MW", table.getValueAt(3, 7));
+            assertEquals("Pure", table.getValueAt(2, 3));
+            assertEquals("180 / min", table.getValueAt(2, 5));
+            assertEquals("Resource Well Extractor", table.getValueAt(3, 0));
+            assertEquals("Well Group", table.getValueAt(3, 2));
+            assertEquals("Normal", table.getValueAt(3, 3));
+            assertEquals("90 / min", table.getValueAt(3, 5));
+            assertEquals("Water Extractor", table.getValueAt(4, 0));
+            assertEquals("W2", table.getValueAt(4, 1));
+            assertEquals("Water Group", table.getValueAt(4, 2));
+            assertEquals("120 / min", table.getValueAt(4, 5));
+            assertEquals("20 MW", table.getValueAt(4, 7));
             for (int row = 0; row < table.getRowCount(); row++) {
                 assertEquals("", table.getValueAt(row, 6));
                 assertEquals("", table.getValueAt(row, 8));
@@ -193,7 +193,6 @@ public class ResourceProductionPanelTest extends BaseTest
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(miner)
                 .setSelectedItem(iron)
-                .setAmount(1.0)
                 .setPurity(Purity.NORMAL)
                 .setClockSpeed(100.0)
                 .setGroup("Iron Group")

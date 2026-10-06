@@ -178,9 +178,9 @@ public class NewProductionPanel extends BasePanel
             if (selectedBuilding == null) {
                 throw new IllegalArgumentException("A production building is required.");
             }
-            Double amount = this.parseNonNegativeNumber(this.amountField.getText());
+            Integer amount = this.parsePositiveInteger(this.amountField.getText());
             if (amount == null) {
-                throw new IllegalArgumentException("Production amount must be a non-negative number.");
+                throw new IllegalArgumentException("Production amount must be a positive integer.");
             }
             Double selectedClockSpeed = this.parseNonNegativeNumber(
                 this.clockSpeedValueField.getText(),
@@ -211,14 +211,13 @@ public class NewProductionPanel extends BasePanel
                 .setSelectedItem(this.itemSelect.getItemCount() > 0
                     ? (antafes.sfmanager.entity.Item) this.itemSelect.getSelectedItem()
                     : null)
-                .setAmount(amount)
                 .setGroup(group)
                 .setPosition(position)
                 .setPurity((Purity) this.puritySelect.getSelectedItem())
                 .setPressurizerId(this.selectedPressurizerId)
                 .setClockSpeed(selectedClockSpeed)
                 .setUsedSomersloops(usedSomersloops);
-            this.productionService.saveProduction(production);
+            this.productionService.saveProductions(production, amount);
             this.getParentDialog().dispose();
         } catch (IOException | RuntimeException exception) {
             String message = Objects.toString(
@@ -498,6 +497,12 @@ public class NewProductionPanel extends BasePanel
         }
     }
 
+    private Integer parsePositiveInteger(String value)
+    {
+        Integer parsedValue = this.parseNonNegativeInteger(value);
+        return parsedValue != null && parsedValue > 0 ? parsedValue : null;
+    }
+
     private void updateItemSummary(
         JPanel panel,
         JLabel heading,
@@ -546,7 +551,7 @@ public class NewProductionPanel extends BasePanel
                     || selectedBuilding.getPower() != 0),
             hasIngredients
         );
-        Double amount = this.parseNonNegativeNumber(this.amountField.getText());
+        Integer amount = this.parsePositiveInteger(this.amountField.getText());
         double clockSpeed = this.clockSpeed;
         Integer usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
 
@@ -702,7 +707,7 @@ public class NewProductionPanel extends BasePanel
 
     private void updateConsumptionInfo(
         Building building,
-        Double amount,
+        Integer amount,
         double clockSpeed,
         Integer usedSomersloops
     )
@@ -845,6 +850,7 @@ public class NewProductionPanel extends BasePanel
         this.cancelButton = new JButton();
         this.okButton.addActionListener(event -> this.saveProduction());
         this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
+        this.getParentDialog().getRootPane().setDefaultButton(this.okButton);
         this.pressurizerSelect.addActionListener(event -> {
             Production selectedPressurizer = (Production) this.pressurizerSelect.getSelectedItem();
             this.selectedPressurizerId = selectedPressurizer == null ? null : selectedPressurizer.getId();

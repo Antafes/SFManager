@@ -27,8 +27,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
@@ -72,17 +75,48 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
 
     public synchronized void saveProduction(Factory factory, Production production) throws IOException
     {
+        this.saveProductions(factory, List.of(production));
+    }
+
+    public synchronized void saveProductions(Factory factory, List<Production> productions) throws IOException
+    {
         this.validateFactory(factory);
-        this.validateProductionId(production);
-        if (this.entities.containsKey(production.getId())) {
-            throw new IllegalArgumentException("A production with this ID already exists.");
+        if (productions == null || productions.isEmpty()) {
+            throw new IllegalArgumentException("At least one production is required.");
         }
 
-        this.entities.put(production.getId(), production);
+        Set<UUID> productionIds = new TreeSet<>();
+        for (Production production : productions) {
+            this.validateProductionId(production);
+            if (!productionIds.add(production.getId()) || this.entities.containsKey(production.getId())) {
+                throw new IllegalArgumentException("A production with this ID already exists.");
+            }
+        }
+
+        productions.forEach(production -> this.entities.put(production.getId(), production));
         try {
             this.saveData(factory);
         } catch (IOException | RuntimeException failure) {
-            this.entities.remove(production.getId());
+            productionIds.forEach(this.entities::remove);
+            throw failure;
+        }
+    }
+
+    public synchronized void deleteProductions(Factory factory, List<UUID> ids) throws IOException
+    {
+        this.validateFactory(factory);
+        List<Production> removed = ids.stream()
+            .map(this.entities::remove)
+            .filter(Objects::nonNull)
+            .toList();
+        if (removed.isEmpty()) {
+            return;
+        }
+
+        try {
+            this.saveData(factory);
+        } catch (IOException | RuntimeException failure) {
+            removed.forEach(production -> this.entities.put(production.getId(), production));
             throw failure;
         }
     }
@@ -113,7 +147,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
                     continue;
                 }
 
-                this.loadProductions(productionFile);
+                this.loadProductions(productionFile, factory);
             }
             this.migrateLegacyProductions();
         } catch (JAXBException | IOException | SAXException exception) {
@@ -159,19 +193,62 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         }
     }
 
-    private void loadProductions(File productionFile) throws JAXBException, IOException, SAXException
+    private void loadProductions(File productionFile, Factory factory)
+        throws JAXBException, IOException, SAXException
     {
         Unmarshaller unmarshaller = this.createUnmarshaller();
         ProductionsData list;
         try (InputStream input = Files.newInputStream(productionFile.toPath())) {
             list = (ProductionsData) unmarshaller.unmarshal(input);
         }
+        boolean expandedLegacyProductions = false;
         for (ProductionData productionData : list.productions) {
             Production production = this.toEntity(productionData);
             if (production.getId() == null || this.entities.putIfAbsent(production.getId(), production) != null) {
                 throw new IllegalStateException("Duplicate or missing production ID in " + productionFile);
             }
+            int legacyCount = this.toLegacyProductionCount(productionData.amount, productionData.id);
+            for (int index = 1; index < legacyCount; index++) {
+                Production duplicate = this.copyProduction(production).setId(UUID.randomUUID());
+                if (this.entities.putIfAbsent(duplicate.getId(), duplicate) != null) {
+                    throw new IllegalStateException("Duplicate production ID while migrating " + productionFile);
+                }
+                factory.getProductions().add(duplicate.getId().toString());
+                expandedLegacyProductions = true;
+            }
         }
+        if (expandedLegacyProductions) {
+            this.saveData(factory);
+            this.factoryRepository.saveFactory(factory);
+        }
+    }
+
+    private int toLegacyProductionCount(Double amount, String productionId)
+    {
+        if (amount == null) {
+            return 1;
+        }
+        if (!Double.isFinite(amount) || amount < 1 || amount > Integer.MAX_VALUE
+            || amount != Math.rint(amount)) {
+            throw new IllegalStateException(
+                "Legacy production amount must be a positive whole number: " + productionId
+            );
+        }
+        return amount.intValue();
+    }
+
+    private Production copyProduction(Production production)
+    {
+        return new Production()
+            .setSelectedBuilding(production.getSelectedBuilding())
+            .setSelectedRecipe(production.getSelectedRecipe())
+            .setSelectedItem(production.getSelectedItem())
+            .setGroup(production.getGroup())
+            .setPosition(production.getPosition())
+            .setPurity(production.getPurity())
+            .setPressurizerId(production.getPressurizerId())
+            .setClockSpeed(production.getClockSpeed())
+            .setUsedSomersloops(production.getUsedSomersloops());
     }
 
     private void migrateLegacyProductions() throws JAXBException, IOException, SAXException
@@ -191,6 +268,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             Comparator.comparing(factory -> factory.getId().toString())
         );
         Set<UUID> migratedProductionIds = new TreeSet<>();
+        Map<UUID, List<String>> addedIdsByFactory = new HashMap<>();
         for (ProductionData productionData : legacyData.productions) {
             UUID id = UUID.fromString(productionData.id);
             if (this.entities.containsKey(id)) {
@@ -204,18 +282,35 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
                 ));
             Production production = this.toEntity(productionData);
             this.entities.put(id, production);
-                migratedProductionIds.add(id);
-                factoriesToSave.add(owner);
+            migratedProductionIds.add(id);
+            factoriesToSave.add(owner);
+
+            int legacyCount = this.toLegacyProductionCount(productionData.amount, productionData.id);
+            for (int index = 1; index < legacyCount; index++) {
+                Production duplicate = this.copyProduction(production).setId(UUID.randomUUID());
+                this.entities.put(duplicate.getId(), duplicate);
+                owner.getProductions().add(duplicate.getId().toString());
+                migratedProductionIds.add(duplicate.getId());
+                addedIdsByFactory.computeIfAbsent(owner.getId(), ignored -> new ArrayList<>())
+                    .add(duplicate.getId().toString());
+            }
         }
 
         try {
-                for (Factory factory : factoriesToSave) {
-                    this.saveData(factory);
-                }
-                Files.delete(legacyFile.toPath());
+            for (Factory factory : factoriesToSave) {
+                this.saveData(factory);
+                this.factoryRepository.saveFactory(factory);
+            }
+            Files.delete(legacyFile.toPath());
         } catch (IOException | RuntimeException failure) {
-                migratedProductionIds.forEach(this.entities::remove);
-                throw failure;
+            migratedProductionIds.forEach(this.entities::remove);
+            addedIdsByFactory.forEach((factoryId, addedIds) -> {
+                Factory factory = this.factoryRepository.findOne(factoryId);
+                if (factory != null) {
+                    factory.getProductions().removeAll(addedIds);
+                }
+            });
+            throw failure;
         }
     }
 
@@ -283,7 +378,6 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             .setSelectedItem(selectedItem)
             .setGroup(data.group)
             .setPosition(data.position)
-            .setAmount(data.amount)
             .setPurity(this.toPurity(data.purity))
             .setPressurizerId(data.pressurizerId == null ? null : UUID.fromString(data.pressurizerId))
             .setClockSpeed(data.clockSpeed)
@@ -303,7 +397,6 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             : production.getSelectedItem().getKey();
         data.group = production.getGroup();
         data.position = production.getPosition();
-        data.amount = production.getAmount();
         data.purity = production.getPurity() == null ? null : production.getPurity().name();
         data.pressurizerId = production.getPressurizerId() == null
             ? null

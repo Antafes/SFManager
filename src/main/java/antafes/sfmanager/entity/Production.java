@@ -15,7 +15,6 @@ public class Production
     private Item selectedItem;
     private String group;
     private String position;
-    private Double amount;
     private Purity purity;
     private UUID pressurizerId;
     private Double clockSpeed;

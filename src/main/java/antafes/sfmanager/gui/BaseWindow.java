@@ -211,6 +211,9 @@ public class BaseWindow extends JFrame
     private void refreshResourceTabs()
     {
         this.panel.removeAll();
+        FactoryOverviewPanel overviewPanel = this.applicationContext.getBean(FactoryOverviewPanel.class);
+        overviewPanel.refresh();
+        this.panel.addTab(this.language.translate("overview"), overviewPanel);
         for (Item item : this.productionService.getResourceItemsWithProductions()) {
             String title = item.getName() == null
                 ? item.getKey()

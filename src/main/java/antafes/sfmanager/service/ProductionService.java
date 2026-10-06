@@ -5,17 +5,22 @@ import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.entity.Category;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
+import antafes.sfmanager.util.PowerCalculator;
+import antafes.sfmanager.util.ProductionCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -139,7 +144,113 @@ public class ProductionService
             .toList();
     }
 
+    public FactoryOverviewData getFactoryOverview()
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return new FactoryOverviewData(List.of(), List.of(), 0, 0);
+        }
+
+        List<Production> productions = this.getCurrentFactoryProductions();
+        Map<UUID, Production> productionsById = productions.stream()
+            .filter(production -> production.getId() != null)
+            .collect(Collectors.toMap(Production::getId, Function.identity()));
+        Map<String, MutableOverviewMaterial> materials = new LinkedHashMap<>();
+        Map<String, MutablePowerSource> powerSources = new LinkedHashMap<>();
+        double totalPowerProduction = 0;
+        double totalPowerConsumption = 0;
+
+        for (Production production : productions) {
+            Building building = production.getSelectedBuilding();
+            if (building == null) {
+                throw new IllegalStateException("A factory production has no selected building.");
+            }
+
+            if (building.getCategory() == Category.POWER) {
+                double power = building.getPower() * this.getClockSpeed(production) / 100;
+                totalPowerProduction += power;
+                MutablePowerSource source = powerSources.computeIfAbsent(
+                    building.getKey(),
+                    ignored -> new MutablePowerSource(building)
+                );
+                source.production += power;
+                source.amount += 1;
+                continue;
+            }
+
+            double powerConsumption = this.calculateBuildingConsumption(production);
+            totalPowerConsumption += powerConsumption;
+            if (production.getSelectedItem() != null) {
+                Item item = production.getSelectedItem();
+                ResourceProductionEntry entry = this.toResourceProductionEntry(item, production, productionsById);
+                double output;
+                if (entry.pressurizer() == null) {
+                    output = ProductionCalculator.calculateResourceProduction(
+                        (double) entry.baseAmount(),
+                        production.getPurity(),
+                        this.getClockSpeed(production),
+                        production.getUsedSomersloops(),
+                        building.getSomersloopSlots()
+                    );
+                } else {
+                    Production pressurizer = entry.pressurizer();
+                    output = ProductionCalculator.calculateResourceProduction(
+                        (double) entry.baseAmount(),
+                        production.getPurity(),
+                        this.getClockSpeed(pressurizer),
+                        pressurizer.getUsedSomersloops(),
+                        pressurizer.getSelectedBuilding().getSomersloopSlots()
+                    );
+                }
+                this.addMaterialProduction(materials, item, output, powerConsumption);
+                continue;
+            }
+
+            Recipe recipe = production.getSelectedRecipe();
+            if (recipe == null || recipe.getProducts() == null || recipe.getProducts().isEmpty()) {
+                continue;
+            }
+            double productPowerConsumption = powerConsumption / recipe.getProducts().size();
+            for (antafes.sfmanager.entity.recipe.Item product : recipe.getProducts()) {
+                double output = ProductionCalculator.calculateProduction(
+                    product.getAmount(),
+                    this.getClockSpeed(production),
+                    production.getUsedSomersloops(),
+                    building.getSomersloopSlots()
+                );
+                this.addMaterialProduction(
+                    materials,
+                    product.getResource(),
+                    output,
+                    productPowerConsumption
+                );
+            }
+        }
+
+        List<FactoryOverviewMaterial> materialRows = materials.values().stream()
+            .filter(material -> material.production > 0)
+            .map(material -> new FactoryOverviewMaterial(
+                material.item,
+                material.production,
+                material.powerConsumption
+            ))
+            .toList();
+        List<FactoryOverviewPowerSource> powerSourceRows = powerSources.values().stream()
+            .map(source -> new FactoryOverviewPowerSource(source.building, source.production, source.amount))
+            .toList();
+        return new FactoryOverviewData(
+            materialRows,
+            powerSourceRows,
+            totalPowerProduction,
+            totalPowerConsumption
+        );
+    }
+
     public Production saveProduction(Production production) throws IOException
+    {
+        return this.saveProductions(production, 1).get(0);
+    }
+
+    public List<Production> saveProductions(Production production, int productionCount) throws IOException
     {
         Factory currentFactory = this.factoryService.getCurrentFactory();
         if (currentFactory == null) {
@@ -148,6 +259,9 @@ public class ProductionService
         List<String> factoryProductions = currentFactory.getProductions();
         if (factoryProductions == null) {
             throw new IllegalStateException("The active factory has no production list.");
+        }
+        if (productionCount <= 0) {
+            throw new IllegalArgumentException("Production count must be a positive integer.");
         }
         this.validateProduction(production, currentFactory);
 
@@ -159,26 +273,33 @@ public class ProductionService
         if (production.getSelectedItem() != null) {
             production.setSelectedItem(this.itemRepository.findOne(production.getSelectedItem().getKey()));
         }
+
+        List<Production> newProductions = new ArrayList<>(productionCount);
         production.setId(UUID.randomUUID());
-
-        String productionId = production.getId().toString();
-        if (factoryProductions.contains(productionId)) {
-            throw new IllegalStateException("The production is already assigned to the active factory.");
+        newProductions.add(production);
+        for (int index = 1; index < productionCount; index++) {
+            newProductions.add(this.copyProduction(production).setId(UUID.randomUUID()));
         }
-        factoryProductions.add(productionId);
+        List<String> productionIds = newProductions.stream()
+            .map(newProduction -> newProduction.getId().toString())
+            .toList();
+        factoryProductions.addAll(productionIds);
 
-        boolean productionSaved = false;
+        boolean productionsSaved = false;
         boolean factorySaveAttempted = false;
         try {
-            this.productionRepository.saveProduction(currentFactory, production);
-            productionSaved = true;
+            this.productionRepository.saveProductions(currentFactory, newProductions);
+            productionsSaved = true;
             factorySaveAttempted = true;
             this.factoryService.saveFactory(currentFactory);
         } catch (IOException | RuntimeException failure) {
-            factoryProductions.remove(productionId);
-            if (productionSaved) {
+            factoryProductions.removeAll(productionIds);
+            if (productionsSaved) {
                 try {
-                    this.productionRepository.deleteProduction(currentFactory, production.getId());
+                    this.productionRepository.deleteProductions(
+                        currentFactory,
+                        newProductions.stream().map(Production::getId).toList()
+                    );
                 } catch (IOException | RuntimeException rollbackFailure) {
                     failure.addSuppressed(rollbackFailure);
                 }
@@ -192,9 +313,10 @@ public class ProductionService
             }
             throw failure;
         }
-
-        this.eventPublisher.publishEvent(new ProductionSavedEvent(production));
-        return production;
+        newProductions.forEach(newProduction ->
+            this.eventPublisher.publishEvent(new ProductionSavedEvent(newProduction))
+        );
+        return List.copyOf(newProductions);
     }
 
     private void validateProduction(Production production, Factory currentFactory)
@@ -206,10 +328,6 @@ public class ProductionService
         Building selectedBuilding = this.buildingRepository.findOne(production.getSelectedBuilding().getKey());
         if (selectedBuilding == null) {
             throw new IllegalArgumentException("The selected building is not available.");
-        }
-        if (production.getAmount() == null || !Double.isFinite(production.getAmount())
-            || production.getAmount() < 0) {
-            throw new IllegalArgumentException("Production amount must be a non-negative number.");
         }
         if (production.getClockSpeed() == null || !Double.isFinite(production.getClockSpeed())
             || production.getClockSpeed() < 0 || production.getClockSpeed() > 250) {
@@ -259,6 +377,60 @@ public class ProductionService
         }
     }
 
+    private double calculateBuildingConsumption(Production production)
+    {
+        Building building = production.getSelectedBuilding();
+        if (building.getPower() >= 0) {
+            return 0;
+        }
+        return PowerCalculator.calculateConsumption(
+            (double) Math.abs(building.getPower()),
+            this.getClockSpeed(production),
+            production.getUsedSomersloops(),
+            building.getSomersloopSlots()
+        );
+    }
+
+    private Production copyProduction(Production production)
+    {
+        return new Production()
+            .setSelectedBuilding(production.getSelectedBuilding())
+            .setSelectedRecipe(production.getSelectedRecipe())
+            .setSelectedItem(production.getSelectedItem())
+            .setGroup(production.getGroup())
+            .setPosition(production.getPosition())
+            .setPurity(production.getPurity())
+            .setPressurizerId(production.getPressurizerId())
+            .setClockSpeed(production.getClockSpeed())
+            .setUsedSomersloops(production.getUsedSomersloops());
+    }
+
+    private double getClockSpeed(Production production)
+    {
+        if (production.getClockSpeed() == null || !Double.isFinite(production.getClockSpeed())) {
+            throw new IllegalStateException("A factory production has an invalid clock speed.");
+        }
+        return production.getClockSpeed();
+    }
+
+    private void addMaterialProduction(
+        Map<String, MutableOverviewMaterial> materials,
+        Item item,
+        double production,
+        double powerConsumption
+    )
+    {
+        if (item == null || item.getKey() == null) {
+            throw new IllegalStateException("A production output has no material.");
+        }
+        MutableOverviewMaterial material = materials.computeIfAbsent(
+            item.getKey(),
+            ignored -> new MutableOverviewMaterial(item)
+        );
+        material.production += production;
+        material.powerConsumption += powerConsumption;
+    }
+
     private ResourceProductionEntry toResourceProductionEntry(
         Item item,
         Production production,
@@ -286,6 +458,30 @@ public class ProductionService
             }
         }
         return new ResourceProductionEntry(production, mapping.getAmount(), pressurizer);
+    }
+
+    private static class MutableOverviewMaterial
+    {
+        private final Item item;
+        private double production;
+        private double powerConsumption;
+
+        private MutableOverviewMaterial(Item item)
+        {
+            this.item = item;
+        }
+    }
+
+    private static class MutablePowerSource
+    {
+        private final Building building;
+        private double production;
+        private double amount;
+
+        private MutablePowerSource(Building building)
+        {
+            this.building = building;
+        }
     }
 
     private List<Production> getCurrentFactoryProductions()

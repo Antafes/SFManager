@@ -151,7 +151,7 @@ public class ResourceProductionPanel extends JPanel
             clockSpeed,
             production.getUsedSomersloops(),
             building.getSomersloopSlots()
-        ) * production.getAmount();
+        );
         Double consumption = this.calculatePowerConsumption(production);
         return new Object[] {
             this.localizedName(building.getName()),
@@ -191,7 +191,7 @@ public class ResourceProductionPanel extends JPanel
             pressurizer.getClockSpeed(),
             pressurizer.getUsedSomersloops(),
             pressurizer.getSelectedBuilding().getSomersloopSlots()
-        ) * production.getAmount();
+        );
         return new Object[] {
             this.localizedName(building.getName()),
             "",
@@ -213,7 +213,7 @@ public class ResourceProductionPanel extends JPanel
             production.getClockSpeed(),
             production.getUsedSomersloops(),
             building.getSomersloopSlots()
-        ) * production.getAmount();
+        );
     }
 
     private String localizedName(Name name)

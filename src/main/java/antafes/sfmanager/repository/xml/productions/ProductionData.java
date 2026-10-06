@@ -32,6 +32,7 @@ public class ProductionData
     public String selectedItem;
     public String group;
     public String position;
+    // Read only for migration of older production files; new productions are individual records.
     public Double amount;
     public String purity;
     public String pressurizerId;
