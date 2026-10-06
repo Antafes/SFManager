@@ -1,4 +1,4 @@
-package antafes.sfmanager.gui;
+package antafes.sfmanager.gui.renderer;
 
 import antafes.sfmanager.entity.Name;
 

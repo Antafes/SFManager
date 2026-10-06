@@ -13,7 +13,7 @@ import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
-import antafes.sfmanager.service.ResourceProductionEntry;
+import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

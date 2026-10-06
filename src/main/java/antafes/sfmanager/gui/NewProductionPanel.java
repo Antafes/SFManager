@@ -7,6 +7,7 @@ import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.entity.recipe.Item;
+import antafes.sfmanager.gui.renderer.LocalizedNameRenderer;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;

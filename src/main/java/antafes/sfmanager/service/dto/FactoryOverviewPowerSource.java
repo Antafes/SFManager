@@ -1,4 +1,4 @@
-package antafes.sfmanager.service;
+package antafes.sfmanager.service.dto;
 
 import antafes.sfmanager.entity.Building;
 

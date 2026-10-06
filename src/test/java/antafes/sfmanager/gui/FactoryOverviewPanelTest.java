@@ -8,6 +8,7 @@ import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.gui.order.LocalizedItemOrder;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;

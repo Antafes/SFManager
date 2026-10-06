@@ -2,10 +2,11 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Name;
-import antafes.sfmanager.service.FactoryOverviewData;
-import antafes.sfmanager.service.FactoryOverviewMaterial;
-import antafes.sfmanager.service.FactoryOverviewPowerSource;
+import antafes.sfmanager.gui.order.LocalizedItemOrder;
 import antafes.sfmanager.service.ProductionService;
+import antafes.sfmanager.service.dto.FactoryOverviewData;
+import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
+import antafes.sfmanager.service.dto.FactoryOverviewPowerSource;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;

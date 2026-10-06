@@ -4,6 +4,7 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.*;
+import antafes.sfmanager.gui.order.LocalizedItemOrder;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;

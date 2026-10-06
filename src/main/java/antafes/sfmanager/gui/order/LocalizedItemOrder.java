@@ -1,4 +1,4 @@
-package antafes.sfmanager.gui;
+package antafes.sfmanager.gui.order;
 
 import antafes.sfmanager.entity.Item;
 
