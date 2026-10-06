@@ -17,22 +17,23 @@ public class LocalizedItemOrder
 {
     public Comparator<Item> comparator(String language)
     {
+        Comparator<Item> alphabeticalComparator = LocalizedItemOrder.alphabeticalComparator(language);
+        return (left, right) -> {
+            int rawResourceOrder = Boolean.compare(isRawResource(right), isRawResource(left));
+            return rawResourceOrder != 0 ? rawResourceOrder : alphabeticalComparator.compare(left, right);
+        };
+    }
+
+    public Comparator<Item> alphabeticalComparator(String language)
+    {
         Collator collator = Collator.getInstance(Locale.forLanguageTag(
             "German".equalsIgnoreCase(language) ? "de" : "en"
         ));
         collator.setStrength(Collator.SECONDARY);
-        return (left, right) -> {
-            int rawResourceOrder = Boolean.compare(isRawResource(right), isRawResource(left));
-            if (rawResourceOrder != 0) {
-                return rawResourceOrder;
-            }
-
-            int displayNameOrder = collator.compare(displayName(left, language), displayName(right, language));
-            if (displayNameOrder != 0) {
-                return displayNameOrder;
-            }
-            return Objects.toString(left.getKey(), "").compareTo(Objects.toString(right.getKey(), ""));
-        };
+        return Comparator.<Item, String>comparing(
+            item -> LocalizedItemOrder.displayName(item, language),
+            collator
+        ).thenComparing(item -> Objects.toString(item.getKey(), ""));
     }
 
     public boolean isRawResource(Item item)

@@ -16,6 +16,8 @@ import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
 import antafes.sfmanager.service.dto.FactoryOverviewPowerSource;
 import antafes.sfmanager.service.dto.GeneratorProductionEntry;
 import antafes.sfmanager.service.dto.GeneratorProductionIngredient;
+import antafes.sfmanager.service.dto.RecipeProductionEntry;
+import antafes.sfmanager.service.dto.RecipeProductionMaterial;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
@@ -175,6 +177,59 @@ public class ProductionService
             .filter(production -> production.getSelectedBuilding() != null
                 && building.getKey().equals(production.getSelectedBuilding().getKey()))
             .map(this::toGeneratorProductionEntry)
+            .toList();
+    }
+
+    public List<Item> getRecipeItemsWithProductions()
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        Map<String, Item> recipeItems = new LinkedHashMap<>();
+        for (Production production : this.getCurrentFactoryProductions()) {
+            Building building = production.getSelectedBuilding();
+            if (building == null) {
+                throw new IllegalStateException("A factory production has no selected building.");
+            }
+            if (building.getCategory() != Category.POWER
+                && production.getSelectedItem() == null
+                && production.getSelectedRecipe() != null) {
+                Recipe recipe = production.getSelectedRecipe();
+                if (recipe.getProducts() == null) {
+                    continue;
+                }
+                for (antafes.sfmanager.entity.recipe.Item product : recipe.getProducts()) {
+                    Item item = product.getResource();
+                    if (item == null || item.getKey() == null) {
+                        throw new IllegalStateException("A recipe production output has no material.");
+                    }
+                    recipeItems.putIfAbsent(item.getKey(), item);
+                }
+            }
+        }
+        return List.copyOf(recipeItems.values());
+    }
+
+    public List<RecipeProductionEntry> getRecipeProductions(Item item)
+    {
+        if (item == null || item.getKey() == null) {
+            throw new IllegalArgumentException("A recipe output item is required.");
+        }
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        return this.getCurrentFactoryProductions().stream()
+            .filter(production -> production.getSelectedBuilding() != null
+                && production.getSelectedBuilding().getCategory() != Category.POWER
+                && production.getSelectedItem() == null
+                && production.getSelectedRecipe() != null
+                && production.getSelectedRecipe().getProducts() != null
+                && production.getSelectedRecipe().getProducts().stream()
+                    .anyMatch(product -> product.getResource() != null
+                        && item.getKey().equals(product.getResource().getKey())))
+            .map(this::toRecipeProductionEntry)
             .toList();
     }
 
@@ -459,6 +514,60 @@ public class ProductionService
             building.getPower() * clockSpeed / 100,
             ingredients
         );
+    }
+
+    private RecipeProductionEntry toRecipeProductionEntry(Production production)
+    {
+        Building building = production.getSelectedBuilding();
+        Recipe recipe = production.getSelectedRecipe();
+        double clockSpeed = this.getClockSpeed(production);
+        List<RecipeProductionMaterial> usedMaterials = this.scaleRecipeMaterials(
+            recipe.getIngredients(),
+            clockSpeed,
+            production.getUsedSomersloops(),
+            building.getSomersloopSlots()
+        );
+        List<RecipeProductionMaterial> producedMaterials = this.scaleRecipeMaterials(
+            recipe.getProducts(),
+            clockSpeed,
+            production.getUsedSomersloops(),
+            building.getSomersloopSlots()
+        );
+        return new RecipeProductionEntry(
+            production,
+            recipe,
+            usedMaterials,
+            producedMaterials,
+            this.calculateBuildingConsumption(production)
+        );
+    }
+
+    private List<RecipeProductionMaterial> scaleRecipeMaterials(
+        List<antafes.sfmanager.entity.recipe.Item> materials,
+        double clockSpeed,
+        int usedSomersloops,
+        int somersloopSlots
+    )
+    {
+        if (materials == null) {
+            return List.of();
+        }
+        return materials.stream()
+            .map(material -> {
+                if (material.getResource() == null || material.getAmount() == null) {
+                    throw new IllegalStateException("A recipe material is incomplete.");
+                }
+                return new RecipeProductionMaterial(
+                    material.getResource(),
+                    ProductionCalculator.calculateProduction(
+                        material.getAmount(),
+                        clockSpeed,
+                        usedSomersloops,
+                        somersloopSlots
+                    )
+                );
+            })
+            .toList();
     }
 
     private Production copyProduction(Production production)

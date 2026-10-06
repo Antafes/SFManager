@@ -230,6 +230,12 @@ public class BaseWindow extends JFrame
             selectedLanguage,
             building -> this.applicationContext.getBean(GeneratorProductionPanel.class, building)
         );
+        this.productionService.getRecipeItemsWithProductions().stream()
+            .sorted(LocalizedItemOrder.alphabeticalComparator(selectedLanguage))
+            .forEach(item -> this.panel.addTab(
+                item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
+                this.applicationContext.getBean(RecipeProductionPanel.class, item)
+            ));
     }
 
     private void updateActiveFactoryLabel()
