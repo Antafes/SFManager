@@ -12,6 +12,7 @@ public class Production
     private UUID id;
     private Building selectedBuilding;
     private Recipe selectedRecipe;
+    private Item selectedItem;
     private String group;
     private String position;
     private Double amount;

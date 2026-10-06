@@ -32,7 +32,6 @@ public class ItemRepository extends BaseRepository<Item, String>
     protected void loadData()
     {
         try {
-            this.buildingRepository.init();
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Resource data = this.resourceLoader.getResource(Configuration.getDataPath() + "items.xml");
             Unmarshaller unmarshaller = JAXBContext.newInstance(ItemsData.class).createUnmarshaller();

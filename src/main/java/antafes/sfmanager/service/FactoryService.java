@@ -3,7 +3,6 @@ package antafes.sfmanager.service;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
-import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
@@ -20,12 +19,6 @@ public class FactoryService
     private FactoryRepository factoryRepository;
     @Getter
     private Factory currentFactory;
-
-    @PostConstruct
-    private void initialize()
-    {
-        this.factoryRepository.init();
-    }
 
     public List<Factory> getFactories()
     {

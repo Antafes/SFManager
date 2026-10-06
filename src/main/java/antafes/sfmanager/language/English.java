@@ -27,6 +27,7 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("building", "Building");
         this.getTranslations().put("pressurizer", "Resource well pressurizer");
         this.getTranslations().put("recipe", "Recipe");
+        this.getTranslations().put("item", "Item");
         this.getTranslations().put("amount", "Amount");
         this.getTranslations().put("group", "Group");
         this.getTranslations().put("position", "Position");

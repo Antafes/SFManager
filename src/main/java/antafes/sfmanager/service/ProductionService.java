@@ -2,9 +2,11 @@ package antafes.sfmanager.service;
 
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Factory;
+import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.repository.BuildingRepository;
+import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -24,6 +27,8 @@ public class ProductionService
     @Autowired
     private RecipeRepository recipeRepository;
     @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
     private ProductionRepository productionRepository;
     @Autowired
     private FactoryService factoryService;
@@ -32,22 +37,28 @@ public class ProductionService
 
     public List<Building> getBuildings()
     {
-        this.initializeRepositories();
         return List.copyOf(this.buildingRepository.findAll().values());
     }
 
     public List<Recipe> getRecipesForBuilding(String buildingKey)
     {
-        this.initializeRepositories();
         return this.recipeRepository.findAll().values().stream()
             .filter(recipe -> recipe.getProducedIn() != null
                 && recipe.getProducedIn().getKey().equals(buildingKey))
             .toList();
     }
 
+    public List<Item> getItemsForBuilding(String buildingKey)
+    {
+        return this.itemRepository.findAll().values().stream()
+            .filter(item -> item.getProductions() != null && item.getProductions().stream()
+                .anyMatch(production -> production.getBuilding() != null
+                    && Objects.equals(buildingKey, production.getBuilding().getKey())))
+            .toList();
+    }
+
     public List<Production> getPressurizers()
     {
-        this.initializeRepositories();
         return this.getCurrentFactoryProductions().stream()
             .filter(production -> production.getSelectedBuilding() != null
                 && "well_pressurizer".equals(production.getSelectedBuilding().getKey()))
@@ -56,7 +67,6 @@ public class ProductionService
 
     public List<String> getProductionGroups()
     {
-        this.initializeRepositories();
         return this.getCurrentFactoryProductions().stream()
             .map(Production::getGroup)
             .filter(group -> group != null && !group.isBlank())
@@ -67,7 +77,6 @@ public class ProductionService
 
     public Production saveProduction(Production production) throws IOException
     {
-        this.initializeRepositories();
         Factory currentFactory = this.factoryService.getCurrentFactory();
         if (currentFactory == null) {
             throw new IllegalStateException("Open a factory before saving a production.");
@@ -83,6 +92,9 @@ public class ProductionService
         if (production.getSelectedRecipe() != null) {
             production.setSelectedRecipe(this.recipeRepository.findOne(production.getSelectedRecipe().getKey()));
         }
+        if (production.getSelectedItem() != null) {
+            production.setSelectedItem(this.itemRepository.findOne(production.getSelectedItem().getKey()));
+        }
         production.setId(UUID.randomUUID());
 
         String productionId = production.getId().toString();
@@ -94,7 +106,7 @@ public class ProductionService
         boolean productionSaved = false;
         boolean factorySaveAttempted = false;
         try {
-            this.productionRepository.saveProduction(production);
+            this.productionRepository.saveProduction(currentFactory, production);
             productionSaved = true;
             factorySaveAttempted = true;
             this.factoryService.saveFactory(currentFactory);
@@ -102,7 +114,7 @@ public class ProductionService
             factoryProductions.remove(productionId);
             if (productionSaved) {
                 try {
-                    this.productionRepository.deleteProduction(production.getId());
+                    this.productionRepository.deleteProduction(currentFactory, production.getId());
                 } catch (IOException | RuntimeException rollbackFailure) {
                     failure.addSuppressed(rollbackFailure);
                 }
@@ -146,6 +158,20 @@ public class ProductionService
         if (selectedBuilding.isResourceBuilding() && production.getPurity() == null) {
             throw new IllegalArgumentException("Resource buildings require a purity selection.");
         }
+        List<Item> buildingItems = this.getItemsForBuilding(selectedBuilding.getKey());
+        if (!buildingItems.isEmpty()) {
+            if (production.getSelectedItem() == null || production.getSelectedRecipe() != null) {
+                throw new IllegalArgumentException("A resource item must be selected for this building.");
+            }
+            String itemKey = production.getSelectedItem().getKey();
+            Item selectedItem = itemKey == null ? null : this.itemRepository.findOne(itemKey);
+            if (selectedItem == null || buildingItems.stream()
+                .noneMatch(item -> item.getKey().equals(selectedItem.getKey()))) {
+                throw new IllegalArgumentException("The selected item is not available for this building.");
+            }
+        } else if (production.getSelectedItem() != null) {
+            throw new IllegalArgumentException("The selected item is not available for this building.");
+        }
         if (production.getSelectedRecipe() != null) {
             if (production.getSelectedRecipe().getKey() == null) {
                 throw new IllegalArgumentException("The selected recipe is not available for this building.");
@@ -167,13 +193,6 @@ public class ProductionService
                 throw new IllegalArgumentException("The selected pressurizer production does not exist.");
             }
         }
-    }
-
-    private void initializeRepositories()
-    {
-        this.buildingRepository.init();
-        this.recipeRepository.init();
-        this.productionRepository.init();
     }
 
     private List<Production> getCurrentFactoryProductions()

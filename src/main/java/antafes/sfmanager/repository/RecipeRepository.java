@@ -33,8 +33,6 @@ public class RecipeRepository extends BaseRepository<Recipe, String>
     protected void loadData()
     {
         try {
-            this.buildingRepository.init();
-            this.itemRepository.init();
             SchemaFactory sf = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             Resource data = this.resourceLoader.getResource(Configuration.getDataPath() + "recipes.xml");
             Unmarshaller unmarshaller = JAXBContext.newInstance(RecipesData.class).createUnmarshaller();

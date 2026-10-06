@@ -11,6 +11,7 @@
         <xs:sequence>
             <xs:element name="selectedBuilding" type="xs:string" />
             <xs:element name="selectedRecipe" type="xs:string" minOccurs="0" />
+            <xs:element name="selectedItem" type="xs:string" minOccurs="0" />
             <xs:element name="group" type="xs:string" minOccurs="0" />
             <xs:element name="position" type="xs:string" minOccurs="0" />
             <xs:element name="amount" type="xs:double" minOccurs="0" />

@@ -21,6 +21,8 @@ public class FactoryServiceTest extends BaseTest
 {
     @Autowired
     private FactoryService factoryService;
+    @Autowired
+    private FactoryRepository factoryRepository;
 
     @Test
     public void testManagesFactoryLifecycleAndCurrentSelection() throws IOException
@@ -30,6 +32,7 @@ public class FactoryServiceTest extends BaseTest
             FactoryRepository.class, FactoryService.class
         )) {
             this.autowireTest(context);
+            this.factoryRepository.init();
             assertNull(this.factoryService.getCurrentFactory());
             assertEquals(List.of(), this.factoryService.getFactories());
 
@@ -48,6 +51,7 @@ public class FactoryServiceTest extends BaseTest
             FactoryRepository.class, FactoryService.class
         )) {
             this.autowireTest(context);
+            this.factoryRepository.init();
             Factory loadedFactory = this.factoryService.findFactory(factoryId);
             assertNotNull(loadedFactory);
             assertEquals(List.of("production-id"), loadedFactory.getProductions());

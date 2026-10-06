@@ -12,6 +12,7 @@ import jakarta.xml.bind.annotation.XmlType;
     propOrder = {
         "selectedBuilding",
         "selectedRecipe",
+        "selectedItem",
         "group",
         "position",
         "amount",
@@ -28,6 +29,7 @@ public class ProductionData
     @XmlElement(required = true)
     public String selectedBuilding;
     public String selectedRecipe;
+    public String selectedItem;
     public String group;
     public String position;
     public Double amount;

@@ -4,7 +4,9 @@ import antafes.eventDispatcher.Application;
 import antafes.sfmanager.gui.BaseWindow;
 import antafes.sfmanager.gui.Splash;
 import antafes.sfmanager.repository.BuildingRepository;
+import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
+import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
 import antafes.utilities.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,17 @@ public class SFManager extends Application implements CommandLineRunner
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private BuildingRepository buildingRepository;
+    @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private RecipeRepository recipeRepository;
+    @Autowired
+    private FactoryRepository factoryRepository;
+    @Autowired
+    private ProductionRepository productionRepository;
+
     public static void main(String[] args)
     {
         new SpringApplicationBuilder(SFManager.class).headless(false).run(args);
@@ -42,9 +55,9 @@ public class SFManager extends Application implements CommandLineRunner
     private void openBaseWindow()
     {
         SwingUtilities.invokeLater(() -> {
+            this.warmUp();
             BaseWindow baseWindow = this.applicationContext.getBean(BaseWindow.class);
             new Splash(Utilities.getResourceInJar("images/splash.png"), 2000, baseWindow);
-            this.warmUp();
             Toolkit kit = Toolkit.getDefaultToolkit();
             Image img = kit.createImage(Utilities.getResourceInJar("images/logo.png"));
             baseWindow.setIconImage(img);
@@ -53,11 +66,10 @@ public class SFManager extends Application implements CommandLineRunner
 
     private void warmUp()
     {
-        BuildingRepository buildingRepository = this.applicationContext.getBean(BuildingRepository.class);
-        buildingRepository.init();
-        ItemRepository itemRepository = this.applicationContext.getBean(ItemRepository.class);
-        itemRepository.init();
-        RecipeRepository recipeRepository = this.applicationContext.getBean(RecipeRepository.class);
-        recipeRepository.init();
+        this.buildingRepository.init();
+        this.itemRepository.init();
+        this.recipeRepository.init();
+        this.factoryRepository.init();
+        this.productionRepository.init();
     }
 }

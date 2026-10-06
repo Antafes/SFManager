@@ -3,6 +3,7 @@ package antafes.sfmanager.service;
 import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Factory;
+import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
@@ -11,6 +12,8 @@ import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.repository.xml.productions.ProductionData;
+import antafes.sfmanager.repository.xml.productions.ProductionsData;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
 import org.junit.jupiter.api.Test;
@@ -19,6 +22,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import jakarta.xml.bind.JAXBContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,6 +46,17 @@ public class ProductionServiceTest extends BaseTest
     private ProductionService productionService;
     @Autowired
     private ProductionRepository productionRepository;
+
+    @Override
+    protected void autowireTest(AnnotationConfigApplicationContext context)
+    {
+        super.autowireTest(context);
+        context.getBean(BuildingRepository.class).init();
+        context.getBean(ItemRepository.class).init();
+        context.getBean(RecipeRepository.class).init();
+        context.getBean(FactoryRepository.class).init();
+        context.getBean(ProductionRepository.class).init();
+    }
 
     @Test
     public void testSavesProductionAndReloadsItsFactoryAssociation() throws IOException
@@ -120,6 +135,8 @@ public class ProductionServiceTest extends BaseTest
             Factory loadedFactory = this.factoryService.findFactory(factoryId);
             assertNotNull(loadedFactory);
             assertTrue(loadedFactory.getProductions().contains(productionId.toString()));
+            assertTrue(this.tempDirectory.resolve("production-service-factory")
+                .resolve("productions.xml").toFile().isFile());
             assertNull(this.factoryService.getCurrentFactory());
         }
     }
@@ -161,7 +178,8 @@ public class ProductionServiceTest extends BaseTest
             assertThrows(IOException.class, () -> this.productionService.saveProduction(production));
             assertTrue(this.productionRepository.findAll().isEmpty());
             assertFalse(factory.getProductions().contains(production.getId().toString()));
-            assertFalse(Files.readString(this.tempDirectory.resolve("productions.xml"))
+            assertFalse(Files.readString(this.tempDirectory.resolve("factory-save-failure")
+                    .resolve("productions.xml"))
                 .contains(production.getId().toString()));
             assertNull(savedEvent.get());
         }
@@ -184,6 +202,181 @@ public class ProductionServiceTest extends BaseTest
             assertThrows(
                 IllegalStateException.class,
                 () -> this.productionService.saveProduction(new Production())
+            );
+        }
+    }
+
+    @Test
+    public void testReturnsResourceItemsFromItemProductionMappings()
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+
+            assertTrue(this.productionService.getItemsForBuilding("miner_1").stream()
+                .anyMatch(item -> "iron".equals(item.getKey())));
+            assertTrue(this.productionService.getItemsForBuilding("water_extractor").stream()
+                .anyMatch(item -> "water".equals(item.getKey())));
+            assertTrue(this.productionService.getItemsForBuilding("well_extractor").stream()
+                .map(Item::getKey)
+                .toList()
+                .containsAll(List.of("oil", "water", "nitrogen")));
+            assertTrue(this.productionService.getRecipesForBuilding("well_extractor").isEmpty());
+            assertTrue(this.productionService.getRecipesForBuilding("smelter").stream()
+                .anyMatch(recipe -> "iron_ingot".equals(recipe.getKey())));
+        }
+    }
+
+    @Test
+    public void testSavesAndReloadsSelectedResourceItem() throws IOException
+    {
+        UUID productionId;
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Resource Item Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building building = this.productionService.getBuildings().stream()
+                .filter(candidate -> "miner_1".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item item = this.productionService.getItemsForBuilding(building.getKey()).stream()
+                .filter(candidate -> "iron".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(building)
+                .setSelectedItem(item)
+                .setAmount(1.0)
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            productionId = production.getId();
+        }
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            this.productionService.getBuildings();
+            Production loadedProduction = this.productionRepository.findOne(productionId);
+
+            assertNotNull(loadedProduction);
+            assertEquals("miner_1", loadedProduction.getSelectedBuilding().getKey());
+            assertEquals("iron", loadedProduction.getSelectedItem().getKey());
+            assertNull(loadedProduction.getSelectedRecipe());
+        }
+    }
+
+    @Test
+    public void testMigratesLegacyProductionFileIntoItsFactoryDirectory() throws Exception
+    {
+        UUID factoryId;
+        UUID productionId = UUID.randomUUID();
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Legacy Factory");
+            factoryId = factory.getId();
+            factory.getProductions().add(productionId.toString());
+            this.factoryService.saveFactory(factory);
+
+            ProductionData legacyProduction = new ProductionData();
+            legacyProduction.id = productionId.toString();
+            legacyProduction.selectedBuilding = "smelter";
+            legacyProduction.amount = 1.0;
+            legacyProduction.clockSpeed = 100.0;
+            ProductionsData legacyData = new ProductionsData();
+            legacyData.productions.add(legacyProduction);
+            JAXBContext.newInstance(ProductionsData.class)
+                .createMarshaller()
+                .marshal(legacyData, this.tempDirectory.resolve("productions.xml").toFile());
+        }
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Production migratedProduction = this.productionRepository.findOne(productionId);
+
+            assertNotNull(migratedProduction);
+            assertEquals("smelter", migratedProduction.getSelectedBuilding().getKey());
+            assertTrue(this.tempDirectory.resolve("legacy-factory").resolve("productions.xml").toFile().isFile());
+            assertFalse(Files.exists(this.tempDirectory.resolve("productions.xml")));
+            assertTrue(this.factoryService.findFactory(factoryId).getProductions()
+                .contains(productionId.toString()));
+        }
+    }
+
+    @Test
+    public void testRejectsResourceItemNotProducedBySelectedBuilding() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Invalid Resource Item Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building miner = this.productionService.getBuildings().stream()
+                .filter(candidate -> "miner_1".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item water = this.productionService.getItemsForBuilding("water_extractor").stream()
+                .filter(candidate -> "water".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Production production = new Production()
+                .setSelectedBuilding(miner)
+                .setSelectedItem(water)
+                .setAmount(1.0)
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0);
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.saveProduction(production)
             );
         }
     }

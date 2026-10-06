@@ -14,6 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,6 +29,9 @@ public class RepositoryLoadingTest extends BaseTest
         this.context = new AnnotationConfigApplicationContext(
             BuildingRepository.class, ItemRepository.class, RecipeRepository.class
         );
+        this.context.getBean(BuildingRepository.class).init();
+        this.context.getBean(ItemRepository.class).init();
+        this.context.getBean(RecipeRepository.class).init();
     }
 
     @AfterEach
@@ -40,8 +44,6 @@ public class RepositoryLoadingTest extends BaseTest
     public void testLoadsBuildingsFromXml()
     {
         BuildingRepository repository = this.context.getBean(BuildingRepository.class);
-
-        repository.init();
 
         assertEquals(44, repository.findAll().size());
         Building smelter = repository.findOne("smelter");
@@ -59,8 +61,6 @@ public class RepositoryLoadingTest extends BaseTest
     public void testLoadsItemsAndResolvesBuildingReferences()
     {
         ItemRepository repository = this.context.getBean(ItemRepository.class);
-
-        repository.init();
 
         assertEquals(185, repository.findAll().size());
         Item iron = repository.findOne("iron");
@@ -86,9 +86,10 @@ public class RepositoryLoadingTest extends BaseTest
     {
         RecipeRepository repository = this.context.getBean(RecipeRepository.class);
 
-        repository.init();
-
         assertEquals(283, repository.findAll().size());
+        assertNull(repository.findOne("well_extractor_crude_oil"));
+        assertNull(repository.findOne("well_extractor_water"));
+        assertNull(repository.findOne("well_extractor_nitrogen"));
         Recipe ironIngot = repository.findOne("iron_ingot");
         assertNotNull(ironIngot);
         assertSame(this.context.getBean(BuildingRepository.class).findOne("smelter"),

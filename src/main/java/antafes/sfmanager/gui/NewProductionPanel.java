@@ -34,12 +34,15 @@ public class NewProductionPanel extends BasePanel
     private final NumberFormat clockSpeedFormat;
     private double clockSpeed = 100;
     private LocalizedNameRenderer<Recipe> recipeRenderer;
+    private LocalizedNameRenderer<antafes.sfmanager.entity.Item> itemRenderer;
     private JLabel buildingSelectLabel;
     private JComboBox<Building> buildingSelect;
     private JLabel pressurizerSelectLabel;
     private JComboBox<Production> pressurizerSelect;
     private JLabel recipeSelectLabel;
     private JComboBox<Recipe> recipeSelect;
+    private JComboBox<antafes.sfmanager.entity.Item> itemSelect;
+    private JPanel productSelectPanel;
     private JLabel amountLabel;
     private JTextField amountField;
     private JLabel groupLabel;
@@ -101,7 +104,6 @@ public class NewProductionPanel extends BasePanel
     {
         this.buildingSelectLabel.setText(this.getLanguage().translate("building"));
         this.pressurizerSelectLabel.setText(this.getLanguage().translate("pressurizer"));
-        this.recipeSelectLabel.setText(this.getLanguage().translate("recipe"));
         this.amountLabel.setText(this.getLanguage().translate("amount"));
         this.groupLabel.setText(this.getLanguage().translate("group"));
         this.positionLabel.setText(this.getLanguage().translate("position"));
@@ -123,6 +125,7 @@ public class NewProductionPanel extends BasePanel
         order.add(this.buildingSelect);
         order.add(this.pressurizerSelect);
         order.add(this.recipeSelect);
+        order.add(this.itemSelect);
         order.add(this.amountField);
         order.add(this.groupField);
         order.add(this.positionField);
@@ -202,7 +205,12 @@ public class NewProductionPanel extends BasePanel
 
             Production production = new Production()
                 .setSelectedBuilding(selectedBuilding)
-                .setSelectedRecipe((Recipe) this.recipeSelect.getSelectedItem())
+                .setSelectedRecipe(this.itemSelect.getItemCount() > 0
+                    ? null
+                    : (Recipe) this.recipeSelect.getSelectedItem())
+                .setSelectedItem(this.itemSelect.getItemCount() > 0
+                    ? (antafes.sfmanager.entity.Item) this.itemSelect.getSelectedItem()
+                    : null)
                 .setAmount(amount)
                 .setGroup(group)
                 .setPosition(position)
@@ -265,18 +273,41 @@ public class NewProductionPanel extends BasePanel
         }
 
         this.recipeSelect.removeAllItems();
+        this.itemSelect.removeAllItems();
         this.recipeSelect.setEnabled(false);
+        this.itemSelect.setEnabled(false);
         this.puritySelect.setEnabled(selectedBuilding != null && selectedBuilding.isResourceBuilding());
         if (selectedBuilding == null) {
+            this.productSelectPanel.setVisible(false);
+            this.recipeSelectLabel.setVisible(false);
             this.updateSummaries();
             return;
         }
 
-        this.productionService.getRecipesForBuilding(selectedBuilding.getKey()).stream()
-            .sorted(Comparator.comparing(this.recipeRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Recipe::getKey))
-            .forEach(this.recipeSelect::addItem);
-        this.recipeSelect.setEnabled(this.recipeSelect.getItemCount() > 0);
+        List<antafes.sfmanager.entity.Item> resourceItems =
+            this.productionService.getItemsForBuilding(selectedBuilding.getKey());
+        if (!resourceItems.isEmpty()) {
+            resourceItems.stream()
+                .sorted(Comparator.comparing(this.itemRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(antafes.sfmanager.entity.Item::getKey))
+                .forEach(this.itemSelect::addItem);
+            this.itemSelect.setEnabled(true);
+            ((CardLayout) this.productSelectPanel.getLayout()).show(this.productSelectPanel, "item");
+            this.productSelectPanel.setVisible(true);
+            this.recipeSelectLabel.setVisible(true);
+            this.recipeSelectLabel.setText(this.getLanguage().translate("item"));
+        } else {
+            this.productionService.getRecipesForBuilding(selectedBuilding.getKey()).stream()
+                .sorted(Comparator.comparing(this.recipeRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
+                    .thenComparing(Recipe::getKey))
+                .forEach(this.recipeSelect::addItem);
+            boolean hasRecipes = this.recipeSelect.getItemCount() > 0;
+            this.recipeSelect.setEnabled(hasRecipes);
+            ((CardLayout) this.productSelectPanel.getLayout()).show(this.productSelectPanel, "recipe");
+            this.productSelectPanel.setVisible(hasRecipes);
+            this.recipeSelectLabel.setVisible(hasRecipes);
+            this.recipeSelectLabel.setText(this.getLanguage().translate("recipe"));
+        }
         this.updateSummaries();
     }
 
@@ -363,9 +394,10 @@ public class NewProductionPanel extends BasePanel
         });
     }
 
-    private boolean hasRecipes(Building building)
+    private boolean hasProductionChoices(Building building)
     {
-        return !this.productionService.getRecipesForBuilding(building.getKey()).isEmpty();
+        return !this.productionService.getRecipesForBuilding(building.getKey()).isEmpty()
+            || !this.productionService.getItemsForBuilding(building.getKey()).isEmpty();
     }
 
     private void addSummaryListener(JTextField field)
@@ -499,16 +531,19 @@ public class NewProductionPanel extends BasePanel
         int ingredientCount = this.ingredientsPanel.getComponentCount();
         int productionCount = this.productionPanel.getComponentCount();
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
+        antafes.sfmanager.entity.Item selectedItem =
+            (antafes.sfmanager.entity.Item) this.itemSelect.getSelectedItem();
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
         boolean hasIngredients = selectedRecipe != null
             && selectedRecipe.getIngredients() != null
             && !selectedRecipe.getIngredients().isEmpty();
         this.updateSummaryVisibility(
-            this.recipeSelect.getItemCount() > 0,
+            this.recipeSelect.getItemCount() > 0 || this.itemSelect.getItemCount() > 0,
             selectedBuilding != null && selectedBuilding.getCategory() == Category.POWER,
             selectedBuilding != null
                 && selectedBuilding.getCategory() != Category.POWER
-                && (this.recipeSelect.getItemCount() > 0 || selectedBuilding.getPower() != 0),
+                && (this.recipeSelect.getItemCount() > 0 || this.itemSelect.getItemCount() > 0
+                    || selectedBuilding.getPower() != 0),
             hasIngredients
         );
         Double amount = this.parseNonNegativeNumber(this.amountField.getText());
@@ -569,6 +604,16 @@ public class NewProductionPanel extends BasePanel
             return;
         }
 
+        if (this.itemSelect.getItemCount() > 0) {
+            this.updateResourceSummary(selectedBuilding, selectedItem, amount, clockSpeed, usedSomersloops);
+            this.updateConsumptionInfo(selectedBuilding, amount, clockSpeed, usedSomersloops);
+            if (ingredientCount != this.ingredientsPanel.getComponentCount()
+                || productionCount != this.productionPanel.getComponentCount()) {
+                this.resizeDialogToContent();
+            }
+            return;
+        }
+
         if (selectedRecipe == null || usedSomersloops == null
             || usedSomersloops > selectedBuilding.getSomersloopSlots()) {
             this.ingredientsPanel.removeAll();
@@ -611,6 +656,48 @@ public class NewProductionPanel extends BasePanel
             || productionCount != this.productionPanel.getComponentCount()) {
             this.resizeDialogToContent();
         }
+    }
+
+    private void updateResourceSummary(
+        Building building,
+        antafes.sfmanager.entity.Item selectedItem,
+        double amount,
+        double clockSpeed,
+        Integer usedSomersloops
+    )
+    {
+        this.ingredientsPanel.removeAll();
+        this.ingredientsPanel.add(this.ingredientsLabel);
+        this.ingredientsPanel.revalidate();
+        this.ingredientsPanel.repaint();
+
+        this.productionPanel.removeAll();
+        this.productionPanel.add(this.productionLabel);
+        if (selectedItem != null && selectedItem.getProductions() != null
+            && usedSomersloops != null && usedSomersloops <= building.getSomersloopSlots()
+            && this.puritySelect.getSelectedItem() instanceof Purity purity) {
+            selectedItem.getProductions().stream()
+                .filter(production -> production.getBuilding() != null
+                    && building.getKey().equals(production.getBuilding().getKey()))
+                .findFirst()
+                .ifPresent(production -> {
+                    double itemRate = ProductionCalculator.calculateResourceProduction(
+                        (double) production.getAmount(),
+                        purity,
+                        clockSpeed,
+                        usedSomersloops,
+                        building.getSomersloopSlots()
+                    ) * amount;
+                    String itemName = selectedItem.getName().getLocalizedName(this.selectedLanguage);
+                    JLabel itemLabel = new JLabel(
+                        itemName + ": " + this.numberFormat.format(itemRate) + " / min"
+                    );
+                    itemLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+                    this.productionPanel.add(itemLabel);
+                });
+        }
+        this.productionPanel.revalidate();
+        this.productionPanel.repaint();
     }
 
     private void updateConsumptionInfo(
@@ -683,6 +770,15 @@ public class NewProductionPanel extends BasePanel
         this.recipeSelect = new JComboBox<>();
         this.recipeRenderer = new LocalizedNameRenderer<>(Recipe::getName, this.selectedLanguage);
         this.recipeSelect.setRenderer(this.recipeRenderer);
+        this.itemSelect = new JComboBox<>();
+        this.itemRenderer = new LocalizedNameRenderer<>(
+            antafes.sfmanager.entity.Item::getName,
+            this.selectedLanguage
+        );
+        this.itemSelect.setRenderer(this.itemRenderer);
+        this.productSelectPanel = new JPanel(new CardLayout());
+        this.productSelectPanel.add(this.recipeSelect, "recipe");
+        this.productSelectPanel.add(this.itemSelect, "item");
         this.amountLabel = new JLabel();
         this.amountField = new JTextField();
         this.amountField.setText("1");
@@ -760,7 +856,7 @@ public class NewProductionPanel extends BasePanel
         this.setLayout(new GridBagLayout());
         this.addFieldRow(0, this.buildingSelectLabel, this.buildingSelect);
         this.addFieldRow(1, this.pressurizerSelectLabel, this.pressurizerSelect);
-        this.addFieldRow(2, this.recipeSelectLabel, this.recipeSelect);
+        this.addFieldRow(2, this.recipeSelectLabel, this.productSelectPanel);
         this.addFieldRow(3, this.amountLabel, this.amountField);
         this.addFieldRow(4, this.groupLabel, this.groupField);
         this.addFieldRow(5, this.positionLabel, this.positionField);
@@ -797,6 +893,7 @@ public class NewProductionPanel extends BasePanel
 
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
         this.recipeSelect.addActionListener(event -> this.updateSummaries());
+        this.itemSelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);
         this.clockSpeedSlider.addChangeListener(event -> {
             if (!this.syncingClockSpeedFromText) {
@@ -834,7 +931,7 @@ public class NewProductionPanel extends BasePanel
         });
         this.addSummaryListener(this.usedSomersloopsField);
         this.productionService.getBuildings().stream()
-            .filter(this::hasRecipes)
+            .filter(this::hasProductionChoices)
             .min(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))
             .ifPresent(this.buildingSelect::setSelectedItem);

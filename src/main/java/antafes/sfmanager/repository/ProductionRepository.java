@@ -2,11 +2,14 @@ package antafes.sfmanager.repository;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
+import antafes.sfmanager.entity.Factory;
+import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.repository.xml.productions.ProductionData;
 import antafes.sfmanager.repository.xml.productions.ProductionsData;
+import antafes.sfmanager.util.FactoryName;
 import antafes.utilities.Utilities;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -40,6 +43,10 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
     @Autowired
     private RecipeRepository recipeRepository;
     @Autowired
+    private ItemRepository itemRepository;
+    @Autowired
+    private FactoryRepository factoryRepository;
+    @Autowired
     private Configuration configuration;
 
     public synchronized List<Production> findByBuildingKey(String buildingKey)
@@ -63,56 +70,82 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             .collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public synchronized void saveProduction(Production production) throws IOException
+    public synchronized void saveProduction(Factory factory, Production production) throws IOException
     {
-        this.init();
-        if (production == null || production.getId() == null) {
-            throw new IllegalArgumentException("A production with an ID is required.");
-        }
+        this.validateFactory(factory);
+        this.validateProductionId(production);
         if (this.entities.containsKey(production.getId())) {
             throw new IllegalArgumentException("A production with this ID already exists.");
         }
 
         this.entities.put(production.getId(), production);
         try {
-            this.saveData();
+            this.saveData(factory);
         } catch (IOException | RuntimeException failure) {
             this.entities.remove(production.getId());
             throw failure;
         }
     }
 
-    public synchronized void deleteProduction(UUID id) throws IOException
+    public synchronized void deleteProduction(Factory factory, UUID id) throws IOException
     {
-        this.init();
+        this.validateFactory(factory);
         Production production = this.entities.remove(id);
         if (production == null) {
             return;
         }
 
         try {
-            this.saveData();
+            this.saveData(factory);
         } catch (IOException | RuntimeException failure) {
             this.entities.put(id, production);
             throw failure;
         }
     }
 
-    public synchronized void saveData() throws IOException
+    @Override
+    protected synchronized void loadData()
     {
-        this.init();
-        Path productionFile = this.getProductionFile().toPath();
-        Path parentDirectory = productionFile.getParent();
+        try {
+            for (Factory factory : this.factoryRepository.findAll().values()) {
+                File productionFile = this.getProductionFile(factory);
+                if (!productionFile.isFile() || productionFile.length() == 0) {
+                    continue;
+                }
+
+                this.loadProductions(productionFile);
+            }
+            this.migrateLegacyProductions();
+        } catch (JAXBException | IOException | SAXException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    private File getProductionFile(Factory factory)
+    {
+        Path factoryDirectory = this.configuration.getSaveDirPath().toPath()
+            .resolve(FactoryName.toDirectoryName(factory.getName()));
+        return factoryDirectory.resolve("productions.xml").toFile();
+    }
+
+    private void saveData(Factory factory) throws IOException
+    {
+        File productionFile = this.getProductionFile(factory);
+        Path parentDirectory = productionFile.toPath().getParent();
         Files.createDirectories(parentDirectory);
         Path temporaryFile = Files.createTempFile(parentDirectory, "productions-", ".xml");
         try {
             Marshaller marshaller = this.createMarshaller();
             ProductionsData list = new ProductionsData();
-            this.entities.values().stream()
-                .map(this::toData)
-                .forEach(list.productions::add);
+            for (String productionId : factory.getProductions()) {
+                Production production = this.entities.get(UUID.fromString(productionId));
+                if (production == null) {
+                    throw new IllegalStateException("A factory production could not be loaded: " + productionId);
+                }
+                list.productions.add(this.toData(production));
+            }
             marshaller.marshal(list, temporaryFile.toFile());
-            Files.move(temporaryFile, productionFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.move(temporaryFile, productionFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (JAXBException | SAXException | IOException | RuntimeException exception) {
             IOException failure = exception instanceof IOException ioException
                 ? ioException
@@ -126,36 +159,84 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         }
     }
 
-    @Override
-    protected synchronized void loadData()
+    private void loadProductions(File productionFile) throws JAXBException, IOException, SAXException
     {
-        try {
-            this.buildingRepository.init();
-            this.recipeRepository.init();
-            File productionFile = this.getProductionFile();
-            if (!productionFile.isFile() || productionFile.length() == 0) {
-                return;
+        Unmarshaller unmarshaller = this.createUnmarshaller();
+        ProductionsData list;
+        try (InputStream input = Files.newInputStream(productionFile.toPath())) {
+            list = (ProductionsData) unmarshaller.unmarshal(input);
+        }
+        for (ProductionData productionData : list.productions) {
+            Production production = this.toEntity(productionData);
+            if (production.getId() == null || this.entities.putIfAbsent(production.getId(), production) != null) {
+                throw new IllegalStateException("Duplicate or missing production ID in " + productionFile);
             }
-
-            Unmarshaller unmarshaller = this.createUnmarshaller();
-            ProductionsData list;
-            try (InputStream input = Files.newInputStream(productionFile.toPath())) {
-                list = (ProductionsData) unmarshaller.unmarshal(input);
-            }
-            for (ProductionData productionData : list.productions) {
-                Production production = this.toEntity(productionData);
-                if (production.getId() == null || this.entities.putIfAbsent(production.getId(), production) != null) {
-                    throw new IllegalStateException("Duplicate or missing production ID in " + productionFile);
-                }
-            }
-        } catch (JAXBException | IOException | SAXException exception) {
-            throw new RuntimeException(exception);
         }
     }
 
-    private File getProductionFile()
+    private void migrateLegacyProductions() throws JAXBException, IOException, SAXException
     {
-        return Path.of(this.configuration.getBasePath()).resolve("productions.xml").toFile();
+        File legacyFile = Path.of(this.configuration.getBasePath()).resolve("productions.xml").toFile();
+        if (!legacyFile.isFile() || legacyFile.length() == 0) {
+            return;
+        }
+
+        Unmarshaller unmarshaller = this.createUnmarshaller();
+        ProductionsData legacyData;
+        try (InputStream input = Files.newInputStream(legacyFile.toPath())) {
+            legacyData = (ProductionsData) unmarshaller.unmarshal(input);
+        }
+
+        Set<Factory> factoriesToSave = new TreeSet<>(
+            Comparator.comparing(factory -> factory.getId().toString())
+        );
+        Set<UUID> migratedProductionIds = new TreeSet<>();
+        for (ProductionData productionData : legacyData.productions) {
+            UUID id = UUID.fromString(productionData.id);
+            if (this.entities.containsKey(id)) {
+                continue;
+            }
+            Factory owner = this.factoryRepository.findAll().values().stream()
+                .filter(factory -> factory.getProductions().contains(id.toString()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                    "Legacy production is not assigned to a factory: " + id
+                ));
+            Production production = this.toEntity(productionData);
+            this.entities.put(id, production);
+                migratedProductionIds.add(id);
+                factoriesToSave.add(owner);
+        }
+
+        try {
+                for (Factory factory : factoriesToSave) {
+                    this.saveData(factory);
+                }
+                Files.delete(legacyFile.toPath());
+        } catch (IOException | RuntimeException failure) {
+                migratedProductionIds.forEach(this.entities::remove);
+                throw failure;
+        }
+    }
+
+    private void validateFactory(Factory factory)
+    {
+        if (factory == null || factory.getId() == null || factory.getName() == null) {
+            throw new IllegalArgumentException("A saved factory is required.");
+        }
+        if (!this.factoryRepository.findAll().containsKey(factory.getId())) {
+            throw new IllegalArgumentException("Factory must already exist in the repository.");
+        }
+        if (factory.getProductions() == null) {
+            throw new IllegalArgumentException("The factory has no production list.");
+        }
+    }
+
+    private void validateProductionId(Production production)
+    {
+        if (production == null || production.getId() == null) {
+            throw new IllegalArgumentException("A production with an ID is required.");
+        }
     }
 
     private Marshaller createMarshaller() throws JAXBException, SAXException
@@ -188,10 +269,18 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             throw new IllegalStateException("Unknown production recipe: " + data.selectedRecipe);
         }
 
+        Item selectedItem = data.selectedItem == null
+            ? null
+            : this.itemRepository.findOne(data.selectedItem);
+        if (data.selectedItem != null && selectedItem == null) {
+            throw new IllegalStateException("Unknown production item: " + data.selectedItem);
+        }
+
         return new Production()
             .setId(id)
             .setSelectedBuilding(selectedBuilding)
             .setSelectedRecipe(selectedRecipe)
+            .setSelectedItem(selectedItem)
             .setGroup(data.group)
             .setPosition(data.position)
             .setAmount(data.amount)
@@ -209,6 +298,9 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         data.selectedRecipe = production.getSelectedRecipe() == null
             ? null
             : production.getSelectedRecipe().getKey();
+        data.selectedItem = production.getSelectedItem() == null
+            ? null
+            : production.getSelectedItem().getKey();
         data.group = production.getGroup();
         data.position = production.getPosition();
         data.amount = production.getAmount();

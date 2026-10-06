@@ -33,7 +33,6 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
 
     public Factory createFactory(String name) throws IOException
     {
-        this.init();
         String directoryName = FactoryName.toDirectoryName(name);
         File saveDirectory = this.configuration.getSaveDirPath();
         Path saveRoot = saveDirectory.toPath();
@@ -79,7 +78,6 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
 
     public void saveFactory(Factory factory) throws IOException
     {
-        this.init();
         if (factory == null || factory.getId() == null || !this.entities.containsKey(factory.getId())) {
             throw new IllegalArgumentException("Factory must already exist in the repository.");
         }
