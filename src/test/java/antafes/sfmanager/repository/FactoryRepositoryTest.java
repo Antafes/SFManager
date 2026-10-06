@@ -48,10 +48,12 @@ public class FactoryRepositoryTest extends BaseTest
 
             assertNotNull(created.getId());
             assertEquals("Crème Factory 42", created.getName());
+            assertFalse(created.isUseStorage());
             assertEquals(List.of(), created.getProductions());
             assertTrue(this.tempDirectory.resolve("creme-factory-42").resolve("factory.xml").toFile().isFile());
             assertTrue(this.tempDirectory.resolve("second-factory").resolve("factory.xml").toFile().isFile());
             created.getProductions().add("550e8400-e29b-41d4-a716-446655440000");
+            created.setUseStorage(true);
             this.factoryRepository.saveFactory(created);
         }
 
@@ -63,6 +65,7 @@ public class FactoryRepositoryTest extends BaseTest
             assertNotNull(loaded);
             assertEquals(created.getId(), loaded.getId());
             assertEquals(created.getName(), loaded.getName());
+            assertTrue(loaded.isUseStorage());
             assertEquals(List.of("550e8400-e29b-41d4-a716-446655440000"), loaded.getProductions());
             assertEquals(2, this.factoryRepository.findAll().size());
         }

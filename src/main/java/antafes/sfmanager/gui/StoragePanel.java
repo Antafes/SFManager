@@ -1,0 +1,132 @@
+package antafes.sfmanager.gui;
+
+import antafes.sfmanager.Configuration;
+import antafes.sfmanager.entity.Name;
+import antafes.sfmanager.service.FactoryService;
+import antafes.sfmanager.service.StorageService;
+import antafes.sfmanager.service.dto.StorageItem;
+import antafes.sfmanager.service.dto.StorageProductionChoice;
+import antafes.utilities.language.LanguageInterface;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
+import java.text.Collator;
+import java.text.NumberFormat;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+
+@org.springframework.stereotype.Component
+public class StoragePanel extends JPanel
+{
+    @Autowired
+    private StorageService storageService;
+    @Autowired
+    private FactoryService factoryService;
+    @Autowired
+    private Configuration configuration;
+
+    private String selectedLanguage;
+    private LanguageInterface language;
+    private NumberFormat numberFormat;
+    private DefaultTableModel tableModel;
+    @Getter
+    private JTable table;
+
+    public StoragePanel()
+    {
+    }
+
+    @PostConstruct
+    private void initializePanel()
+    {
+        this.selectedLanguage = this.configuration.getLanguage().getName();
+        this.language = this.configuration.getLanguageObject();
+        this.numberFormat = NumberFormat.getNumberInstance(Locale.forLanguageTag(
+            "German".equals(this.selectedLanguage) ? "de" : "en"
+        ));
+        this.createTable();
+        this.setLayout(new BorderLayout());
+        this.add(new JScrollPane(this.table), BorderLayout.CENTER);
+        this.refresh();
+    }
+
+    public void refresh()
+    {
+        this.tableModel.setRowCount(0);
+        if (this.factoryService.getCurrentFactory() == null) {
+            return;
+        }
+        this.storageService.getStoredItems().stream()
+            .sorted(Comparator.<StorageItem, String>comparing(
+                storageItem -> this.localizedName(storageItem.item().getName()),
+                Collator.getInstance(Locale.forLanguageTag(
+                    "German".equals(this.selectedLanguage) ? "de" : "en"
+                ))
+            ).thenComparing(storageItem -> storageItem.item().getKey()))
+            .forEach(storageItem -> this.tableModel.addRow(new Object[] {
+                this.localizedName(storageItem.item().getName()),
+                this.perMinute(storageItem.rate()),
+                this.sourceDescriptions(storageItem.sources())
+            }));
+    }
+
+    private void createTable()
+    {
+        this.tableModel = new DefaultTableModel(new Object[] {
+            this.language.translate("item"),
+            this.language.translate("storedRate"),
+            this.language.translate("sourceProductions")
+        }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
+        this.table = new JTable(this.tableModel);
+        this.table.setAutoCreateRowSorter(true);
+    }
+
+    private String sourceDescriptions(List<StorageProductionChoice> sources)
+    {
+        return sources.stream()
+            .map(this::productionDescription)
+            .sorted()
+            .reduce((left, right) -> left + ", " + right)
+            .orElse("");
+    }
+
+    private String productionDescription(StorageProductionChoice choice)
+    {
+        List<String> context = new java.util.ArrayList<>();
+        context.add(this.localizedName(choice.production().getSelectedBuilding().getName()));
+        if (choice.production().getSelectedRecipe() != null) {
+            context.add(this.localizedName(choice.production().getSelectedRecipe().getName()));
+        }
+        if (choice.production().getGroup() != null && !choice.production().getGroup().isBlank()) {
+            context.add(choice.production().getGroup());
+        }
+        if (choice.production().getPosition() != null && !choice.production().getPosition().isBlank()) {
+            context.add(choice.production().getPosition());
+        }
+        context.add("#" + choice.production().getId().toString().substring(0, 8));
+        return String.join(" — ", context);
+    }
+
+    private String localizedName(Name name)
+    {
+        return name == null ? "" : name.getLocalizedName(this.selectedLanguage);
+    }
+
+    private String perMinute(double amount)
+    {
+        return this.numberFormat.format(amount) + " / min";
+    }
+}

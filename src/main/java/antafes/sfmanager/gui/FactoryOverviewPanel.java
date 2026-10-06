@@ -71,8 +71,8 @@ public class FactoryOverviewPanel extends JPanel
             this.materialTableModel.addRow(new Object[] {
                 this.localizedName(material.item().getName()),
                 this.perMinute(material.production()),
-                "",
-                this.perMinute(material.production()),
+                this.perMinute(material.usage()),
+                this.perMinute(material.production() - material.usage()),
                 this.megawatts(material.powerConsumption())
             });
         }

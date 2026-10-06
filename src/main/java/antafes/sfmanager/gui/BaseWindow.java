@@ -11,6 +11,7 @@ import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import antafes.sfmanager.service.event.ProductionDeletedEvent;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
+import antafes.sfmanager.service.event.StorageChangedEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,9 +47,12 @@ public class BaseWindow extends JFrame
     private JLabel activeFactoryLabel;
     private JMenuItem openFactoryMenuItem;
     private JMenu fileMenu;
+    private JMenu optionsMenu;
     private JMenuItem closeMenuItem;
     private JMenuItem newProductionMenuItem;
+    private JMenuItem newStorageMenuItem;
     private JMenuItem newFactoryMenuItem;
+    private JCheckBoxMenuItem useStorageMenuItem;
 
     public BaseWindow()
     {
@@ -99,12 +104,18 @@ public class BaseWindow extends JFrame
         this.newFactoryMenuItem = new JMenuItem();
         this.openFactoryMenuItem = new JMenuItem();
         this.newProductionMenuItem = new JMenuItem();
+        this.newStorageMenuItem = new JMenuItem();
+        this.optionsMenu = new JMenu();
+        this.useStorageMenuItem = new JCheckBoxMenuItem();
 
         this.fileMenu.add(this.newFactoryMenuItem);
         this.fileMenu.add(this.openFactoryMenuItem);
         this.fileMenu.add(this.newProductionMenuItem);
+        this.fileMenu.add(this.newStorageMenuItem);
         this.fileMenu.add(this.closeMenuItem);
         menuBar.add(this.fileMenu);
+        this.optionsMenu.add(this.useStorageMenuItem);
+        menuBar.add(this.optionsMenu);
 
         this.newFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
         this.newFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewFactoryEvent()));
@@ -116,6 +127,12 @@ public class BaseWindow extends JFrame
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
         this.newProductionMenuItem.setEnabled(this.factoryService.getCurrentFactory() != null);
+
+        this.newStorageMenuItem.addActionListener(e -> this.openNewStorageDialog());
+        this.updateStorageMenuItem();
+
+        this.useStorageMenuItem.setSelected(this.isStorageEnabled());
+        this.useStorageMenuItem.addActionListener(e -> this.setUseStorage(this.useStorageMenuItem.isSelected()));
 
         this.closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
         this.closeMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new CloseProgramEvent()));
@@ -180,6 +197,16 @@ public class BaseWindow extends JFrame
         this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
     }
 
+    private void openNewStorageDialog()
+    {
+        if (!this.isStorageEnabled()) {
+            return;
+        }
+        NewStorageDialog dialog = this.applicationContext.getBean(NewStorageDialog.class, this, true);
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+    }
+
     private void openFactoryDialog()
     {
         if (this.factoryService.getFactories().isEmpty()) {
@@ -199,6 +226,7 @@ public class BaseWindow extends JFrame
         SwingUtilities.invokeLater(() -> {
             Factory currentFactory = this.factoryService.getCurrentFactory();
             this.newProductionMenuItem.setEnabled(currentFactory != null);
+            this.updateStorageMenuItem();
             this.updateActiveFactoryLabel();
             this.refreshResourceTabs();
         });
@@ -216,22 +244,32 @@ public class BaseWindow extends JFrame
         SwingUtilities.invokeLater(this::refreshResourceTabs);
     }
 
+    @EventListener
+    private void onStorageChanged(StorageChangedEvent event)
+    {
+        SwingUtilities.invokeLater(this::refreshResourceTabs);
+    }
+
     private void refreshResourceTabs()
     {
         String selectedTabTitle = this.getSelectedTabTitle();
         this.panel.removeAll();
         FactoryOverviewPanel overviewPanel = this.applicationContext.getBean(FactoryOverviewPanel.class);
         overviewPanel.refresh();
+        this.panel.addTab(this.language.translate("overview"), overviewPanel);
+        if (this.isStorageEnabled()) {
+            this.panel.addTab(
+                this.language.translate("storage"),
+                this.applicationContext.getBean(StoragePanel.class)
+            );
+        }
         String selectedLanguage = this.configuration.getLanguage().getName();
-        LocalizedItemOrder.addTabs(
-            this.panel,
-            this.language.translate("overview"),
-            overviewPanel,
-            this.productionService.getResourceItemsWithProductions(),
-            selectedLanguage,
-            item -> item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
-            item -> this.applicationContext.getBean(ResourceProductionPanel.class, item)
-        );
+        this.productionService.getResourceItemsWithProductions().stream()
+            .sorted(LocalizedItemOrder.comparator(selectedLanguage))
+            .forEach(item -> this.panel.addTab(
+                item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
+                this.applicationContext.getBean(ResourceProductionPanel.class, item)
+            ));
         LocalizedBuildingOrder.addTabs(
             this.panel,
             this.productionService.getGeneratorBuildingsWithProductions(),
@@ -274,6 +312,45 @@ public class BaseWindow extends JFrame
             : currentFactory.getName());
     }
 
+    private void setUseStorage(boolean useStorage)
+    {
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
+            this.useStorageMenuItem.setSelected(false);
+            return;
+        }
+        currentFactory.setUseStorage(useStorage);
+        try {
+            this.factoryService.saveFactory(currentFactory);
+        } catch (IOException exception) {
+            currentFactory.setUseStorage(!useStorage);
+            this.useStorageMenuItem.setSelected(!useStorage);
+            JOptionPane.showMessageDialog(
+                this,
+                this.language.translate("storageSavingFailed"),
+                this.language.translate("storage"),
+                JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        this.updateStorageMenuItem();
+        this.refreshResourceTabs();
+    }
+
+    private void updateStorageMenuItem()
+    {
+        this.newStorageMenuItem.setVisible(
+            this.isStorageEnabled()
+        );
+        this.useStorageMenuItem.setSelected(this.isStorageEnabled());
+    }
+
+    private boolean isStorageEnabled()
+    {
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        return currentFactory != null && currentFactory.isUseStorage();
+    }
+
     private void registerEscapeCloseOperation(JDialog dialog)
     {
         Action dispatchClosing = new AbstractAction() {
@@ -311,6 +388,11 @@ public class BaseWindow extends JFrame
         this.openFactoryMenuItem.setMnemonic(this.language.translate("openFactoryMnemonic").charAt(0));
         this.newProductionMenuItem.setText(this.language.translate("newProductionMenu"));
         this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
+        this.newStorageMenuItem.setText(this.language.translate("newStorageMenu"));
+        this.newStorageMenuItem.setMnemonic(this.language.translate("newStorageMnemonic").charAt(0));
+        this.optionsMenu.setText(this.language.translate("options"));
+        this.optionsMenu.setMnemonic(this.language.translate("optionsMnemonic").charAt(0));
+        this.useStorageMenuItem.setText(this.language.translate("useStorage"));
         this.closeMenuItem.setText(this.language.translate("quit"));
         this.closeMenuItem.setMnemonic(this.language.translate("quitMnemonic").charAt(0));
     }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3schools.com/SFManager/storage"
+    targetNamespace="http://www.w3schools.com/SFManager/storage"
+>
+    <xs:element name="storage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="factoryId" type="xs:string" />
+                <xs:element name="entries">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="entry" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="productionId" type="xs:string" />
+                                        <xs:element name="itemKey" type="xs:string" />
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

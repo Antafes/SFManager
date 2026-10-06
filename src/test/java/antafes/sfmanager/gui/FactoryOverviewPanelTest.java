@@ -124,7 +124,7 @@ public class FactoryOverviewPanelTest extends BaseTest
             assertEquals(2, materialTable.getRowCount());
             assertEquals("Iron Ore", materialTable.getValueAt(0, 0));
             assertEquals("120 / min", materialTable.getValueAt(0, 1));
-            assertEquals("", materialTable.getValueAt(0, 2));
+            assertEquals("0 / min", materialTable.getValueAt(0, 2));
             assertEquals("120 / min", materialTable.getValueAt(0, 3));
             assertEquals("10 MW", materialTable.getValueAt(0, 4));
             assertEquals("Iron Ingot", materialTable.getValueAt(1, 0));

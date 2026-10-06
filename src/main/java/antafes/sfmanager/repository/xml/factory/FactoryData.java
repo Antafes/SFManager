@@ -12,6 +12,7 @@ public class FactoryData
     @XmlAttribute
     public String id;
     public String name;
+    public boolean useStorage;
     public ProductionsData productions = new ProductionsData();
 
     @XmlAccessorType(XmlAccessType.FIELD)

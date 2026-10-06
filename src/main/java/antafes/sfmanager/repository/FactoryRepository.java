@@ -132,6 +132,7 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
                 Factory factory = new Factory()
                     .setId(UUID.fromString(factoryData.id))
                     .setName(factoryData.name)
+                    .setUseStorage(factoryData.useStorage)
                     .setProductions(new ArrayList<>(factoryData.productions.productionIds));
                 if (this.entities.putIfAbsent(factory.getId(), factory) != null) {
                     throw new IllegalStateException("Duplicate factory ID in " + factoryFile.getAbsolutePath());
@@ -168,6 +169,7 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
         FactoryData data = new FactoryData();
         data.id = factory.getId().toString();
         data.name = factory.getName();
+        data.useStorage = factory.isUseStorage();
         data.productions.productionIds.addAll(factory.getProductions());
         return data;
     }

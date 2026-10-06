@@ -23,6 +23,7 @@ import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +54,8 @@ public class ProductionService
     private FactoryService factoryService;
     @Autowired
     private ApplicationEventPublisher eventPublisher;
+    @Autowired
+    private ObjectProvider<StorageService> storageServiceProvider;
 
     public List<Building> getBuildings()
     {
@@ -275,6 +278,7 @@ public class ProductionService
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
         Map<String, MutableOverviewMaterial> materials = new LinkedHashMap<>();
+        Map<String, Double> storageUsage = this.getStorageUsageByItem();
         Map<String, MutablePowerSource> powerSources = new LinkedHashMap<>();
         double totalPowerProduction = 0;
         double totalPowerConsumption = 0;
@@ -351,6 +355,7 @@ public class ProductionService
             .map(material -> new FactoryOverviewMaterial(
                 material.item,
                 material.production,
+                storageUsage.getOrDefault(material.item.getKey(), 0.0),
                 material.powerConsumption
             ))
             .toList();
@@ -794,6 +799,20 @@ public class ProductionService
         );
         material.production += production;
         material.powerConsumption += powerConsumption;
+    }
+
+    private Map<String, Double> getStorageUsageByItem()
+    {
+        StorageService storageService = this.storageServiceProvider.getIfAvailable();
+        if (storageService == null) {
+            return Map.of();
+        }
+        return storageService.getStoredItems().stream()
+            .collect(Collectors.toMap(
+                storageItem -> storageItem.item().getKey(),
+                storageItem -> storageItem.rate(),
+                Double::sum
+            ));
     }
 
     private ResourceProductionEntry toResourceProductionEntry(

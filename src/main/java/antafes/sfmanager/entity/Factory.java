@@ -13,5 +13,6 @@ public class Factory
 {
     private UUID id;
     private String name;
+    private boolean useStorage;
     private List<String> productions = new ArrayList<>();
 }
