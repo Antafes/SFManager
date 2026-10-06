@@ -2,10 +2,16 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
+import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.*;
+import antafes.sfmanager.repository.FactoryRepository;
 import antafes.utilities.language.LanguageInterface;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -20,20 +26,33 @@ import java.util.logging.Logger;
 @Lazy
 public class BaseWindow extends JFrame
 {
-    private final ApplicationContext applicationContext;
-    private final Configuration configuration;
-    private final LanguageInterface language;
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
+    private Configuration configuration;
+    @Autowired
+    private FactoryRepository factoryRepository;
+
+    private LanguageInterface language;
+    @Getter
+    private Factory activeFactory;
     private JTabbedPane panel;
+    private JLabel activeFactoryLabel;
+    private JMenuItem openFactoryMenuItem;
     private JMenu fileMenu;
     private JMenuItem closeMenuItem;
     private JMenuItem newProductionMenuItem;
     private JMenuItem newFactoryMenuItem;
 
-    public BaseWindow(ApplicationContext applicationContext, Configuration configuration)
+    public BaseWindow()
     {
-        this.applicationContext = applicationContext;
-        this.configuration = configuration;
+    }
+
+    @PostConstruct
+    private void initializeWindow()
+    {
         this.language = this.configuration.getLanguageObject();
+        this.factoryRepository.init();
         this.initComponents();
         this.registerEvents();
         this.init();
@@ -44,18 +63,27 @@ public class BaseWindow extends JFrame
     {
         this.createMenu();
 
+        this.activeFactoryLabel = new JLabel();
+        this.activeFactoryLabel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.panel = new JTabbedPane();
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
+        JPanel contentPanel = new JPanel();
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(contentPanel);
+        contentPanel.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(this.activeFactoryLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 1200, Short.MAX_VALUE)
                 .addComponent(this.panel, javax.swing.GroupLayout.DEFAULT_SIZE, 1200, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            layout.createSequentialGroup()
+                .addComponent(this.activeFactoryLabel, javax.swing.GroupLayout.PREFERRED_SIZE,
+                    javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addComponent(this.panel, javax.swing.GroupLayout.DEFAULT_SIZE, 654, Short.MAX_VALUE)
         );
+        this.setContentPane(contentPanel);
+        this.newProductionMenuItem.setEnabled(false);
+        this.openFactoryMenuItem.setEnabled(!this.factoryRepository.findAll().isEmpty());
+        this.updateActiveFactoryLabel();
 
         pack();
     }
@@ -66,15 +94,20 @@ public class BaseWindow extends JFrame
         this.fileMenu = new JMenu();
         this.closeMenuItem = new JMenuItem();
         this.newFactoryMenuItem = new JMenuItem();
+        this.openFactoryMenuItem = new JMenuItem();
         this.newProductionMenuItem = new JMenuItem();
 
         this.fileMenu.add(this.newFactoryMenuItem);
+        this.fileMenu.add(this.openFactoryMenuItem);
         this.fileMenu.add(this.newProductionMenuItem);
         this.fileMenu.add(this.closeMenuItem);
         menuBar.add(this.fileMenu);
 
         this.newFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
         this.newFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewFactoryEvent()));
+
+        this.openFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
+        this.openFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new OpenFactoryEvent()));
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
@@ -100,6 +133,10 @@ public class BaseWindow extends JFrame
             new NewFactoryListener(newFactoryEvent -> this.openNewFactoryDialog())
         );
         SFManager.getDispatcher().addListener(
+            OpenFactoryEvent.class,
+            new OpenFactoryListener(openFactoryEvent -> this.openFactoryDialog())
+        );
+        SFManager.getDispatcher().addListener(
             RegisterEscapeCloseOperationEvent.class,
             new RegisterEscapeCloseOperationListener((event) -> this.registerEscapeCloseOperation(event.getDialog()))
         );
@@ -107,10 +144,14 @@ public class BaseWindow extends JFrame
 
     private void openNewProductionDialog()
     {
+        if (this.activeFactory == null) {
+            return;
+        }
+
         int x, y, width, height;
 
         NewProductionDialog dialog = this.applicationContext.getBean(
-            NewProductionDialog.class, this, true, this.applicationContext, this.configuration
+            NewProductionDialog.class, this, true, this.activeFactory
         );
         dialog.setVisible(false);
 
@@ -126,10 +167,39 @@ public class BaseWindow extends JFrame
     private void openNewFactoryDialog()
     {
         NewFactoryDialog dialog = this.applicationContext.getBean(
-            NewFactoryDialog.class, this, true, this.applicationContext, this.configuration
+            NewFactoryDialog.class, this, true
         );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
+        this.openFactoryMenuItem.setEnabled(!this.factoryRepository.findAll().isEmpty());
+    }
+
+    private void openFactoryDialog()
+    {
+        if (this.factoryRepository.findAll().isEmpty()) {
+            this.openFactoryMenuItem.setEnabled(false);
+            return;
+        }
+
+        OpenFactoryDialog dialog = this.applicationContext.getBean(
+            OpenFactoryDialog.class, this, true
+        );
+        dialog.setVisible(true);
+    }
+
+    @EventListener
+    private void onFactorySelected(FactorySelectedEvent event)
+    {
+        this.activeFactory = event.factory();
+        this.newProductionMenuItem.setEnabled(true);
+        this.updateActiveFactoryLabel();
+    }
+
+    private void updateActiveFactoryLabel()
+    {
+        this.activeFactoryLabel.setText(this.activeFactory == null
+            ? this.language.translate("noFactoryOpen")
+            : this.activeFactory.getName());
     }
 
     private void registerEscapeCloseOperation(JDialog dialog)
@@ -165,6 +235,8 @@ public class BaseWindow extends JFrame
         this.fileMenu.setMnemonic(this.language.translate("fileMnemonic").charAt(0));
         this.newFactoryMenuItem.setText(this.language.translate("newFactoryMenu"));
         this.newFactoryMenuItem.setMnemonic(this.language.translate("newFactoryMnemonic").charAt(0));
+        this.openFactoryMenuItem.setText(this.language.translate("openFactoryMenu"));
+        this.openFactoryMenuItem.setMnemonic(this.language.translate("openFactoryMnemonic").charAt(0));
         this.newProductionMenuItem.setText(this.language.translate("newProductionMenu"));
         this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
         this.closeMenuItem.setText(this.language.translate("quit"));

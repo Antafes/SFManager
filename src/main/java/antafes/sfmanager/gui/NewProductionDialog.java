@@ -2,11 +2,14 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
+import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.utilities.language.LanguageInterface;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -18,26 +21,27 @@ import java.util.logging.Logger;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class NewProductionDialog extends JDialog
 {
-    private final ApplicationContext applicationContext;
-    private final LanguageInterface language;
-    private final Configuration configuration;
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
+    private Configuration configuration;
+    private LanguageInterface language;
+    private final Factory factory;
 
-    public NewProductionDialog(
-        Frame owner,
-        boolean modal,
-        ApplicationContext applicationContext,
-        Configuration configuration
-    )
+    public NewProductionDialog(Frame owner, boolean modal, Factory factory)
     {
         super(owner, modal);
-        this.applicationContext = applicationContext;
-        this.configuration = configuration;
+        this.factory = factory;
+    }
 
+    @PostConstruct
+    private void initializeDialog()
+    {
         this.setResizable(false);
         this.setSize(480, 420);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
-        this.language = configuration.getLanguageObject();
+        this.language = this.configuration.getLanguageObject();
         this.initComponents();
         this.init();
         this.setFieldTexts();
@@ -67,7 +71,7 @@ public class NewProductionDialog extends JDialog
         SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
 
         NewProductionPanel panel = this.applicationContext.getBean(
-            NewProductionPanel.class, this, this.configuration
+            NewProductionPanel.class, this, this.configuration, this.factory
         );
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);

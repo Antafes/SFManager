@@ -17,6 +17,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("newProductionMnemonic", "P");
         this.getTranslations().put("newFactoryMenu", "New Factory");
         this.getTranslations().put("newFactoryMnemonic", "F");
+        this.getTranslations().put("openFactoryMenu", "Open Factory");
+        this.getTranslations().put("openFactoryMnemonic", "O");
     }
 
     private void newProduction()
@@ -45,5 +47,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("newFactory", "Create new factory");
         this.getTranslations().put("factoryName", "Factory name");
         this.getTranslations().put("factoryCreationFailed", "Could not create the factory.");
+        this.getTranslations().put("openFactory", "Open factory");
+        this.getTranslations().put("noFactoryOpen", "No factory open");
+        this.getTranslations().put("open", "Open");
     }
 }

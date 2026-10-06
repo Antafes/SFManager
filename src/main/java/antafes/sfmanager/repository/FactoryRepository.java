@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -69,6 +70,38 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
             }
             try {
                 Files.deleteIfExists(factoryDirectory);
+            } catch (IOException cleanupFailure) {
+                failure.addSuppressed(cleanupFailure);
+            }
+            throw failure;
+        }
+    }
+
+    public void saveFactory(Factory factory) throws IOException
+    {
+        this.init();
+        if (factory == null || factory.getId() == null || !this.entities.containsKey(factory.getId())) {
+            throw new IllegalArgumentException("Factory must already exist in the repository.");
+        }
+
+        Path factoryDirectory = this.configuration.getSaveDirPath().toPath()
+            .resolve(FactoryName.toDirectoryName(factory.getName()));
+        Path factoryFile = factoryDirectory.resolve("factory.xml");
+        if (!Files.isDirectory(factoryDirectory) || !Files.isRegularFile(factoryFile)) {
+            throw new IOException("Factory data does not exist for " + factory.getName());
+        }
+
+        Path temporaryFile = Files.createTempFile(factoryDirectory, "factory-", ".xml");
+        try {
+            this.createMarshaller().marshal(this.toData(factory), temporaryFile.toFile());
+            Files.move(temporaryFile, factoryFile, StandardCopyOption.REPLACE_EXISTING);
+            this.entities.put(factory.getId(), factory);
+        } catch (JAXBException | SAXException | IOException e) {
+            IOException failure = e instanceof IOException ioException
+                ? ioException
+                : new IOException("Could not save factory data.", e);
+            try {
+                Files.deleteIfExists(temporaryFile);
             } catch (IOException cleanupFailure) {
                 failure.addSuppressed(cleanupFailure);
             }

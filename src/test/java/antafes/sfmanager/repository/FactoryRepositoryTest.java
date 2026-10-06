@@ -52,6 +52,8 @@ public class FactoryRepositoryTest
             assertEquals(List.of(), created.getProductions());
             assertTrue(this.tempDirectory.resolve("creme-factory-42").resolve("factory.xml").toFile().isFile());
             assertTrue(this.tempDirectory.resolve("second-factory").resolve("factory.xml").toFile().isFile());
+            created.getProductions().add("550e8400-e29b-41d4-a716-446655440000");
+            repository.saveFactory(created);
         }
 
         try (AnnotationConfigApplicationContext context = this.createContext()) {
@@ -62,7 +64,7 @@ public class FactoryRepositoryTest
             assertNotNull(loaded);
             assertEquals(created.getId(), loaded.getId());
             assertEquals(created.getName(), loaded.getName());
-            assertTrue(loaded.getProductions().isEmpty());
+            assertEquals(List.of("550e8400-e29b-41d4-a716-446655440000"), loaded.getProductions());
             assertEquals(2, repository.findAll().size());
         }
     }

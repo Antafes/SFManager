@@ -1,6 +1,7 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
+import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Category;
 import antafes.sfmanager.entity.Purity;
@@ -31,6 +32,7 @@ import java.util.List;
 public class NewProductionPanel extends BasePanel
 {
     private final String selectedLanguage;
+    private final Factory factory;
     private final NumberFormat numberFormat;
     private final NumberFormat clockSpeedFormat;
     private double clockSpeed = 100;
@@ -73,9 +75,10 @@ public class NewProductionPanel extends BasePanel
     @Autowired
     private ProductionRepository productionRepository;
 
-    public NewProductionPanel(JDialog parent, Configuration configuration)
+    public NewProductionPanel(JDialog parent, Configuration configuration, Factory factory)
     {
         super(parent, configuration);
+        this.factory = factory;
         this.selectedLanguage = configuration.getLanguage().getName();
         Locale locale = this.selectedLanguage.equals("German") ? Locale.GERMAN : Locale.ENGLISH;
         this.numberFormat = NumberFormat.getNumberInstance(locale);
@@ -85,6 +88,11 @@ public class NewProductionPanel extends BasePanel
         this.clockSpeedFormat.setGroupingUsed(false);
         this.clockSpeedFormat.setMaximumFractionDigits(10);
         this.clockSpeedFormat.setMinimumFractionDigits(0);
+    }
+
+    public Factory getFactory()
+    {
+        return this.factory;
     }
 
     @PostConstruct
