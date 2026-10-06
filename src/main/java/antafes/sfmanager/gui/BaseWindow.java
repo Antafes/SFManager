@@ -3,7 +3,6 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.SFManager;
 import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.gui.event.*;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
@@ -213,17 +212,16 @@ public class BaseWindow extends JFrame
         this.panel.removeAll();
         FactoryOverviewPanel overviewPanel = this.applicationContext.getBean(FactoryOverviewPanel.class);
         overviewPanel.refresh();
-        this.panel.addTab(this.language.translate("overview"), overviewPanel);
-        for (Item item : this.productionService.getResourceItemsWithProductions()) {
-            String title = item.getName() == null
-                ? item.getKey()
-                : item.getName().getLocalizedName(this.configuration.getLanguage().getName());
-            ResourceProductionPanel resourceProductionPanel = this.applicationContext.getBean(
-                ResourceProductionPanel.class,
-                item
-            );
-            this.panel.addTab(title, resourceProductionPanel);
-        }
+        String selectedLanguage = this.configuration.getLanguage().getName();
+        LocalizedItemOrder.addTabs(
+            this.panel,
+            this.language.translate("overview"),
+            overviewPanel,
+            this.productionService.getResourceItemsWithProductions(),
+            selectedLanguage,
+            item -> item.getName() == null ? item.getKey() : item.getName().getLocalizedName(selectedLanguage),
+            item -> this.applicationContext.getBean(ResourceProductionPanel.class, item)
+        );
     }
 
     private void updateActiveFactoryLabel()

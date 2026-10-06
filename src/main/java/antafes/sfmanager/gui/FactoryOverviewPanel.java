@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.text.Collator;
 import java.text.NumberFormat;
+import java.util.Comparator;
 import java.util.Locale;
 
 @org.springframework.stereotype.Component
@@ -59,7 +61,12 @@ public class FactoryOverviewPanel extends JPanel
     {
         FactoryOverviewData overview = this.productionService.getFactoryOverview();
         this.materialTableModel.setRowCount(0);
-        for (FactoryOverviewMaterial material : overview.materials()) {
+        for (FactoryOverviewMaterial material : overview.materials().stream()
+            .sorted(Comparator.comparing(
+                FactoryOverviewMaterial::item,
+                LocalizedItemOrder.comparator(this.selectedLanguage)
+            ))
+            .toList()) {
             this.materialTableModel.addRow(new Object[] {
                 this.localizedName(material.item().getName()),
                 this.perMinute(material.production()),
@@ -70,7 +77,21 @@ public class FactoryOverviewPanel extends JPanel
         }
 
         this.powerSourceTableModel.setRowCount(0);
-        for (FactoryOverviewPowerSource powerSource : overview.powerSources()) {
+        Collator collator = Collator.getInstance(Locale.forLanguageTag(
+            "German".equalsIgnoreCase(this.selectedLanguage) ? "de" : "en"
+        ));
+        collator.setStrength(Collator.SECONDARY);
+        for (FactoryOverviewPowerSource powerSource : overview.powerSources().stream()
+            .sorted((left, right) -> {
+                int displayNameOrder = collator.compare(
+                    this.localizedName(left.building().getName()),
+                    this.localizedName(right.building().getName())
+                );
+                return displayNameOrder != 0
+                    ? displayNameOrder
+                    : left.building().getKey().compareTo(right.building().getKey());
+            })
+            .toList()) {
             this.powerSourceTableModel.addRow(new Object[] {
                 this.localizedName(powerSource.building().getName()),
                 this.megawatts(powerSource.production())

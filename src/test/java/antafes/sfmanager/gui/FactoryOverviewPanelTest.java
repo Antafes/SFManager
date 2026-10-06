@@ -4,8 +4,10 @@ import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.entity.Item;
+import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Purity;
 import antafes.sfmanager.entity.Production;
+import antafes.sfmanager.entity.Recipe;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.repository.ItemRepository;
@@ -18,10 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import javax.swing.JTable;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FactoryOverviewPanelTest extends BaseTest
 {
@@ -79,26 +86,52 @@ public class FactoryOverviewPanelTest extends BaseTest
                 .setPurity(Purity.NORMAL)
                 .setClockSpeed(100.0)
                 .setUsedSomersloops(0), 2);
+
+            Building smelter = productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe ironIngot = productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(recipe -> "iron_ingot".equals(recipe.getKey()))
+                .findFirst()
+                .orElseThrow();
+            productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(ironIngot)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+
             Building generator = productionService.getBuildings().stream()
-                .filter(building -> "coal_generator".equals(building.getKey()))
+                .filter(building -> "fuel_generator".equals(building.getKey()))
                 .findFirst()
                 .orElseThrow();
             productionService.saveProductions(new Production()
                 .setSelectedBuilding(generator)
                 .setClockSpeed(100.0)
                 .setUsedSomersloops(0), 2);
+            Building coalGenerator = productionService.getBuildings().stream()
+                .filter(building -> "coal_generator".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            productionService.saveProduction(new Production()
+                .setSelectedBuilding(coalGenerator)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
 
             panel.refresh();
 
-            assertEquals(1, materialTable.getRowCount());
+            assertEquals(2, materialTable.getRowCount());
             assertEquals("Iron Ore", materialTable.getValueAt(0, 0));
             assertEquals("120 / min", materialTable.getValueAt(0, 1));
             assertEquals("", materialTable.getValueAt(0, 2));
             assertEquals("120 / min", materialTable.getValueAt(0, 3));
             assertEquals("10 MW", materialTable.getValueAt(0, 4));
-            assertEquals(1, powerSourceTable.getRowCount());
+            assertEquals("Iron Ingot", materialTable.getValueAt(1, 0));
+            assertEquals(2, powerSourceTable.getRowCount());
             assertEquals("Coal-Powered Generator", powerSourceTable.getValueAt(0, 0));
-            assertEquals("150 MW", powerSourceTable.getValueAt(0, 1));
+            assertEquals("75 MW", powerSourceTable.getValueAt(0, 1));
+            assertEquals("Fuel-Powered Generator", powerSourceTable.getValueAt(1, 0));
+            assertEquals("500 MW", powerSourceTable.getValueAt(1, 1));
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Overview Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));
@@ -107,5 +140,63 @@ public class FactoryOverviewPanelTest extends BaseTest
             assertEquals(0, powerSourceTable.getRowCount());
             assertFalse(factory.getProductions().isEmpty());
         }
+    }
+
+    @Test
+    public void testSortsRawItemsBeforeNonRawItemsByLocalizedName()
+    {
+        Item ironOre = new Item()
+            .setKey("iron")
+            .setName(new Name().setEnglish("Zinc Ore"))
+            .setProductions(List.of(new antafes.sfmanager.entity.item.Production()));
+        Item ingot = new Item()
+            .setKey("iron_ingot")
+            .setName(new Name().setEnglish("Aluminum Ingot"));
+        Item copperOre = new Item()
+            .setKey("copper")
+            .setName(new Name().setEnglish("Copper Ore"))
+            .setProductions(List.of(new antafes.sfmanager.entity.item.Production()));
+
+        List<Item> sortedItems = Stream.of(ironOre, ingot, copperOre)
+            .sorted(LocalizedItemOrder.comparator("English"))
+            .toList();
+
+        assertTrue(LocalizedItemOrder.isRawResource(sortedItems.get(0)));
+        assertEquals("copper", sortedItems.get(0).getKey());
+        assertEquals("iron", sortedItems.get(1).getKey());
+        assertFalse(LocalizedItemOrder.isRawResource(sortedItems.get(2)));
+        assertEquals("iron_ingot", sortedItems.get(2).getKey());
+    }
+
+    @Test
+    public void testKeepsOverviewFirstAndSortsResourceTabsBeforeOtherItems()
+    {
+        Item zincOre = new Item()
+            .setKey("zinc")
+            .setName(new Name().setEnglish("Zinc Ore"))
+            .setProductions(List.of(new antafes.sfmanager.entity.item.Production()));
+        Item aluminumIngot = new Item()
+            .setKey("aluminum_ingot")
+            .setName(new Name().setEnglish("Aluminum Ingot"));
+        Item copperOre = new Item()
+            .setKey("copper")
+            .setName(new Name().setEnglish("Copper Ore"))
+            .setProductions(List.of(new antafes.sfmanager.entity.item.Production()));
+        JTabbedPane tabs = new JTabbedPane();
+
+        LocalizedItemOrder.addTabs(
+            tabs,
+            "Overview",
+            new JPanel(),
+            List.of(zincOre, aluminumIngot, copperOre),
+            "English",
+            item -> item.getName().getEnglish(),
+            item -> new JPanel()
+        );
+
+        assertEquals("Overview", tabs.getTitleAt(0));
+        assertEquals("Copper Ore", tabs.getTitleAt(1));
+        assertEquals("Zinc Ore", tabs.getTitleAt(2));
+        assertEquals("Aluminum Ingot", tabs.getTitleAt(3));
     }
 }
