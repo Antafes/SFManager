@@ -27,6 +27,7 @@ public class BaseWindow extends JFrame
     private JMenu fileMenu;
     private JMenuItem closeMenuItem;
     private JMenuItem newProductionMenuItem;
+    private JMenuItem newFactoryMenuItem;
 
     public BaseWindow(ApplicationContext applicationContext, Configuration configuration)
     {
@@ -64,11 +65,16 @@ public class BaseWindow extends JFrame
         JMenuBar menuBar = new JMenuBar();
         this.fileMenu = new JMenu();
         this.closeMenuItem = new JMenuItem();
+        this.newFactoryMenuItem = new JMenuItem();
         this.newProductionMenuItem = new JMenuItem();
 
+        this.fileMenu.add(this.newFactoryMenuItem);
         this.fileMenu.add(this.newProductionMenuItem);
         this.fileMenu.add(this.closeMenuItem);
         menuBar.add(this.fileMenu);
+
+        this.newFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        this.newFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewFactoryEvent()));
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
@@ -88,6 +94,10 @@ public class BaseWindow extends JFrame
         SFManager.getDispatcher().addListener(
             NewProductionEvent.class,
             new NewProductionListener(newProductionEvent -> this.openNewProductionDialog())
+        );
+        SFManager.getDispatcher().addListener(
+            NewFactoryEvent.class,
+            new NewFactoryListener(newFactoryEvent -> this.openNewFactoryDialog())
         );
         SFManager.getDispatcher().addListener(
             RegisterEscapeCloseOperationEvent.class,
@@ -110,6 +120,15 @@ public class BaseWindow extends JFrame
         y = this.configuration.getWindowLocation().y + (this.getHeight() / 2 - height / 2);
 
         dialog.setBounds(x, y, width, height);
+        dialog.setVisible(true);
+    }
+
+    private void openNewFactoryDialog()
+    {
+        NewFactoryDialog dialog = this.applicationContext.getBean(
+            NewFactoryDialog.class, this, true, this.applicationContext, this.configuration
+        );
+        dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
     }
 
@@ -144,6 +163,8 @@ public class BaseWindow extends JFrame
     {
         this.fileMenu.setText(this.language.translate("file"));
         this.fileMenu.setMnemonic(this.language.translate("fileMnemonic").charAt(0));
+        this.newFactoryMenuItem.setText(this.language.translate("newFactoryMenu"));
+        this.newFactoryMenuItem.setMnemonic(this.language.translate("newFactoryMnemonic").charAt(0));
         this.newProductionMenuItem.setText(this.language.translate("newProductionMenu"));
         this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
         this.closeMenuItem.setText(this.language.translate("quit"));

@@ -8,11 +8,13 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 @Component
 public class Configuration extends BaseConfiguration
 {
     private static final String DATA_PATH = "data/";
+    private static final String SAVE_PATH = "saves/";
 
     @Override
     public String getBasePath()
@@ -34,6 +36,41 @@ public class Configuration extends BaseConfiguration
         if (!this.getProperties().containsKey("language")) {
             this.setLanguage(Language.ENGLISH);
         }
+    }
+
+    @Override
+    public File getOpenDirPath()
+    {
+        return new File(this.getBasePath() + SAVE_PATH);
+    }
+
+    @Override
+    public File getSaveDirPath()
+    {
+        return new File(this.getBasePath() + SAVE_PATH);
+    }
+
+    @Override
+    public void setOpenDirPath(String path)
+    {
+        throw new UnsupportedOperationException("Setting the open directory path is not supported.");
+    }
+
+    @Override
+    public void setSaveDirPath(String path)
+    {
+        throw new UnsupportedOperationException("Setting the save directory path is not supported.");
+    }
+
+    @Override
+    public File getSaveDirPath(String filename)
+    {
+        if (!filename.endsWith(".xml")) {
+            filename = filename + ".xml";
+        }
+
+        String path = this.getSaveDirPath().getAbsolutePath();
+        return new File(path + "/" + filename);
     }
 
     public static String getDataPath()

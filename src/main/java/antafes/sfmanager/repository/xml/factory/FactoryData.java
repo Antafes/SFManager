@@ -1,10 +1,6 @@
 package antafes.sfmanager.repository.xml.factory;
 
-import jakarta.xml.bind.annotation.XmlAccessType;
-import jakarta.xml.bind.annotation.XmlAccessorType;
-import jakarta.xml.bind.annotation.XmlAttribute;
-import jakarta.xml.bind.annotation.XmlElement;
-import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +12,7 @@ public class FactoryData
     @XmlAttribute
     public String id;
     public String name;
-    public ProductionsData productions;
+    public ProductionsData productions = new ProductionsData();
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class ProductionsData

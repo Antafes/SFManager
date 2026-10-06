@@ -1,0 +1,68 @@
+package antafes.sfmanager.util;
+
+import java.text.Normalizer;
+import java.util.Locale;
+import java.util.Map;
+
+public final class FactoryName
+{
+    private static final Map<Character, String> TRANSLITERATIONS = Map.ofEntries(
+        Map.entry('ß', "ss"),
+        Map.entry('æ', "ae"),
+        Map.entry('œ', "oe"),
+        Map.entry('ø', "o"),
+        Map.entry('ł', "l"),
+        Map.entry('đ', "d"),
+        Map.entry('ð', "d"),
+        Map.entry('þ', "th"),
+        Map.entry('ı', "i")
+    );
+
+    private FactoryName()
+    {
+    }
+
+    public static String toDirectoryName(String name)
+    {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Factory name must not be blank.");
+        }
+
+        String lowerCase = name.toLowerCase(Locale.ROOT);
+        StringBuilder transliterated = new StringBuilder();
+        lowerCase.codePoints().forEach(codePoint -> {
+            String replacement = codePoint <= Character.MAX_VALUE
+                ? TRANSLITERATIONS.get((char) codePoint)
+                : null;
+            transliterated.append(replacement == null ? new String(Character.toChars(codePoint)) : replacement);
+        });
+
+        String decomposed = Normalizer.normalize(transliterated, Normalizer.Form.NFKD);
+        StringBuilder directoryName = new StringBuilder();
+        boolean separatorPending = false;
+        for (int offset = 0; offset < decomposed.length();) {
+            int codePoint = decomposed.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            if (Character.getType(codePoint) == Character.NON_SPACING_MARK
+                || Character.getType(codePoint) == Character.COMBINING_SPACING_MARK
+                || Character.getType(codePoint) == Character.ENCLOSING_MARK) {
+                continue;
+            }
+
+            if ((codePoint >= 'a' && codePoint <= 'z') || (codePoint >= '0' && codePoint <= '9')) {
+                if (separatorPending && !directoryName.isEmpty()) {
+                    directoryName.append('-');
+                }
+                directoryName.appendCodePoint(codePoint);
+                separatorPending = false;
+            } else {
+                separatorPending = !directoryName.isEmpty();
+            }
+        }
+
+        if (directoryName.isEmpty()) {
+            throw new IllegalArgumentException("Factory name must contain at least one letter or digit.");
+        }
+        return directoryName.toString();
+    }
+}
