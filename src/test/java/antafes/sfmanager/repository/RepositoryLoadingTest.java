@@ -103,7 +103,7 @@ public class RepositoryLoadingTest extends BaseTest
     {
         RecipeRepository repository = this.context.getBean(RecipeRepository.class);
 
-        assertEquals(283, repository.findAll().size());
+        assertEquals(280, repository.findAll().size());
         assertNull(repository.findOne("well_extractor_crude_oil"));
         assertNull(repository.findOne("well_extractor_water"));
         assertNull(repository.findOne("well_extractor_nitrogen"));

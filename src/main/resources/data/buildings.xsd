@@ -28,7 +28,6 @@
             <xs:sequence>
                 <xs:element name="building" type="b:building" maxOccurs="unbounded" />
             </xs:sequence>
-            <xs:attribute ref="xml:base" />
         </xs:complexType>
     </xs:element>
     <xs:complexType name="building">
