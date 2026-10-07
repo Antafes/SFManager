@@ -72,7 +72,7 @@ public class RecipeProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return column == 7 || column == 8;
+                return column == 9 || column == 10;
             }
         };
         this.table = new JTable(this.tableModel);

@@ -132,6 +132,10 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("", table.getColumnName(10));
             assertEquals(40, table.getColumnModel().getColumn(9).getPreferredWidth());
             assertEquals(40, table.getColumnModel().getColumn(10).getPreferredWidth());
+            assertFalse(table.isCellEditable(0, 7));
+            assertFalse(table.isCellEditable(0, 8));
+            assertTrue(table.isCellEditable(0, 9));
+            assertTrue(table.isCellEditable(0, 10));
             assertEquals("Smelter", table.getValueAt(0, 0));
             assertEquals("Iron Ingot", table.getValueAt(0, 1));
             assertEquals("Smelting", table.getValueAt(0, 2));
