@@ -146,8 +146,14 @@ public class GeneratorProductionPanel extends JPanel
     {
         return ingredients.stream()
             .map(ingredient -> this.localizedName(ingredient.item().getName())
-                + " (" + this.format(ingredient.amount()) + ")")
+                + " (" + this.format(ingredient.amount()) + ")"
+                + this.materialSource(ingredient.sourceGroup()))
             .collect(Collectors.joining(", "));
+    }
+
+    private String materialSource(String sourceGroup)
+    {
+        return sourceGroup == null || sourceGroup.isBlank() ? "" : " [" + sourceGroup + "]";
     }
 
     private String localizedName(Name name)

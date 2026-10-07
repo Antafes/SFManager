@@ -45,6 +45,45 @@ public class ProductionService
         return List.copyOf(this.buildingRepository.findAll().values());
     }
 
+    private double getMaterialSourceProduction(
+        Production production,
+        Item item,
+        Map<UUID, Production> productionsById
+    )
+    {
+        Building building = production.getSelectedBuilding();
+        if (production.getSelectedItem() != null) {
+            ResourceProductionEntry entry = this.toResourceProductionEntry(item, production, productionsById);
+            if (entry.pressurizer() == null) {
+                return ProductionCalculator.calculateResourceProduction(
+                    (double) entry.baseAmount(),
+                    production.getPurity(),
+                    this.getClockSpeed(production),
+                    production.getUsedSomersloops(),
+                    building.getSomersloopSlots()
+                );
+            }
+            Production pressurizer = entry.pressurizer();
+            return ProductionCalculator.calculateResourceProduction(
+                (double) entry.baseAmount(),
+                production.getPurity(),
+                this.getClockSpeed(pressurizer),
+                pressurizer.getUsedSomersloops(),
+                pressurizer.getSelectedBuilding().getSomersloopSlots()
+            );
+        }
+
+        return production.getSelectedRecipe().getProducts().stream()
+            .filter(product -> product.getResource() != null && item.getKey().equals(product.getResource().getKey()))
+            .mapToDouble(product -> ProductionCalculator.calculateProduction(
+                product.getAmount(),
+                this.getClockSpeed(production),
+                production.getUsedSomersloops(),
+                building.getSomersloopSlots()
+            ))
+            .sum();
+    }
+
     public List<Recipe> getRecipesForBuilding(String buildingKey)
     {
         return this.recipeRepository.findAll().values().stream()
@@ -229,6 +268,31 @@ public class ProductionService
             .filter(group -> group != null && !group.isBlank())
             .distinct()
             .sorted(String.CASE_INSENSITIVE_ORDER)
+            .toList();
+    }
+
+    public List<MaterialSourceGroup> getMaterialSourceGroups(Item item)
+    {
+        if (item == null || item.getKey() == null) {
+            throw new IllegalArgumentException("A material item is required.");
+        }
+
+        List<Production> productions = this.getCurrentFactoryProductions();
+        Map<UUID, Production> productionsById = productions.stream()
+            .filter(production -> production.getId() != null)
+            .collect(Collectors.toMap(Production::getId, Function.identity()));
+        return productions.stream()
+            .filter(production -> this.producesMaterial(production, item.getKey()))
+            .filter(production -> production.getGroup() != null && !production.getGroup().isBlank())
+            .collect(Collectors.groupingBy(
+                Production::getGroup,
+                () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER),
+                Collectors.summingDouble(production ->
+                    this.getMaterialSourceProduction(production, item, productionsById)
+                )
+            ))
+            .entrySet().stream()
+            .map(entry -> new MaterialSourceGroup(entry.getKey(), entry.getValue()))
             .toList();
     }
 
@@ -501,6 +565,25 @@ public class ProductionService
         int usedSomersloops
     ) throws IOException
     {
+        return this.editProduction(
+            productionId,
+            clockSpeed,
+            group,
+            position,
+            usedSomersloops,
+            this.getCurrentFactoryProduction(productionId).getMaterialSources()
+        );
+    }
+
+    public Production editProduction(
+        UUID productionId,
+        double clockSpeed,
+        String group,
+        String position,
+        int usedSomersloops,
+        List<ProductionMaterialSource> materialSources
+    ) throws IOException
+    {
         Production production = this.getCurrentFactoryProduction(productionId);
         Building building = production.getSelectedBuilding();
         if (!building.isOverclockable() && Double.compare(clockSpeed, production.getClockSpeed()) != 0) {
@@ -511,11 +594,15 @@ public class ProductionService
         String originalGroup = production.getGroup();
         String originalPosition = production.getPosition();
         int originalUsedSomersloops = production.getUsedSomersloops();
+        List<ProductionMaterialSource> originalMaterialSources = this.copyMaterialSources(
+            production.getMaterialSources()
+        );
         production
             .setClockSpeed(clockSpeed)
             .setGroup(this.normalizeOptionalText(group))
             .setPosition(this.normalizeOptionalText(position))
-            .setUsedSomersloops(usedSomersloops);
+            .setUsedSomersloops(usedSomersloops)
+            .setMaterialSources(this.copyMaterialSources(materialSources));
         try {
             this.validateProduction(production, this.factoryService.getCurrentFactory());
             this.productionRepository.updateProduction(this.factoryService.getCurrentFactory(), production);
@@ -524,7 +611,8 @@ public class ProductionService
                 .setClockSpeed(originalClockSpeed)
                 .setGroup(originalGroup)
                 .setPosition(originalPosition)
-                .setUsedSomersloops(originalUsedSomersloops);
+                .setUsedSomersloops(originalUsedSomersloops)
+                .setMaterialSources(originalMaterialSources);
             throw failure;
         }
         this.eventPublisher.publishEvent(new ProductionSavedEvent(production));
@@ -590,19 +678,23 @@ public class ProductionService
                 .noneMatch(item -> item.getKey().equals(selectedItem.getKey()))) {
                 throw new IllegalArgumentException("The selected item is not available for this building.");
             }
-        } else if (production.getSelectedItem() != null) {
-            throw new IllegalArgumentException("The selected item is not available for this building.");
+        } else {
+            if (production.getSelectedItem() != null) {
+                throw new IllegalArgumentException("The selected item is not available for this building.");
+            }
         }
+        Recipe selectedRecipe = null;
         if (production.getSelectedRecipe() != null) {
             if (production.getSelectedRecipe().getKey() == null) {
                 throw new IllegalArgumentException("The selected recipe is not available for this building.");
             }
-            Recipe selectedRecipe = this.recipeRepository.findOne(production.getSelectedRecipe().getKey());
+            selectedRecipe = this.recipeRepository.findOne(production.getSelectedRecipe().getKey());
             if (selectedRecipe == null || selectedRecipe.getProducedIn() == null
                 || !selectedBuilding.getKey().equals(selectedRecipe.getProducedIn().getKey())) {
                 throw new IllegalArgumentException("The selected recipe is not available for this building.");
             }
         }
+        this.validateMaterialSources(production, selectedRecipe);
         if ("well_extractor".equals(selectedBuilding.getKey()) && production.getPressurizerId() == null) {
             throw new IllegalArgumentException("A pressurizer must be selected for a resource well extractor.");
         }
@@ -644,7 +736,8 @@ public class ProductionService
                     }
                     return new GeneratorProductionIngredient(
                         ingredient.getResource(),
-                        ingredient.getAmount() * clockSpeed / 100
+                        ingredient.getAmount() * clockSpeed / 100,
+                        this.getMaterialSourceGroup(production, ingredient.getResource().getKey())
                     );
                 })
                 .toList();
@@ -665,13 +758,15 @@ public class ProductionService
             recipe.getIngredients(),
             clockSpeed,
             production.getUsedSomersloops(),
-            building.getSomersloopSlots()
+            building.getSomersloopSlots(),
+            production
         );
         List<RecipeProductionMaterial> producedMaterials = this.scaleRecipeMaterials(
             recipe.getProducts(),
             clockSpeed,
             production.getUsedSomersloops(),
-            building.getSomersloopSlots()
+            building.getSomersloopSlots(),
+            null
         );
         return new RecipeProductionEntry(
             production,
@@ -686,7 +781,8 @@ public class ProductionService
         List<antafes.sfmanager.entity.recipe.Item> materials,
         double clockSpeed,
         int usedSomersloops,
-        int somersloopSlots
+        int somersloopSlots,
+        Production sourceProduction
     )
     {
         if (materials == null) {
@@ -704,7 +800,10 @@ public class ProductionService
                         clockSpeed,
                         usedSomersloops,
                         somersloopSlots
-                    )
+                    ),
+                    sourceProduction == null
+                        ? null
+                        : this.getMaterialSourceGroup(sourceProduction, material.getResource().getKey())
                 );
             })
             .toList();
@@ -716,12 +815,106 @@ public class ProductionService
             .setSelectedBuilding(production.getSelectedBuilding())
             .setSelectedRecipe(production.getSelectedRecipe())
             .setSelectedItem(production.getSelectedItem())
+            .setMaterialSources(this.copyMaterialSources(production.getMaterialSources()))
             .setGroup(production.getGroup())
             .setPosition(production.getPosition())
             .setPurity(production.getPurity())
             .setPressurizerId(production.getPressurizerId())
             .setClockSpeed(production.getClockSpeed())
             .setUsedSomersloops(production.getUsedSomersloops());
+    }
+
+    private List<ProductionMaterialSource> copyMaterialSources(
+        List<ProductionMaterialSource> materialSources
+    )
+    {
+        if (materialSources == null) {
+            return null;
+        }
+        return materialSources.stream()
+            .map(materialSource -> new ProductionMaterialSource()
+                .setItemKey(materialSource.getItemKey())
+                .setGroup(materialSource.getGroup()))
+            .toList();
+    }
+
+    private String getMaterialSourceGroup(Production production, String itemKey)
+    {
+        if (production.getMaterialSources() == null) {
+            return null;
+        }
+        return production.getMaterialSources().stream()
+            .filter(materialSource -> itemKey.equals(materialSource.getItemKey()))
+            .map(ProductionMaterialSource::getGroup)
+            .findFirst()
+            .orElse(null);
+    }
+
+    private boolean producesMaterial(Production production, String itemKey)
+    {
+        if (production.getSelectedItem() != null) {
+            Building building = production.getSelectedBuilding();
+            return building != null
+                && building.isResourceBuilding()
+                && itemKey.equals(production.getSelectedItem().getKey());
+        }
+
+        Building building = production.getSelectedBuilding();
+        Recipe recipe = production.getSelectedRecipe();
+        return building != null
+            && building.getCategory() != Category.POWER
+            && recipe != null
+            && recipe.getProducts() != null
+            && recipe.getProducts().stream()
+                .map(antafes.sfmanager.entity.recipe.Item::getResource)
+                .filter(Objects::nonNull)
+                .anyMatch(item -> itemKey.equals(item.getKey()));
+    }
+
+    private void validateMaterialSources(Production production, Recipe recipe)
+    {
+        List<ProductionMaterialSource> materialSources = production.getMaterialSources();
+        if (materialSources == null) {
+            return;
+        }
+        if (recipe == null) {
+            if (materialSources != null && !materialSources.isEmpty()) {
+                throw new IllegalArgumentException("Only recipe productions can have material sources.");
+            }
+            return;
+        }
+
+        Map<String, Item> ingredients = new LinkedHashMap<>();
+        if (recipe.getIngredients() != null) {
+            for (antafes.sfmanager.entity.recipe.Item ingredient : recipe.getIngredients()) {
+                Item item = ingredient.getResource();
+                if (item == null || item.getKey() == null) {
+                    throw new IllegalStateException("A recipe ingredient has no material.");
+                }
+                ingredients.put(item.getKey(), item);
+            }
+        }
+        if (materialSources == null || materialSources.size() != ingredients.size()) {
+            throw new IllegalArgumentException("Every recipe ingredient requires a material source group.");
+        }
+
+        Set<String> sourceItemKeys = new HashSet<>();
+        for (ProductionMaterialSource materialSource : materialSources) {
+            if (materialSource == null || materialSource.getItemKey() == null
+                || !sourceItemKeys.add(materialSource.getItemKey())) {
+                throw new IllegalArgumentException("Every recipe ingredient requires one material source group.");
+            }
+            Item ingredient = ingredients.get(materialSource.getItemKey());
+            String group = this.normalizeOptionalText(materialSource.getGroup());
+            if (ingredient == null || group == null
+                || this.getMaterialSourceGroups(ingredient).stream()
+                    .noneMatch(sourceGroup -> sourceGroup.group().equals(group))) {
+                throw new IllegalArgumentException(
+                    "The selected material source group does not produce " + materialSource.getItemKey() + "."
+                );
+            }
+            materialSource.setGroup(group);
+        }
     }
 
     private Production getCurrentFactoryProduction(UUID productionId)

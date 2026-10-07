@@ -2,6 +2,8 @@ package antafes.sfmanager.repository.xml.productions;
 
 import jakarta.xml.bind.annotation.*;
 
+import java.util.List;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(
     name = "production",
@@ -9,6 +11,7 @@ import jakarta.xml.bind.annotation.*;
         "selectedBuilding",
         "selectedRecipe",
         "selectedItem",
+        "materialSources",
         "group",
         "position",
         "amount",
@@ -26,6 +29,9 @@ public class ProductionData
     public String selectedBuilding;
     public String selectedRecipe;
     public String selectedItem;
+    @XmlElementWrapper(name = "materialSources")
+    @XmlElement(name = "materialSource")
+    public List<MaterialSourceData> materialSources;
     public String group;
     public String position;
     // Read only for migration of older production files; new productions are individual records.
@@ -34,4 +40,13 @@ public class ProductionData
     public String pressurizerId;
     public Double clockSpeed;
     public int usedSomersloops;
+
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class MaterialSourceData
+    {
+        @XmlAttribute(required = true)
+        public String itemKey;
+        @XmlAttribute(required = true)
+        public String group;
+    }
 }

@@ -12,6 +12,18 @@
             <xs:element name="selectedBuilding" type="xs:string" />
             <xs:element name="selectedRecipe" type="xs:string" minOccurs="0" />
             <xs:element name="selectedItem" type="xs:string" minOccurs="0" />
+            <xs:element name="materialSources" minOccurs="0">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="materialSource" minOccurs="0" maxOccurs="unbounded">
+                            <xs:complexType>
+                                <xs:attribute name="itemKey" type="xs:string" use="required" />
+                                <xs:attribute name="group" type="xs:string" use="required" />
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
             <xs:element name="group" type="xs:string" minOccurs="0" />
             <xs:element name="position" type="xs:string" minOccurs="0" />
             <xs:element name="amount" type="xs:double" minOccurs="0" />

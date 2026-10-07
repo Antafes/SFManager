@@ -154,8 +154,14 @@ public class RecipeProductionPanel extends JPanel
     {
         return materials.stream()
             .map(material -> this.localizedName(material.item().getName())
-                + " (" + this.numberFormat.format(material.amount()) + ")")
+                + " (" + this.numberFormat.format(material.amount()) + ")"
+                + this.materialSource(material.sourceGroup()))
             .collect(Collectors.joining(", "));
+    }
+
+    private String materialSource(String sourceGroup)
+    {
+        return sourceGroup == null || sourceGroup.isBlank() ? "" : " [" + sourceGroup + "]";
     }
 
     private String localizedName(Name name)

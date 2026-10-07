@@ -4,9 +4,11 @@ import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
+import antafes.sfmanager.entity.ProductionMaterialSource;
 import antafes.sfmanager.entity.Purity;
+import antafes.sfmanager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sfmanager.service.ProductionService;
-import antafes.utilities.gui.OrderFocusTraversalPolicy;
+import antafes.sfmanager.service.dto.MaterialSourceGroup;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -18,9 +20,11 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.Locale;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.Vector;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -41,6 +45,9 @@ public class EditProductionPanel extends BasePanel
     private JTextField recipeField;
     private JLabel groupLabel;
     private JTextField groupField;
+    private JLabel materialSourcesLabel;
+    private JPanel materialSourcesPanel;
+    private final Map<String, JComboBox<MaterialSourceGroup>> materialSourceFields = new LinkedHashMap<>();
     private JLabel positionLabel;
     private JTextField positionField;
     private JLabel purityLabel;
@@ -52,6 +59,7 @@ public class EditProductionPanel extends BasePanel
     private JTextField usedSomersloopsField;
     private JButton saveButton;
     private JButton cancelButton;
+    private JLabel requiredFieldsHintLabel;
     private boolean syncingClockSpeed;
 
     public EditProductionPanel(JDialog parent, Configuration configuration, UUID productionId)
@@ -84,21 +92,26 @@ public class EditProductionPanel extends BasePanel
     @Override
     protected void setFieldTexts()
     {
-        this.buildingLabel.setText(this.getLanguage().translate("building"));
-        this.pressurizerLabel.setText(this.getLanguage().translate("pressurizer"));
-        this.groupLabel.setText(this.getLanguage().translate("group"));
+        this.buildingLabel.setText(this.requiredFieldLabel("building"));
+        this.pressurizerLabel.setText(this.requiredFieldLabel("pressurizer"));
+        this.recipeLabel.setText(this.requiredFieldLabel(
+            this.production.getSelectedItem() == null ? "recipe" : "item"
+        ));
+        this.groupLabel.setText(this.requiredFieldLabel("group"));
+        this.materialSourcesLabel.setText(this.requiredFieldLabel("materialSources"));
         this.positionLabel.setText(this.getLanguage().translate("position"));
-        this.purityLabel.setText(this.getLanguage().translate("purity"));
-        this.clockSpeedLabel.setText(this.getLanguage().translate("clockSpeed"));
-        this.usedSomersloopsLabel.setText(this.getLanguage().translate("usedSomersloops"));
+        this.purityLabel.setText(this.requiredFieldLabel("purity"));
+        this.clockSpeedLabel.setText(this.requiredFieldLabel("clockSpeed"));
+        this.usedSomersloopsLabel.setText(this.requiredFieldLabel("usedSomersloops"));
         this.saveButton.setText(this.getLanguage().translate("save"));
         this.cancelButton.setText(this.getLanguage().translate("cancel"));
+        this.requiredFieldsHintLabel.setText(this.getLanguage().translate("requiredFieldsHint"));
     }
 
     @Override
     protected void createFocusTraversalPolicy()
     {
-        Vector<Component> order = new Vector<>();
+        List<Component> order = new java.util.ArrayList<>();
         if (this.groupField.isEnabled()) {
             order.add(this.groupField);
         }
@@ -107,12 +120,13 @@ public class EditProductionPanel extends BasePanel
             order.add(this.clockSpeedSlider);
             order.add(this.clockSpeedField);
         }
+        order.addAll(this.materialSourceFields.values());
         if (this.usedSomersloopsField.isEnabled()) {
             order.add(this.usedSomersloopsField);
         }
         order.add(this.saveButton);
         order.add(this.cancelButton);
-        this.setFocusTraversalPolicy(new OrderFocusTraversalPolicy(order));
+        this.setFocusTraversalPolicy(new DynamicFocusTraversalPolicy(order));
         this.setFocusTraversalPolicyProvider(true);
     }
 
@@ -135,6 +149,35 @@ public class EditProductionPanel extends BasePanel
         this.add(field, fieldConstraints);
     }
 
+    private void addFullWidthRow(int row, Component component)
+    {
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.gridx = 0;
+        constraints.gridy = row;
+        constraints.gridwidth = 4;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.insets = new Insets(4, 4, 3, 4);
+        this.add(component, constraints);
+    }
+
+    private List<ProductionMaterialSource> getMaterialSources()
+    {
+        return this.materialSourceFields.entrySet().stream()
+            .map(entry -> {
+                MaterialSourceGroup sourceGroup = (MaterialSourceGroup) entry.getValue().getSelectedItem();
+                return new ProductionMaterialSource()
+                    .setItemKey(entry.getKey())
+                    .setGroup(sourceGroup == null ? "" : sourceGroup.group());
+            })
+            .toList();
+    }
+
+    private String requiredFieldLabel(String key)
+    {
+        return this.getLanguage().translate(key) + " *";
+    }
+
     private void initComponents()
     {
         Building building = this.production.getSelectedBuilding();
@@ -148,6 +191,10 @@ public class EditProductionPanel extends BasePanel
         this.recipeField = this.readOnlyField(this.productionName());
         this.groupLabel = new JLabel();
         this.groupField = new JTextField(Objects.toString(this.production.getGroup(), ""));
+        this.materialSourcesLabel = new JLabel();
+        this.materialSourcesPanel = new JPanel(new GridBagLayout());
+        this.materialSourcesLabel.setVisible(false);
+        this.materialSourcesPanel.setVisible(false);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField(Objects.toString(this.production.getPosition(), ""));
         this.purityLabel = new JLabel();
@@ -166,6 +213,7 @@ public class EditProductionPanel extends BasePanel
         this.usedSomersloopsField.setEnabled(building.getSomersloopSlots() > 0);
         this.saveButton = new JButton();
         this.cancelButton = new JButton();
+        this.requiredFieldsHintLabel = new JLabel();
 
         JPanel clockSpeedInput = new JPanel(new BorderLayout());
         clockSpeedInput.add(this.clockSpeedSlider, BorderLayout.CENTER);
@@ -178,10 +226,12 @@ public class EditProductionPanel extends BasePanel
         this.addFieldRow(1, this.pressurizerLabel, this.pressurizerField);
         this.addFieldRow(2, this.recipeLabel, this.recipeField);
         this.addFieldRow(3, this.groupLabel, this.groupField);
-        this.addFieldRow(4, this.positionLabel, this.positionField);
-        this.addFieldRow(5, this.purityLabel, this.purityField);
-        this.addFieldRow(6, this.clockSpeedLabel, clockSpeedInput);
-        this.addFieldRow(7, this.usedSomersloopsLabel, this.usedSomersloopsField);
+        this.addFullWidthRow(4, this.materialSourcesLabel);
+        this.addFullWidthRow(5, this.materialSourcesPanel);
+        this.addFieldRow(6, this.positionLabel, this.positionField);
+        this.addFieldRow(7, this.purityLabel, this.purityField);
+        this.addFieldRow(8, this.clockSpeedLabel, clockSpeedInput);
+        this.addFieldRow(9, this.usedSomersloopsLabel, this.usedSomersloopsField);
 
         this.setRowVisible(this.pressurizerLabel, this.pressurizerField,
             "well_extractor".equals(building.getKey()));
@@ -189,13 +239,14 @@ public class EditProductionPanel extends BasePanel
             this.production.getSelectedRecipe() != null || this.production.getSelectedItem() != null);
 
         GridBagConstraints buttonConstraints = new GridBagConstraints();
-        buttonConstraints.gridy = 8;
+        buttonConstraints.gridy = 10;
         buttonConstraints.gridx = 2;
         buttonConstraints.insets = new Insets(8, 4, 4, 4);
         buttonConstraints.anchor = GridBagConstraints.LINE_END;
         this.add(this.saveButton, buttonConstraints);
         buttonConstraints.gridx = 3;
         this.add(this.cancelButton, buttonConstraints);
+        this.addFullWidthRow(11, this.requiredFieldsHintLabel);
 
         this.getParentDialog().getRootPane().setDefaultButton(this.saveButton);
         this.saveButton.addActionListener(event -> this.saveProduction());
@@ -221,6 +272,7 @@ public class EditProductionPanel extends BasePanel
             }
         });
         this.clockSpeedField.addActionListener(event -> this.commitClockSpeedField());
+        this.updateMaterialSources();
     }
 
     private JTextField readOnlyField(String value)
@@ -277,13 +329,17 @@ public class EditProductionPanel extends BasePanel
             if (clockSpeed == null || clockSpeed > 250) {
                 throw new IllegalArgumentException("Clock speed must be between 0 and 250.");
             }
+            if (this.groupField.getText().isBlank()) {
+                throw new IllegalArgumentException("A production group is required.");
+            }
             int usedSomersloops = this.parseNonNegativeInteger(this.usedSomersloopsField.getText());
             this.productionService.editProduction(
                 this.productionId,
                 clockSpeed,
                 this.groupField.getText(),
                 this.positionField.getText(),
-                usedSomersloops
+                usedSomersloops,
+                this.getMaterialSources()
             );
             ((EditProductionDialog) this.getParentDialog()).setSaved();
             this.getParentDialog().dispose();
@@ -298,6 +354,102 @@ public class EditProductionPanel extends BasePanel
                 javax.swing.JOptionPane.ERROR_MESSAGE
             );
         }
+    }
+
+    private void updateMaterialSources()
+    {
+        this.materialSourceFields.clear();
+        this.materialSourcesPanel.removeAll();
+        if (this.production.getSelectedRecipe() == null
+            || this.production.getSelectedRecipe().getIngredients() == null
+            || this.production.getSelectedRecipe().getIngredients().isEmpty()) {
+            return;
+        }
+
+        List<ProductionMaterialSource> existingMaterialSources = this.production.getMaterialSources();
+        if (existingMaterialSources == null) {
+            existingMaterialSources = List.of();
+        }
+        Map<String, String> selectedGroups = existingMaterialSources.stream()
+            .collect(java.util.stream.Collectors.toMap(
+                ProductionMaterialSource::getItemKey,
+                ProductionMaterialSource::getGroup,
+                (first, second) -> first,
+                LinkedHashMap::new
+            ));
+        int row = 0;
+        for (antafes.sfmanager.entity.recipe.Item ingredient : this.production.getSelectedRecipe().getIngredients()) {
+            antafes.sfmanager.entity.Item item = ingredient.getResource();
+            if (item == null || item.getKey() == null) {
+                throw new IllegalStateException("A recipe ingredient has no material.");
+            }
+            JLabel itemLabel = new JLabel(
+                item.getName().getLocalizedName(this.selectedLanguage) + " *"
+            );
+            JComboBox<MaterialSourceGroup> sourceGroupSelect = new JComboBox<>(
+                this.productionService.getMaterialSourceGroups(item).toArray(MaterialSourceGroup[]::new)
+            );
+            sourceGroupSelect.setRenderer(this.materialSourceGroupRenderer());
+            String selectedGroup = selectedGroups.get(item.getKey());
+            if (selectedGroup != null && this.productionService.getMaterialSourceGroups(item)
+                .stream().anyMatch(sourceGroup -> sourceGroup.group().equals(selectedGroup))) {
+                for (int index = 0; index < sourceGroupSelect.getItemCount(); index++) {
+                    if (selectedGroup.equals(sourceGroupSelect.getItemAt(index).group())) {
+                        sourceGroupSelect.setSelectedIndex(index);
+                        break;
+                    }
+                }
+            } else {
+                sourceGroupSelect.setSelectedIndex(-1);
+            }
+            this.materialSourceFields.put(item.getKey(), sourceGroupSelect);
+            this.addMaterialSourceRow(row++, itemLabel, sourceGroupSelect);
+        }
+        this.materialSourcesLabel.setVisible(true);
+        this.materialSourcesPanel.setVisible(true);
+    }
+
+    private void addMaterialSourceRow(
+        int row,
+        JLabel label,
+        JComboBox<MaterialSourceGroup> sourceGroupSelect
+    )
+    {
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = row;
+        labelConstraints.anchor = GridBagConstraints.LINE_START;
+        labelConstraints.insets = new Insets(3, 4, 3, 8);
+        this.materialSourcesPanel.add(label, labelConstraints);
+
+        GridBagConstraints selectConstraints = new GridBagConstraints();
+        selectConstraints.gridx = 1;
+        selectConstraints.gridy = row;
+        selectConstraints.weightx = 1;
+        selectConstraints.fill = GridBagConstraints.HORIZONTAL;
+        selectConstraints.insets = new Insets(3, 4, 3, 4);
+        this.materialSourcesPanel.add(sourceGroupSelect, selectConstraints);
+    }
+
+    private DefaultListCellRenderer materialSourceGroupRenderer()
+    {
+        return new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+            ) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof MaterialSourceGroup sourceGroup) {
+                    this.setText(sourceGroup.group() + " ("
+                        + EditProductionPanel.this.clockSpeedFormat.format(sourceGroup.production()) + " / min)");
+                }
+                return this;
+            }
+        };
     }
 
     private Double parseClockSpeed()

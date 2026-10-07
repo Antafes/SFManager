@@ -240,6 +240,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             .setSelectedBuilding(production.getSelectedBuilding())
             .setSelectedRecipe(production.getSelectedRecipe())
             .setSelectedItem(production.getSelectedItem())
+            .setMaterialSources(this.copyMaterialSources(production.getMaterialSources()))
             .setGroup(production.getGroup())
             .setPosition(production.getPosition())
             .setPurity(production.getPurity())
@@ -373,6 +374,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             .setSelectedBuilding(selectedBuilding)
             .setSelectedRecipe(selectedRecipe)
             .setSelectedItem(selectedItem)
+            .setMaterialSources(this.toMaterialSources(data.materialSources))
             .setGroup(data.group)
             .setPosition(data.position)
             .setPurity(this.toPurity(data.purity))
@@ -392,6 +394,11 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         data.selectedItem = production.getSelectedItem() == null
             ? null
             : production.getSelectedItem().getKey();
+        if (production.getMaterialSources() != null) {
+            data.materialSources = production.getMaterialSources().stream()
+                .map(this::toMaterialSourceData)
+                .toList();
+        }
         data.group = production.getGroup();
         data.position = production.getPosition();
         data.purity = production.getPurity() == null ? null : production.getPurity().name();
@@ -400,6 +407,47 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
             : production.getPressurizerId().toString();
         data.clockSpeed = production.getClockSpeed();
         data.usedSomersloops = production.getUsedSomersloops();
+        return data;
+    }
+
+    private List<ProductionMaterialSource> copyMaterialSources(List<ProductionMaterialSource> materialSources)
+    {
+        if (materialSources == null) {
+            return null;
+        }
+        return materialSources.stream()
+            .map(materialSource -> new ProductionMaterialSource()
+                .setItemKey(materialSource.getItemKey())
+                .setGroup(materialSource.getGroup()))
+            .toList();
+    }
+
+    private List<ProductionMaterialSource> toMaterialSources(
+        List<ProductionData.MaterialSourceData> materialSources
+    )
+    {
+        if (materialSources == null) {
+            return null;
+        }
+        return materialSources.stream()
+            .map(materialSource -> {
+                if (materialSource.itemKey == null || this.itemRepository.findOne(materialSource.itemKey) == null) {
+                    throw new IllegalStateException(
+                        "Unknown production material source item: " + materialSource.itemKey
+                    );
+                }
+                return new ProductionMaterialSource()
+                    .setItemKey(materialSource.itemKey)
+                    .setGroup(materialSource.group);
+            })
+            .toList();
+    }
+
+    private ProductionData.MaterialSourceData toMaterialSourceData(ProductionMaterialSource materialSource)
+    {
+        ProductionData.MaterialSourceData data = new ProductionData.MaterialSourceData();
+        data.itemKey = materialSource.getItemKey();
+        data.group = materialSource.getGroup();
         return data;
     }
 

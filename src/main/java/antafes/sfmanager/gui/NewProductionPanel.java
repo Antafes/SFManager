@@ -6,6 +6,7 @@ import antafes.sfmanager.entity.recipe.Item;
 import antafes.sfmanager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sfmanager.gui.renderer.LocalizedNameRenderer;
 import antafes.sfmanager.service.ProductionService;
+import antafes.sfmanager.service.dto.MaterialSourceGroup;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
 import jakarta.annotation.PostConstruct;
@@ -44,6 +45,9 @@ public class NewProductionPanel extends BasePanel
     private JTextField amountField;
     private JLabel groupLabel;
     private JComboBox<String> groupField;
+    private JLabel materialSourcesLabel;
+    private JPanel materialSourcesPanel;
+    private final Map<String, JComboBox<MaterialSourceGroup>> materialSourceFields = new LinkedHashMap<>();
     private JLabel positionLabel;
     private JTextField positionField;
     private JLabel puritySelectLabel;
@@ -60,6 +64,7 @@ public class NewProductionPanel extends BasePanel
     private JPanel productionPanel;
     private JLabel consumptionLabel;
     private JLabel consumptionInfoLabel;
+    private JLabel requiredFieldsHintLabel;
     private JButton okButton;
     private JButton cancelButton;
     private boolean syncingClockSpeedFromText;
@@ -99,19 +104,21 @@ public class NewProductionPanel extends BasePanel
     @Override
     protected void setFieldTexts()
     {
-        this.buildingSelectLabel.setText(this.getLanguage().translate("building"));
-        this.pressurizerSelectLabel.setText(this.getLanguage().translate("pressurizer"));
-        this.amountLabel.setText(this.getLanguage().translate("amount"));
-        this.groupLabel.setText(this.getLanguage().translate("group"));
+        this.buildingSelectLabel.setText(this.requiredFieldLabel("building"));
+        this.pressurizerSelectLabel.setText(this.requiredFieldLabel("pressurizer"));
+        this.amountLabel.setText(this.requiredFieldLabel("amount"));
+        this.groupLabel.setText(this.requiredFieldLabel("group"));
+        this.materialSourcesLabel.setText(this.requiredFieldLabel("materialSources"));
         this.positionLabel.setText(this.getLanguage().translate("position"));
-        this.puritySelectLabel.setText(this.getLanguage().translate("purity"));
-        this.clockSpeedLabel.setText(this.getLanguage().translate("clockSpeed"));
-        this.usedSomersloopsLabel.setText(this.getLanguage().translate("usedSomersloops"));
+        this.puritySelectLabel.setText(this.requiredFieldLabel("purity"));
+        this.clockSpeedLabel.setText(this.requiredFieldLabel("clockSpeed"));
+        this.usedSomersloopsLabel.setText(this.requiredFieldLabel("usedSomersloops"));
         this.ingredientsLabel.setText(this.getLanguage().translate("ingredients"));
         this.productionLabel.setText(this.getLanguage().translate("production"));
         this.consumptionLabel.setText(this.getLanguage().translate("consumption"));
         this.okButton.setText(this.getLanguage().translate("ok"));
         this.cancelButton.setText(this.getLanguage().translate("cancel"));
+        this.requiredFieldsHintLabel.setText(this.getLanguage().translate("requiredFieldsHint"));
         this.updateSummaries();
     }
 
@@ -125,6 +132,7 @@ public class NewProductionPanel extends BasePanel
         order.add(this.itemSelect);
         order.add(this.amountField);
         order.add(this.groupField);
+        order.addAll(this.materialSourceFields.values());
         order.add(this.positionField);
         order.add(this.puritySelect);
         order.add(this.clockSpeedSlider);
@@ -168,6 +176,23 @@ public class NewProductionPanel extends BasePanel
         this.add(component, constraints);
     }
 
+    private List<ProductionMaterialSource> getMaterialSources()
+    {
+        return this.materialSourceFields.entrySet().stream()
+            .map(entry -> {
+                MaterialSourceGroup sourceGroup = (MaterialSourceGroup) entry.getValue().getSelectedItem();
+                return new ProductionMaterialSource()
+                    .setItemKey(entry.getKey())
+                    .setGroup(sourceGroup == null ? "" : sourceGroup.group());
+            })
+            .toList();
+    }
+
+    private String requiredFieldLabel(String key)
+    {
+        return this.getLanguage().translate(key) + " *";
+    }
+
     private void saveProduction()
     {
         try {
@@ -195,6 +220,9 @@ public class NewProductionPanel extends BasePanel
             if (group != null && group.isEmpty()) {
                 group = null;
             }
+            if (group == null) {
+                throw new IllegalArgumentException("A production group is required.");
+            }
             String position = this.positionField.getText().trim();
             if (position.isEmpty()) {
                 position = null;
@@ -208,6 +236,7 @@ public class NewProductionPanel extends BasePanel
                 .setSelectedItem(this.itemSelect.getItemCount() > 0
                     ? (antafes.sfmanager.entity.Item) this.itemSelect.getSelectedItem()
                     : null)
+                .setMaterialSources(this.getMaterialSources())
                 .setGroup(group)
                 .setPosition(position)
                 .setPurity((Purity) this.puritySelect.getSelectedItem())
@@ -292,7 +321,7 @@ public class NewProductionPanel extends BasePanel
             ((CardLayout) this.productSelectPanel.getLayout()).show(this.productSelectPanel, "item");
             this.productSelectPanel.setVisible(true);
             this.recipeSelectLabel.setVisible(true);
-            this.recipeSelectLabel.setText(this.getLanguage().translate("item"));
+            this.recipeSelectLabel.setText(this.requiredFieldLabel("item"));
         } else {
             this.productionService.getRecipesForBuilding(selectedBuilding.getKey()).stream()
                 .sorted(Comparator.comparing(this.recipeRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
@@ -303,10 +332,91 @@ public class NewProductionPanel extends BasePanel
             ((CardLayout) this.productSelectPanel.getLayout()).show(this.productSelectPanel, "recipe");
             this.productSelectPanel.setVisible(hasRecipes);
             this.recipeSelectLabel.setVisible(hasRecipes);
-            this.recipeSelectLabel.setText(this.getLanguage().translate("recipe"));
+            this.recipeSelectLabel.setText(this.requiredFieldLabel("recipe"));
         }
+        this.updateMaterialSources();
         this.updateSummaries();
         this.createFocusTraversalPolicy();
+    }
+
+    private void updateMaterialSources()
+    {
+        this.materialSourceFields.clear();
+        this.materialSourcesPanel.removeAll();
+        Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
+        boolean visible = selectedRecipe != null
+            && selectedRecipe.getIngredients() != null
+            && !selectedRecipe.getIngredients().isEmpty();
+        this.materialSourcesLabel.setVisible(visible);
+        this.materialSourcesPanel.setVisible(visible);
+        if (!visible) {
+            this.resizeDialogToContent();
+            return;
+        }
+
+        int row = 0;
+        for (antafes.sfmanager.entity.recipe.Item ingredient : selectedRecipe.getIngredients()) {
+            antafes.sfmanager.entity.Item item = ingredient.getResource();
+            if (item == null || item.getKey() == null) {
+                throw new IllegalStateException("A recipe ingredient has no material.");
+            }
+            JLabel itemLabel = new JLabel(
+                item.getName().getLocalizedName(this.selectedLanguage) + " *"
+            );
+            JComboBox<MaterialSourceGroup> sourceGroupSelect = new JComboBox<>(
+                this.productionService.getMaterialSourceGroups(item).toArray(MaterialSourceGroup[]::new)
+            );
+            sourceGroupSelect.setRenderer(this.materialSourceGroupRenderer());
+            sourceGroupSelect.setSelectedIndex(-1);
+            this.materialSourceFields.put(item.getKey(), sourceGroupSelect);
+            this.addMaterialSourceRow(row++, itemLabel, sourceGroupSelect);
+        }
+        this.materialSourcesPanel.revalidate();
+        this.materialSourcesPanel.repaint();
+        this.resizeDialogToContent();
+    }
+
+    private void addMaterialSourceRow(
+        int row,
+        JLabel label,
+        JComboBox<MaterialSourceGroup> sourceGroupSelect
+    )
+    {
+        GridBagConstraints labelConstraints = new GridBagConstraints();
+        labelConstraints.gridx = 0;
+        labelConstraints.gridy = row;
+        labelConstraints.anchor = GridBagConstraints.LINE_START;
+        labelConstraints.insets = new Insets(3, 4, 3, 8);
+        this.materialSourcesPanel.add(label, labelConstraints);
+
+        GridBagConstraints selectConstraints = new GridBagConstraints();
+        selectConstraints.gridx = 1;
+        selectConstraints.gridy = row;
+        selectConstraints.weightx = 1;
+        selectConstraints.fill = GridBagConstraints.HORIZONTAL;
+        selectConstraints.insets = new Insets(3, 4, 3, 4);
+        this.materialSourcesPanel.add(sourceGroupSelect, selectConstraints);
+    }
+
+    private DefaultListCellRenderer materialSourceGroupRenderer()
+    {
+        return new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                JList<?> list,
+                Object value,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus
+            ) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof MaterialSourceGroup sourceGroup) {
+                    this.setText(sourceGroup.group() + " ("
+                        + NewProductionPanel.this.numberFormat.format(sourceGroup.production()) + " / min)");
+                }
+                return this;
+            }
+        };
     }
 
     private void restoreSelectedPressurizer()
@@ -789,6 +899,10 @@ public class NewProductionPanel extends BasePanel
         this.groupLabel = new JLabel();
         this.groupField = new JComboBox<>(this.productionService.getProductionGroups().toArray(String[]::new));
         this.groupField.setEditable(true);
+        this.materialSourcesLabel = new JLabel();
+        this.materialSourcesPanel = new JPanel(new GridBagLayout());
+        this.materialSourcesLabel.setVisible(false);
+        this.materialSourcesPanel.setVisible(false);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField();
         this.puritySelectLabel = new JLabel();
@@ -846,6 +960,7 @@ public class NewProductionPanel extends BasePanel
         this.productionPanel.setLayout(new BoxLayout(this.productionPanel, BoxLayout.Y_AXIS));
         this.consumptionLabel = new JLabel();
         this.consumptionInfoLabel = new JLabel();
+        this.requiredFieldsHintLabel = new JLabel();
         this.okButton = new JButton();
         this.cancelButton = new JButton();
         this.okButton.addActionListener(event -> this.saveProduction());
@@ -865,12 +980,14 @@ public class NewProductionPanel extends BasePanel
         this.addFieldRow(2, this.recipeSelectLabel, this.productSelectPanel);
         this.addFieldRow(3, this.amountLabel, this.amountField);
         this.addFieldRow(4, this.groupLabel, this.groupField);
-        this.addFieldRow(5, this.positionLabel, this.positionField);
-        this.addFieldRow(6, this.puritySelectLabel, this.puritySelect);
-        this.addFieldRow(7, this.clockSpeedLabel, clockSpeedInput);
-        this.addFieldRow(8, this.usedSomersloopsLabel, this.usedSomersloopsField);
+        this.addFullWidthRow(5, this.materialSourcesLabel);
+        this.addFullWidthRow(6, this.materialSourcesPanel);
+        this.addFieldRow(7, this.positionLabel, this.positionField);
+        this.addFieldRow(8, this.puritySelectLabel, this.puritySelect);
+        this.addFieldRow(9, this.clockSpeedLabel, clockSpeedInput);
+        this.addFieldRow(10, this.usedSomersloopsLabel, this.usedSomersloopsField);
 
-        int row = 9;
+        int row = 11;
         this.ingredientsPanel.add(this.ingredientsLabel);
         this.productionPanel.add(this.productionLabel);
         this.addFullWidthRow(row++, this.ingredientsPanel);
@@ -896,9 +1013,14 @@ public class NewProductionPanel extends BasePanel
         this.add(this.okButton, buttonConstraints);
         buttonConstraints.gridx = 3;
         this.add(this.cancelButton, buttonConstraints);
+        this.addFullWidthRow(++row, this.requiredFieldsHintLabel);
 
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
-        this.recipeSelect.addActionListener(event -> this.updateSummaries());
+        this.recipeSelect.addActionListener(event -> {
+            this.updateMaterialSources();
+            this.updateSummaries();
+            this.createFocusTraversalPolicy();
+        });
         this.itemSelect.addActionListener(event -> this.updateSummaries());
         this.puritySelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);
