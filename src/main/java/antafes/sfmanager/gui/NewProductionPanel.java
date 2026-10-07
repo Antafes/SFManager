@@ -798,6 +798,7 @@ public class NewProductionPanel extends BasePanel
         for (Purity purity : Purity.values()) {
             this.puritySelect.addItem(purity);
         }
+        this.puritySelect.setSelectedItem(Purity.NORMAL);
         this.puritySelect.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(
@@ -901,6 +902,7 @@ public class NewProductionPanel extends BasePanel
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
         this.recipeSelect.addActionListener(event -> this.updateSummaries());
         this.itemSelect.addActionListener(event -> this.updateSummaries());
+        this.puritySelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);
         this.clockSpeedSlider.addChangeListener(event -> {
             if (!this.syncingClockSpeedFromText) {
