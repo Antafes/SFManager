@@ -3,6 +3,7 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.gui.order.LocalizedItemOrder;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.FactoryOverviewData;
 import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
@@ -128,6 +129,7 @@ public class FactoryOverviewPanel extends JPanel
             }
         };
         this.materialTable = new JTable(this.materialTableModel);
+        TableStyle.apply(this.materialTable);
         this.materialTable.setAutoCreateRowSorter(true);
 
         this.powerSourceTableModel = new DefaultTableModel(new Object[] {
@@ -141,6 +143,7 @@ public class FactoryOverviewPanel extends JPanel
             }
         };
         this.powerSourceTable = new JTable(this.powerSourceTableModel);
+        TableStyle.apply(this.powerSourceTable);
     }
 
     private void createLayout()

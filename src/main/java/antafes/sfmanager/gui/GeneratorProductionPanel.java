@@ -5,6 +5,7 @@ import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.GeneratorProductionEntry;
 import antafes.sfmanager.service.dto.GeneratorProductionIngredient;
@@ -72,6 +73,7 @@ public class GeneratorProductionPanel extends JPanel
             }
         };
         this.table = new JTable(this.tableModel);
+        TableStyle.apply(this.table);
         this.installEditButton();
         this.installDeleteButton();
         this.setLayout(new BorderLayout());

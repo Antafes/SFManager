@@ -1,11 +1,7 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Name;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.ProductionMaterialSource;
-import antafes.sfmanager.entity.Purity;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.MaterialSourceGroup;
@@ -19,12 +15,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.Locale;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)

@@ -5,6 +5,7 @@ import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.RecipeProductionEntry;
 import antafes.sfmanager.service.dto.RecipeProductionMaterial;
@@ -76,6 +77,7 @@ public class RecipeProductionPanel extends JPanel
             }
         };
         this.table = new JTable(this.tableModel);
+        TableStyle.apply(this.table);
         this.installEditButton();
         this.installDeleteButton();
         this.setLayout(new BorderLayout());

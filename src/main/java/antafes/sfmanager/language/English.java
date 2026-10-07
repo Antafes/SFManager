@@ -20,6 +20,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("openFactoryMenu", "Open Factory");
         this.getTranslations().put("openFactoryMnemonic", "O");
         this.getTranslations().put("newStorageMenu", "New Storage");
+        this.getTranslations().put("newStorage", "New Storage");
+        this.getTranslations().put("storageChoices", "Available materials");
         this.getTranslations().put("newStorageMnemonic", "S");
         this.getTranslations().put("options", "Options");
         this.getTranslations().put("optionsMnemonic", "O");

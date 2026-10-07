@@ -6,6 +6,7 @@ import antafes.sfmanager.gui.editor.MinerUpgrade;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
@@ -66,6 +67,7 @@ public class ResourceProductionPanel extends JPanel
             }
         };
         this.table = new JTable(this.tableModel);
+        TableStyle.apply(this.table);
         this.installUpgradeButton();
         this.installEditButton();
         this.installDeleteButton();

@@ -3,6 +3,7 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Storage;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.StorageService;
 import antafes.sfmanager.service.dto.StorageProductionChoice;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
@@ -66,7 +67,7 @@ public class NewStoragePanel extends BasePanel
                 label.setBackground(list.getSelectionBackground());
                 label.setForeground(list.getSelectionForeground());
             } else {
-                label.setBackground(list.getBackground());
+                label.setBackground(TableStyle.getRowColor(index));
                 label.setForeground(list.getForeground());
             }
             return label;

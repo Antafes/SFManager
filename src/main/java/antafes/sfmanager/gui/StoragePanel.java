@@ -3,6 +3,7 @@ package antafes.sfmanager.gui;
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.gui.editor.StorageDeleteButtonEditor;
+import antafes.sfmanager.gui.renderer.TableStyle;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.StorageService;
 import antafes.sfmanager.service.dto.StorageItem;
@@ -94,6 +95,7 @@ public class StoragePanel extends JPanel
             }
         };
         this.table = new JTable(this.tableModel);
+        TableStyle.apply(this.table);
         this.table.setAutoCreateRowSorter(true);
         var actionColumn = this.table.getColumnModel().getColumn(3);
         actionColumn.setPreferredWidth(40);
