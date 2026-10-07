@@ -10,6 +10,7 @@ import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 
 @org.springframework.stereotype.Component
+@Scope("prototype")
 public class StoragePanel extends JPanel
 {
     @Autowired

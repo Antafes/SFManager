@@ -3,11 +3,7 @@ package antafes.sfmanager;
 import antafes.eventDispatcher.Application;
 import antafes.sfmanager.gui.BaseWindow;
 import antafes.sfmanager.gui.Splash;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.service.FactoryService;
 import antafes.utilities.Utilities;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +29,15 @@ public class SFManager extends Application implements CommandLineRunner
     @Autowired
     private BuildingRepository buildingRepository;
     @Autowired
+    private FactoryRepository factoryRepository;
+    @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private ProductionRepository productionRepository;
     @Autowired
     private RecipeRepository recipeRepository;
     @Autowired
-    private FactoryRepository factoryRepository;
-    @Autowired
-    private ProductionRepository productionRepository;
+    private StorageRepository storageRepository;
     @Autowired
     private FactoryService factoryService;
 
@@ -75,5 +73,6 @@ public class SFManager extends Application implements CommandLineRunner
         this.recipeRepository.init();
         this.factoryRepository.init();
         this.productionRepository.init();
+        this.storageRepository.init();
     }
 }
