@@ -411,6 +411,7 @@ public class BaseWindow extends JFrame
 
     private void setFieldTexts()
     {
+        this.setTitle(this.language.translate("title"));
         this.fileMenu.setText(this.language.translate("file"));
         this.fileMenu.setMnemonic(this.language.translate("fileMnemonic").charAt(0));
         this.newFactoryMenuItem.setText(this.language.translate("newFactoryMenu"));
