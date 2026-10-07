@@ -77,7 +77,7 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("usedSomersloops", "Verwendete Somersloops");
         this.getTranslations().put("ingredients", "Zutaten");
         this.getTranslations().put("production", "Produktion");
-        this.getTranslations().put("usage", "Verbrauch");
+        this.getTranslations().put("usage", "Verwendung");
         this.getTranslations().put("material", "Material");
         this.getTranslations().put("unused", "Ungenutzt");
         this.getTranslations().put("overview", "Übersicht");
