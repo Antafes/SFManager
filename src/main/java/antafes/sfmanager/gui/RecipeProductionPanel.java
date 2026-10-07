@@ -57,8 +57,10 @@ public class RecipeProductionPanel extends JPanel
             "German".equals(this.selectedLanguage) ? "de" : "en"
         ));
         this.tableModel = new DefaultTableModel(new Object[] {
-            this.language.translate("usedMaterials"),
+            this.language.translate("building"),
             this.language.translate("recipe"),
+            this.language.translate("group"),
+            this.language.translate("usedMaterials"),
             this.language.translate("clockSpeed"),
             this.language.translate("somersloops"),
             this.language.translate("producedMaterials"),
@@ -87,8 +89,10 @@ public class RecipeProductionPanel extends JPanel
         List<RecipeProductionEntry> entries = this.productionService.getRecipeProductions(this.item);
         for (RecipeProductionEntry entry : entries) {
             this.tableModel.addRow(new Object[] {
-                this.materials(entry.usedMaterials()),
+                this.localizedName(entry.production().getSelectedBuilding().getName()),
                 this.localizedName(entry.recipe().getName()),
+                entry.production().getGroup(),
+                this.materials(entry.usedMaterials()),
                 this.percentage(entry.production().getClockSpeed()),
                 entry.production().getUsedSomersloops(),
                 this.materials(entry.producedMaterials()),
@@ -102,7 +106,7 @@ public class RecipeProductionPanel extends JPanel
 
     private void installDeleteButton()
     {
-        var actionColumn = this.table.getColumnModel().getColumn(8);
+        var actionColumn = this.table.getColumnModel().getColumn(10);
         actionColumn.setPreferredWidth(40);
         actionColumn.setMaxWidth(50);
         ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
@@ -117,7 +121,7 @@ public class RecipeProductionPanel extends JPanel
 
     private void installEditButton()
     {
-        var actionColumn = this.table.getColumnModel().getColumn(7);
+        var actionColumn = this.table.getColumnModel().getColumn(9);
         actionColumn.setPreferredWidth(40);
         actionColumn.setMaxWidth(50);
         ProductionEditButtonEditor editButton = new ProductionEditButtonEditor(

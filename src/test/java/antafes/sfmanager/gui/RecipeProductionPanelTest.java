@@ -73,6 +73,7 @@ public class RecipeProductionPanelTest extends BaseTest
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(smelter)
                 .setSelectedRecipe(ironIngot)
+                .setGroup("Smelting")
                 .setClockSpeed(100.0)
                 .setUsedSomersloops(1));
 
@@ -117,31 +118,37 @@ public class RecipeProductionPanelTest extends BaseTest
             RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, ironIngotItem);
             JTable table = panel.getTable();
             assertEquals(2, table.getRowCount());
-            assertEquals(9, table.getColumnCount());
-            assertEquals("Used Materials", table.getColumnName(0));
+            assertEquals(11, table.getColumnCount());
+            assertEquals("Building", table.getColumnName(0));
             assertEquals("Recipe", table.getColumnName(1));
-            assertEquals("Clock speed", table.getColumnName(2));
-            assertEquals("Somersloops", table.getColumnName(3));
-            assertEquals("Produced Materials", table.getColumnName(4));
-            assertEquals("Usage", table.getColumnName(5));
-            assertEquals("Consumption", table.getColumnName(6));
-            assertEquals("", table.getColumnName(7));
-            assertEquals("", table.getColumnName(8));
-            assertEquals(40, table.getColumnModel().getColumn(7).getPreferredWidth());
-            assertEquals(40, table.getColumnModel().getColumn(8).getPreferredWidth());
-            assertEquals("Iron Ore (60)", table.getValueAt(0, 0));
+            assertEquals("Group", table.getColumnName(2));
+            assertEquals("Used Materials", table.getColumnName(3));
+            assertEquals("Clock speed", table.getColumnName(4));
+            assertEquals("Somersloops", table.getColumnName(5));
+            assertEquals("Produced Materials", table.getColumnName(6));
+            assertEquals("Usage", table.getColumnName(7));
+            assertEquals("Consumption", table.getColumnName(8));
+            assertEquals("", table.getColumnName(9));
+            assertEquals("", table.getColumnName(10));
+            assertEquals(40, table.getColumnModel().getColumn(9).getPreferredWidth());
+            assertEquals(40, table.getColumnModel().getColumn(10).getPreferredWidth());
+            assertEquals("Smelter", table.getValueAt(0, 0));
             assertEquals("Iron Ingot", table.getValueAt(0, 1));
-            assertEquals("100%", table.getValueAt(0, 2));
-            assertEquals(1, table.getValueAt(0, 3));
-            assertEquals("Iron Ingot (60)", table.getValueAt(0, 4));
-            assertEquals("", table.getValueAt(0, 5));
-            assertEquals("16 MW", table.getValueAt(0, 6));
-            assertTrue(table.getValueAt(0, 7) instanceof java.util.UUID);
-            assertTrue(table.getValueAt(0, 8) instanceof java.util.UUID);
-            assertEquals("Iron Ore (50), Limestone (80)", table.getValueAt(1, 0));
+            assertEquals("Smelting", table.getValueAt(0, 2));
+            assertEquals("Iron Ore (60)", table.getValueAt(0, 3));
+            assertEquals("100%", table.getValueAt(0, 4));
+            assertEquals(1, table.getValueAt(0, 5));
+            assertEquals("Iron Ingot (60)", table.getValueAt(0, 6));
+            assertEquals("", table.getValueAt(0, 7));
+            assertEquals("16 MW", table.getValueAt(0, 8));
+            assertTrue(table.getValueAt(0, 9) instanceof java.util.UUID);
+            assertTrue(table.getValueAt(0, 10) instanceof java.util.UUID);
+            assertEquals("Foundry", table.getValueAt(1, 0));
             assertEquals("Basic Iron Ingot", table.getValueAt(1, 1));
-            assertEquals("Iron Ingot (100)", table.getValueAt(1, 4));
-            assertEquals("64 MW", table.getValueAt(1, 6));
+            assertNull(table.getValueAt(1, 2));
+            assertEquals("Iron Ore (50), Limestone (80)", table.getValueAt(1, 3));
+            assertEquals("Iron Ingot (100)", table.getValueAt(1, 6));
+            assertEquals("64 MW", table.getValueAt(1, 8));
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Recipe Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));
@@ -213,7 +220,7 @@ public class RecipeProductionPanelTest extends BaseTest
                 production.getId(),
                 false,
                 0,
-                8
+                10
             );
             cancelButton.doClick();
             assertEquals(1, productionService.getRecipeProductions(outputItem).size());
@@ -232,7 +239,7 @@ public class RecipeProductionPanelTest extends BaseTest
                 production.getId(),
                 false,
                 0,
-                8
+                10
             );
             assertEquals("", deleteButton.getText());
             assertNotNull(deleteButton.getIcon());
