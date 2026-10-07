@@ -154,11 +154,23 @@ public class ProductionService
         Map<UUID, Production> productionsById = factoryProductions.stream()
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
+        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageByOutput(
+            factoryProductions,
+            productionsById
+        );
 
         return factoryProductions.stream()
             .filter(production -> production.getSelectedItem() != null
                 && item.getKey().equals(production.getSelectedItem().getKey()))
-            .map(production -> this.toResourceProductionEntry(item, production, productionsById))
+            .map(production -> {
+                ResourceProductionEntry entry = this.toResourceProductionEntry(item, production, productionsById);
+                return new ResourceProductionEntry(
+                    entry.production(),
+                    entry.baseAmount(),
+                    entry.pressurizer(),
+                    materialUsage.getOrDefault(new MaterialOutput(production.getId(), item.getKey()), 0.0)
+                );
+            })
             .toList();
     }
 
@@ -248,7 +260,15 @@ public class ProductionService
             return List.of();
         }
 
-        return this.getCurrentFactoryProductions().stream()
+        List<Production> productions = this.getCurrentFactoryProductions();
+        Map<UUID, Production> productionsById = productions.stream()
+            .filter(production -> production.getId() != null)
+            .collect(Collectors.toMap(Production::getId, Function.identity()));
+        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageByOutput(
+            productions,
+            productionsById
+        );
+        return productions.stream()
             .filter(production -> production.getSelectedBuilding() != null
                 && production.getSelectedBuilding().getCategory() != Category.POWER
                 && production.getSelectedItem() == null
@@ -257,7 +277,10 @@ public class ProductionService
                 && production.getSelectedRecipe().getProducts().stream()
                     .anyMatch(product -> product.getResource() != null
                         && item.getKey().equals(product.getResource().getKey())))
-            .map(this::toRecipeProductionEntry)
+            .map(production -> this.toRecipeProductionEntry(
+                production,
+                materialUsage.getOrDefault(new MaterialOutput(production.getId(), item.getKey()), 0.0)
+            ))
             .toList();
     }
 
@@ -326,6 +349,10 @@ public class ProductionService
             .collect(Collectors.toMap(Production::getId, Function.identity()));
         Map<String, MutableOverviewMaterial> materials = new LinkedHashMap<>();
         Map<String, Double> storageUsage = this.getStorageUsageByItem();
+        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageByOutput(
+            productions,
+            productionsById
+        );
         Map<String, MutablePowerSource> powerSources = new LinkedHashMap<>();
         double totalPowerProduction = 0;
         double totalPowerConsumption = 0;
@@ -397,12 +424,17 @@ public class ProductionService
             }
         }
 
+        Map<String, Double> allocatedUsageByItem = materialUsage.entrySet().stream().collect(Collectors.groupingBy(
+            entry -> entry.getKey().itemKey(),
+            Collectors.summingDouble(Map.Entry::getValue)
+        ));
         List<FactoryOverviewMaterial> materialRows = materials.values().stream()
             .filter(material -> material.production > 0)
             .map(material -> new FactoryOverviewMaterial(
                 material.item,
                 material.production,
-                storageUsage.getOrDefault(material.item.getKey(), 0.0),
+                allocatedUsageByItem.getOrDefault(material.item.getKey(), 0.0)
+                    + storageUsage.getOrDefault(material.item.getKey(), 0.0),
                 material.powerConsumption
             ))
             .toList();
@@ -736,7 +768,12 @@ public class ProductionService
                     }
                     return new GeneratorProductionIngredient(
                         ingredient.getResource(),
-                        ingredient.getAmount() * clockSpeed / 100,
+                        ProductionCalculator.calculateProduction(
+                            ingredient.getAmount(),
+                            clockSpeed,
+                            production.getUsedSomersloops(),
+                            building.getSomersloopSlots()
+                        ),
                         this.getMaterialSourceGroup(production, ingredient.getResource().getKey())
                     );
                 })
@@ -749,7 +786,7 @@ public class ProductionService
         );
     }
 
-    private RecipeProductionEntry toRecipeProductionEntry(Production production)
+    private RecipeProductionEntry toRecipeProductionEntry(Production production, double usage)
     {
         Building building = production.getSelectedBuilding();
         Recipe recipe = production.getSelectedRecipe();
@@ -773,8 +810,86 @@ public class ProductionService
             recipe,
             usedMaterials,
             producedMaterials,
+            usage,
             this.calculateBuildingConsumption(production)
         );
+    }
+
+    private Map<MaterialOutput, Double> getMaterialUsageByOutput(
+        List<Production> productions,
+        Map<UUID, Production> productionsById
+    )
+    {
+        Map<MaterialOutput, Double> remainingOutputs = new HashMap<>();
+        for (Production production : productions) {
+            if (production.getId() == null || production.getGroup() == null || production.getGroup().isBlank()) {
+                continue;
+            }
+            if (production.getSelectedItem() != null) {
+                Item item = production.getSelectedItem();
+                remainingOutputs.put(
+                    new MaterialOutput(production.getId(), item.getKey()),
+                    this.getMaterialSourceProduction(production, item, productionsById)
+                );
+                continue;
+            }
+            Building building = production.getSelectedBuilding();
+            Recipe recipe = production.getSelectedRecipe();
+            if (building == null || building.getCategory() == Category.POWER
+                || recipe == null || recipe.getProducts() == null) {
+                continue;
+            }
+            for (antafes.sfmanager.entity.recipe.Item product : recipe.getProducts()) {
+                Item item = product.getResource();
+                if (item != null && item.getKey() != null) {
+                    remainingOutputs.put(
+                        new MaterialOutput(production.getId(), item.getKey()),
+                        this.getMaterialSourceProduction(production, item, productionsById)
+                    );
+                }
+            }
+        }
+
+        Map<MaterialOutput, Double> usage = new HashMap<>();
+        for (Production production : productions) {
+            Recipe recipe = production.getSelectedRecipe();
+            Building building = production.getSelectedBuilding();
+            if (recipe == null || building == null || recipe.getIngredients() == null) {
+                continue;
+            }
+            for (antafes.sfmanager.entity.recipe.Item ingredient : recipe.getIngredients()) {
+                Item item = ingredient.getResource();
+                if (item == null || item.getKey() == null || ingredient.getAmount() == null) {
+                    throw new IllegalStateException("A recipe ingredient is incomplete.");
+                }
+                String sourceGroup = this.getMaterialSourceGroup(production, item.getKey());
+                if (sourceGroup == null || sourceGroup.isBlank()) {
+                    continue;
+                }
+                double remainingDemand = ProductionCalculator.calculateProduction(
+                    ingredient.getAmount(),
+                    this.getClockSpeed(production),
+                    production.getUsedSomersloops(),
+                    building.getSomersloopSlots()
+                );
+                for (Production source : productions) {
+                    if (remainingDemand <= 0 || !sourceGroup.equals(source.getGroup())
+                        || !this.producesMaterial(source, item.getKey())) {
+                        continue;
+                    }
+                    MaterialOutput output = new MaterialOutput(source.getId(), item.getKey());
+                    double available = remainingOutputs.getOrDefault(output, 0.0);
+                    double allocated = Math.min(remainingDemand, available);
+                    if (allocated <= 0) {
+                        continue;
+                    }
+                    usage.merge(output, allocated, Double::sum);
+                    remainingOutputs.put(output, available - allocated);
+                    remainingDemand -= allocated;
+                }
+            }
+        }
+        return usage;
     }
 
     private List<RecipeProductionMaterial> scaleRecipeMaterials(
@@ -1017,7 +1132,7 @@ public class ProductionService
                 throw new IllegalStateException("A well extractor is missing its factory pressurizer production.");
             }
         }
-        return new ResourceProductionEntry(production, mapping.getAmount(), pressurizer);
+        return new ResourceProductionEntry(production, mapping.getAmount(), pressurizer, 0);
     }
 
     private static class MutableOverviewMaterial
@@ -1030,6 +1145,10 @@ public class ProductionService
         {
             this.item = item;
         }
+    }
+
+    private record MaterialOutput(UUID productionId, String itemKey)
+    {
     }
 
     private static class MutablePowerSource

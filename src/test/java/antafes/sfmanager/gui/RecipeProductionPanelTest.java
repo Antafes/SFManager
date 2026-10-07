@@ -128,7 +128,7 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("100%", table.getValueAt(0, 4));
             assertEquals(1, table.getValueAt(0, 5));
             assertEquals("Iron Ingot (60)", table.getValueAt(0, 6));
-            assertEquals("", table.getValueAt(0, 7));
+            assertEquals("0 / min", table.getValueAt(0, 7));
             assertEquals("16 MW", table.getValueAt(0, 8));
             assertTrue(table.getValueAt(0, 9) instanceof java.util.UUID);
             assertTrue(table.getValueAt(0, 10) instanceof java.util.UUID);

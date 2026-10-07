@@ -163,7 +163,7 @@ public class ResourceProductionPanel extends JPanel
         for (ResourceProductionEntry entry : entries) {
             Production production = entry.production();
             if (entry.pressurizer() == null) {
-                rows.add(this.createStandardRow(production, entry.baseAmount()));
+                rows.add(this.createStandardRow(production, entry.baseAmount(), entry.usage()));
                 continue;
             }
 
@@ -174,6 +174,7 @@ public class ResourceProductionPanel extends JPanel
                     rows.add(this.createExtractorRow(
                         groupedEntry.production(),
                         groupedEntry.baseAmount(),
+                        groupedEntry.usage(),
                         pressurizer
                     ));
                 }
@@ -182,7 +183,7 @@ public class ResourceProductionPanel extends JPanel
         return rows;
     }
 
-    private Object[] createStandardRow(Production production, int baseAmount)
+    private Object[] createStandardRow(Production production, int baseAmount, double usage)
     {
         Building building = production.getSelectedBuilding();
         Double clockSpeed = production.getClockSpeed();
@@ -201,7 +202,7 @@ public class ResourceProductionPanel extends JPanel
             this.purityName(production.getPurity()),
             this.percentage(clockSpeed),
             this.perMinute(output),
-            "",
+            this.perMinute(usage),
             this.megawatts(consumption),
             this.minerUpgrade(production),
             production.getId(),
@@ -227,7 +228,7 @@ public class ResourceProductionPanel extends JPanel
         };
     }
 
-    private Object[] createExtractorRow(Production production, int baseAmount, Production pressurizer)
+    private Object[] createExtractorRow(Production production, int baseAmount, double usage, Production pressurizer)
     {
         Building building = production.getSelectedBuilding();
         Double output = ProductionCalculator.calculateResourceProduction(
@@ -244,7 +245,7 @@ public class ResourceProductionPanel extends JPanel
             this.purityName(production.getPurity()),
             "",
             this.perMinute(output),
-            "",
+            this.perMinute(usage),
             "",
             this.minerUpgrade(production),
             production.getId(),

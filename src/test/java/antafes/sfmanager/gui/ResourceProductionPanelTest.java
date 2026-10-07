@@ -155,7 +155,7 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals("120 / min", table.getValueAt(4, 5));
             assertEquals("20 MW", table.getValueAt(4, 7));
             for (int row = 0; row < table.getRowCount(); row++) {
-                assertEquals("", table.getValueAt(row, 6));
+                assertEquals(row == 0 ? "" : "0 / min", table.getValueAt(row, 6));
                 assertEquals(null, table.getValueAt(row, 8));
                 assertNotNull(table.getValueAt(row, 9));
                 assertNotNull(table.getValueAt(row, 10));

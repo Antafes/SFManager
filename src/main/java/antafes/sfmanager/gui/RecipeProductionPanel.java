@@ -96,7 +96,7 @@ public class RecipeProductionPanel extends JPanel
                 this.percentage(entry.production().getClockSpeed()),
                 entry.production().getUsedSomersloops(),
                 this.materials(entry.producedMaterials()),
-                "",
+                this.perMinute(entry.usage()),
                 this.consumption(entry.powerConsumption()),
                 entry.production().getId(),
                 entry.production().getId()
@@ -177,5 +177,10 @@ public class RecipeProductionPanel extends JPanel
     private String consumption(double value)
     {
         return value == 0 ? "" : this.numberFormat.format(value) + " MW";
+    }
+
+    private String perMinute(double value)
+    {
+        return this.numberFormat.format(value) + " / min";
     }
 }

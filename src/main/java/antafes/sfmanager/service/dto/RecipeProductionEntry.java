@@ -10,6 +10,7 @@ public record RecipeProductionEntry(
     Recipe recipe,
     List<RecipeProductionMaterial> usedMaterials,
     List<RecipeProductionMaterial> producedMaterials,
+    double usage,
     double powerConsumption
 )
 {
