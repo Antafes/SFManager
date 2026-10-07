@@ -48,6 +48,7 @@ public class BaseWindow extends JFrame
     private JMenuItem openFactoryMenuItem;
     private JMenu fileMenu;
     private JMenu optionsMenu;
+    private JMenu languageMenu;
     private JMenuItem closeMenuItem;
     private JMenuItem newProductionMenuItem;
     private JMenuItem newStorageMenuItem;
@@ -107,6 +108,7 @@ public class BaseWindow extends JFrame
         this.newStorageMenuItem = new JMenuItem();
         this.optionsMenu = new JMenu();
         this.useStorageMenuItem = new JCheckBoxMenuItem();
+        this.languageMenu = new JMenu();
 
         this.fileMenu.add(this.newFactoryMenuItem);
         this.fileMenu.add(this.openFactoryMenuItem);
@@ -116,6 +118,20 @@ public class BaseWindow extends JFrame
         menuBar.add(this.fileMenu);
         this.optionsMenu.add(this.useStorageMenuItem);
         menuBar.add(this.optionsMenu);
+        ButtonGroup languageGroup = new ButtonGroup();
+        for (Configuration.Language availableLanguage : Configuration.Language.values()) {
+            JRadioButtonMenuItem languageMenuItem = new JRadioButtonMenuItem(
+                availableLanguage.getDisplayName(),
+                availableLanguage.getIcon(),
+                this.configuration.getLanguage() == availableLanguage
+            );
+            languageMenuItem.addActionListener(event -> this.setLanguage(availableLanguage));
+            languageGroup.add(languageMenuItem);
+            this.languageMenu.add(languageMenuItem);
+        }
+        this.languageMenu.setIcon(this.configuration.getLanguage().getIcon());
+        menuBar.add(Box.createHorizontalGlue());
+        menuBar.add(this.languageMenu);
 
         this.newFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
         this.newFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewFactoryEvent()));
@@ -128,6 +144,7 @@ public class BaseWindow extends JFrame
         this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
         this.newProductionMenuItem.setEnabled(this.factoryService.getCurrentFactory() != null);
 
+        this.newStorageMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
         this.newStorageMenuItem.addActionListener(e -> this.openNewStorageDialog());
         this.updateStorageMenuItem();
 
@@ -334,6 +351,20 @@ public class BaseWindow extends JFrame
             return;
         }
         this.updateStorageMenuItem();
+        this.refreshResourceTabs();
+    }
+
+    private void setLanguage(Configuration.Language selectedLanguage)
+    {
+        if (this.configuration.getLanguage() == selectedLanguage) {
+            return;
+        }
+        this.configuration.setLanguage(selectedLanguage);
+        this.configuration.saveProperties();
+        this.language = this.configuration.getLanguageObject();
+        this.languageMenu.setIcon(selectedLanguage.getIcon());
+        this.setFieldTexts();
+        this.updateActiveFactoryLabel();
         this.refreshResourceTabs();
     }
 

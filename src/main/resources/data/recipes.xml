@@ -3,6 +3,7 @@
     <recipe key="iron_ingot">
         <name>
             <english>Iron Ingot</english>
+            <german>Eisenbarren</german>
         </name>
         <producedIn>smelter</producedIn>
         <ingredients>
@@ -21,6 +22,7 @@
     <recipe key="basic_iron_ingot">
         <name>
             <english>Basic Iron Ingot</english>
+            <german>Gewöhnlicher Eisenbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -44,6 +46,7 @@
     <recipe key="iron_alloy_ingot">
         <name>
             <english>Iron Alloy Ingot</english>
+            <german>Eisenlegierungs-Barren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -67,6 +70,7 @@
     <recipe key="leached_iron_ingot">
         <name>
             <english>Leached Iron Ingot</english>
+            <german>Ausgeätzter Eisenbarren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -90,6 +94,7 @@
     <recipe key="pure_iron_ingot">
         <name>
             <english>Pure Iron Ingot</english>
+            <german>Reiner Eisenbarren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -113,6 +118,7 @@
     <recipe key="iron_plate">
         <name>
             <english>Iron Plate</english>
+            <german>Eisenplatte</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -131,6 +137,7 @@
     <recipe key="coated_iron_plate">
         <name>
             <english>Coated Iron Plate</english>
+            <german>Beschichtete Eisenplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -154,8 +161,10 @@
     <recipe key="steel_cast_plate">
         <name>
             <english>Steel Cast Plate</english>
+            <german>Stahlgussplatte</german>
         </name>
         <producedIn>foundry</producedIn>
+        <alternate>true</alternate>
         <ingredients>
             <ingredient>
                 <resource>iron_ingot</resource>
@@ -172,6 +181,7 @@
     <recipe key="iron_rod">
         <name>
             <english>Iron Rod</english>
+            <german>Eisenstange</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -190,6 +200,7 @@
     <recipe key="aluminum_rod">
         <name>
             <english>Aluminum Rod</english>
+            <german>Aluminiumstange</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -209,6 +220,7 @@
     <recipe key="steel_rod">
         <name>
             <english>Steel Rod</english>
+            <german>Stahlstab</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -228,6 +240,7 @@
     <recipe key="copper_ingot">
         <name>
             <english>Copper Ingot</english>
+            <german>Kupferbarren</german>
         </name>
         <producedIn>smelter</producedIn>
         <ingredients>
@@ -246,6 +259,7 @@
     <recipe key="copper_alloy_ingot">
         <name>
             <english>Copper Alloy Ingot</english>
+            <german>Kupferlegierungs-Barren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -269,6 +283,7 @@
     <recipe key="leached_copper_ingot">
         <name>
             <english>Leached Copper Ingot</english>
+            <german>Ausgeätzter Kupferbarren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -292,6 +307,7 @@
     <recipe key="pure_copper_ingot">
         <name>
             <english>Pure Copper Ingot</english>
+            <german>Reiner Kupferbarren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -315,6 +331,7 @@
     <recipe key="tempered_copper_ingot">
         <name>
             <english>Tempered Copper Ingot</english>
+            <german>Gehärteter Kupferbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -338,6 +355,7 @@
     <recipe key="wire">
         <name>
             <english>Wire</english>
+            <german>Draht</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -356,6 +374,7 @@
     <recipe key="caterium_wire">
         <name>
             <english>Caterium Wire</english>
+            <german>Cateriumdraht</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -375,6 +394,7 @@
     <recipe key="fused_wire">
         <name>
             <english>Fused Wire</english>
+            <german>Verschmolzener Draht</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -398,6 +418,7 @@
     <recipe key="iron_wire">
         <name>
             <english>Iron Wire</english>
+            <german>Eisendraht</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -417,6 +438,7 @@
     <recipe key="cable">
         <name>
             <english>Cable</english>
+            <german>Kabel</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -435,6 +457,7 @@
     <recipe key="coated_cable">
         <name>
             <english>Coated Cable</english>
+            <german>Beschichtetes Kabel</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -458,6 +481,7 @@
     <recipe key="insulated_cable">
         <name>
             <english>Insulated Cable</english>
+            <german>Isoliertes Kabel</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -481,6 +505,7 @@
     <recipe key="quickwire_cable">
         <name>
             <english>Quickwire Cable</english>
+            <german>Turbodraht-Kabel</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -504,6 +529,7 @@
     <recipe key="concrete">
         <name>
             <english>Concrete</english>
+            <german>Beton</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -522,6 +548,7 @@
     <recipe key="fine_concrete">
         <name>
             <english>Fine Concrete</english>
+            <german>Feiner Beton</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -545,6 +572,7 @@
     <recipe key="rubber_concrete">
         <name>
             <english>Rubber Concrete</english>
+            <german>Gummi-Beton</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -568,6 +596,7 @@
     <recipe key="wet_concrete">
         <name>
             <english>Wet Concrete</english>
+            <german>Nasser Beton</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -591,6 +620,7 @@
     <recipe key="screws">
         <name>
             <english>Screws</english>
+            <german>Schrauben</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -609,6 +639,7 @@
     <recipe key="cast_screws">
         <name>
             <english>Cast Screws</english>
+            <german>Gussschrauben</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -628,6 +659,7 @@
     <recipe key="steel_screws">
         <name>
             <english>Steel Screws</english>
+            <german>Stahlschrauben</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -647,6 +679,7 @@
     <recipe key="reinforced_iron_plate">
         <name>
             <english>Reinforced Iron Plate</english>
+            <german>Verstärkte Eisenplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -669,6 +702,7 @@
     <recipe key="adhered_iron_plated">
         <name>
             <english>Adhered Iron Plate</english>
+            <german>Geklebte Eisenplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -692,6 +726,7 @@
     <recipe key="bolted_iron_plate">
         <name>
             <english>Bolted Iron Plate</english>
+            <german>Verschraubte Eisenplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -715,6 +750,7 @@
     <recipe key="stitched_iron_plate">
         <name>
             <english>Stitched Iron Plate</english>
+            <german>Genietete Eisenplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -738,6 +774,7 @@
     <recipe key="biomass_alien">
         <name>
             <english>Biomass (Alien Protein)</english>
+            <german>Biomasse (Alien-Protein)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -756,6 +793,7 @@
     <recipe key="biomass_leaves">
         <name>
             <english>Biomass (Leaves)</english>
+            <german>Biomasse (Blätter)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -774,6 +812,7 @@
     <recipe key="biomass_mycelia">
         <name>
             <english>Biomass (Mycelia)</english>
+            <german>Biomasse (Myzelium)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -792,6 +831,7 @@
     <recipe key="biomass_wood">
         <name>
             <english>Biomass (Wood)</english>
+            <german>Biomasse (Holz)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -810,6 +850,7 @@
     <recipe key="burner_leaves">
         <name>
             <english>Leaves</english>
+            <german>Blätter</german>
         </name>
         <producedIn>burner</producedIn>
         <ingredients>
@@ -822,6 +863,7 @@
     <recipe key="burner_wood">
         <name>
             <english>Wood</english>
+            <german>Holz</german>
         </name>
         <producedIn>burner</producedIn>
         <ingredients>
@@ -834,6 +876,7 @@
     <recipe key="burner_mycelia">
         <name>
             <english>Mycelia</english>
+            <german>Myzelium</german>
         </name>
         <producedIn>burner</producedIn>
         <ingredients>
@@ -846,6 +889,7 @@
     <recipe key="burner_biomass">
         <name>
             <english>Biomass</english>
+            <german>Biomasse</german>
         </name>
         <producedIn>burner</producedIn>
         <ingredients>
@@ -858,6 +902,7 @@
     <recipe key="burner_solid_biofuel">
         <name>
             <english>Solid Biofuel</english>
+            <german>Fester Biotreibstoff</german>
         </name>
         <producedIn>burner</producedIn>
         <ingredients>
@@ -870,6 +915,7 @@
     <recipe key="coal_generator_coal">
         <name>
             <english>Coal</english>
+            <german>Kohle</german>
         </name>
         <producedIn>coal_generator</producedIn>
         <ingredients>
@@ -886,6 +932,7 @@
     <recipe key="coal_generator_petroleum_coke">
         <name>
             <english>Petroleum Coke</english>
+            <german>Petrolkoks</german>
         </name>
         <producedIn>coal_generator</producedIn>
         <ingredients>
@@ -902,6 +949,7 @@
     <recipe key="coal_generator_compacted_coal">
         <name>
             <english>Compacted Coal</english>
+            <german>Verdichtete Kohle</german>
         </name>
         <producedIn>coal_generator</producedIn>
         <ingredients>
@@ -918,6 +966,7 @@
     <recipe key="fuel_generator_fuel">
         <name>
             <english>Fuel</english>
+            <german>Treibstoff</german>
         </name>
         <producedIn>fuel_generator</producedIn>
         <ingredients>
@@ -930,6 +979,7 @@
     <recipe key="fuel_generator_liquid_biofuel">
         <name>
             <english>Liquid Biofuel</english>
+            <german>Flüssiger Biotreibstoff</german>
         </name>
         <producedIn>fuel_generator</producedIn>
         <ingredients>
@@ -942,6 +992,7 @@
     <recipe key="fuel_generator_turbofuel">
         <name>
             <english>Turbofuel</english>
+            <german>Turbotreibstoff</german>
         </name>
         <producedIn>fuel_generator</producedIn>
         <ingredients>
@@ -954,6 +1005,7 @@
     <recipe key="fuel_generator_rocket_fuel">
         <name>
             <english>Rocket Fuel</english>
+            <german>Raketentreibstoff</german>
         </name>
         <producedIn>fuel_generator</producedIn>
         <ingredients>
@@ -966,6 +1018,7 @@
     <recipe key="fuel_generator_ionized_fuel">
         <name>
             <english>Ionized Fuel</english>
+            <german>Ionisierter Treibstoff</german>
         </name>
         <producedIn>fuel_generator</producedIn>
         <ingredients>
@@ -978,6 +1031,7 @@
     <recipe key="nuclear_power_plant_uranium_fuel_rod">
         <name>
             <english>Uranium Fuel Rod</english>
+            <german>Uranbrennstab</german>
         </name>
         <producedIn>nuclear_power_plant</producedIn>
         <ingredients>
@@ -1000,6 +1054,7 @@
     <recipe key="nuclear_power_plant_plutonium_fuel_rod">
         <name>
             <english>Plutonium Fuel Rod</english>
+            <german>Plutoniumbrennstab</german>
         </name>
         <producedIn>nuclear_power_plant</producedIn>
         <ingredients>
@@ -1022,6 +1077,7 @@
     <recipe key="nuclear_power_plant_ficsonium_fuel_rod">
         <name>
             <english>Ficsonium Fuel Rod</english>
+            <german>Ficsonium-Brennstab</german>
         </name>
         <producedIn>nuclear_power_plant</producedIn>
         <ingredients>
@@ -1038,6 +1094,7 @@
     <recipe key="ai_expansion_server">
         <name>
             <english>AI Expansion Server</english>
+            <german>KI-Erweiterungsserver</german>
         </name>
         <producedIn>encoder</producedIn>
         <ingredients>
@@ -1072,6 +1129,7 @@
     <recipe key="ai_limiter">
         <name>
             <english>AI Limiter</english>
+            <german>KI-Begrenzer</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1094,6 +1152,7 @@
     <recipe key="adaptive_control_unit">
         <name>
             <english>Adaptive Control Unit</english>
+            <german>Adaptive Steuereinheit</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -1124,6 +1183,7 @@
     <recipe key="alclad_aluminum_sheet">
         <name>
             <english>Alclad Aluminum Sheet</english>
+            <german>Alclad-Aluminiumblech</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1146,6 +1206,7 @@
     <recipe key="alien_dna_capsule">
         <name>
             <english>Alien DNA Capsule</english>
+            <german>Alien DNA-Kapsel</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1164,6 +1225,7 @@
     <recipe key="alien_power_matrix">
         <name>
             <english>Alien Power Matrix</english>
+            <german>Alien-Energiematrix</german>
         </name>
         <producedIn>encoder</producedIn>
         <ingredients>
@@ -1198,6 +1260,7 @@
     <recipe key="alumina_solution">
         <name>
             <english>Alumina Solution</english>
+            <german>Aluminiumoxidlösung</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -1224,6 +1287,7 @@
     <recipe key="aluminum_casing">
         <name>
             <english>Aluminum Casing</english>
+            <german>Aluminiumgehäuse</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1242,6 +1306,7 @@
     <recipe key="aluminum_ingot">
         <name>
             <english>Aluminum Ingot</english>
+            <german>Aluminiumbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <ingredients>
@@ -1264,6 +1329,7 @@
     <recipe key="aluminum_scrap">
         <name>
             <english>Aluminum Scrap</english>
+            <german>Aluminiumschrott</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -1290,6 +1356,7 @@
     <recipe key="assembly_director_system">
         <name>
             <english>Assembly Director System</english>
+            <german>Montage-Leitsystem</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1312,6 +1379,7 @@
     <recipe key="automated_wiring">
         <name>
             <english>Automated Wiring</english>
+            <german>Automatische Verkabelung</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1334,6 +1402,7 @@
     <recipe key="ballistic_warp_drive">
         <name>
             <english>Ballistic Warp Drive</english>
+            <german>Ballistischer Warpantrieb</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -1364,6 +1433,7 @@
     <recipe key="battery">
         <name>
             <english>Battery</english>
+            <german>Batterie</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -1394,6 +1464,7 @@
     <recipe key="bauxite_(caterium)">
         <name>
             <english>Bauxite (Caterium)</english>
+            <german>Bauxit (Caterium)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1416,6 +1487,7 @@
     <recipe key="bauxite_(copper)">
         <name>
             <english>Bauxite (Copper)</english>
+            <german>Bauxit (Kupfer)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1438,6 +1510,7 @@
     <recipe key="biochemical_sculptor">
         <name>
             <english>Biochemical Sculptor</english>
+            <german>Biochemischer Modellierer</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -1464,6 +1537,7 @@
     <recipe key="black_powder">
         <name>
             <english>Black Powder</english>
+            <german>Schwarzpulver</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1486,6 +1560,7 @@
     <recipe key="caterium_ingot">
         <name>
             <english>Caterium Ingot</english>
+            <german>Caterium-Barren</german>
         </name>
         <producedIn>smelter</producedIn>
         <ingredients>
@@ -1504,6 +1579,7 @@
     <recipe key="caterium_ore_(copper)">
         <name>
             <english>Caterium Ore (Copper)</english>
+            <german>Caterium-Erz (Kupfer)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1526,6 +1602,7 @@
     <recipe key="caterium_ore_(quartz)">
         <name>
             <english>Caterium Ore (Quartz)</english>
+            <german>Caterium-Erz (Quarz)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1548,6 +1625,7 @@
     <recipe key="circuit_board">
         <name>
             <english>Circuit Board</english>
+            <german>Platine</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1570,6 +1648,7 @@
     <recipe key="cluster_nobelisk">
         <name>
             <english>Cluster Nobelisk</english>
+            <german>Splitter-Nobelisk</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1592,6 +1671,7 @@
     <recipe key="coal_(iron)">
         <name>
             <english>Coal (Iron)</english>
+            <german>Kohle (Eisen)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1614,6 +1694,7 @@
     <recipe key="coal_(limestone)">
         <name>
             <english>Coal (Limestone)</english>
+            <german>Kohle (Kalkstein)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1636,6 +1717,7 @@
     <recipe key="computer">
         <name>
             <english>Computer</english>
+            <german>Computer</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -1662,6 +1744,7 @@
     <recipe key="cooling_system">
         <name>
             <english>Cooling System</english>
+            <german>Kühlsystem</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -1692,6 +1775,7 @@
     <recipe key="copper_ore_(quartz)">
         <name>
             <english>Copper Ore (Quartz)</english>
+            <german>Kupfererz (Quarz)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1714,6 +1798,7 @@
     <recipe key="copper_ore_(sulfur)">
         <name>
             <english>Copper Ore (Sulfur)</english>
+            <german>Kupfererz (Schwefel)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1736,6 +1821,7 @@
     <recipe key="copper_powder">
         <name>
             <english>Copper Powder</english>
+            <german>Kupferpulver</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1754,6 +1840,7 @@
     <recipe key="copper_sheet">
         <name>
             <english>Copper Sheet</english>
+            <german>Kupferblech</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1772,6 +1859,7 @@
     <recipe key="crystal_oscillator">
         <name>
             <english>Crystal Oscillator</english>
+            <german>Quarzoszillator</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -1798,6 +1886,7 @@
     <recipe key="dark_matter_crystal">
         <name>
             <english>Dark Matter Crystal</english>
+            <german>Dunkle-Materie-Kristall</german>
         </name>
         <producedIn>accelerator</producedIn>
         <ingredients>
@@ -1820,6 +1909,7 @@
     <recipe key="dark_matter_residue">
         <name>
             <english>Dark Matter Residue</english>
+            <german>Dunkle-Materie-Überrest</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -1838,6 +1928,7 @@
     <recipe key="diamonds">
         <name>
             <english>Diamonds</english>
+            <german>Diamanten</german>
         </name>
         <producedIn>accelerator</producedIn>
         <ingredients>
@@ -1856,6 +1947,7 @@
     <recipe key="electromagnetic_control_rod">
         <name>
             <english>Electromagnetic Control Rod</english>
+            <german>Elektromagnetische Steuerstange</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1878,6 +1970,7 @@
     <recipe key="empty_canister">
         <name>
             <english>Empty Canister</english>
+            <german>Leerer Kanister</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1896,6 +1989,7 @@
     <recipe key="empty_fluid_tank">
         <name>
             <english>Empty Fluid Tank</english>
+            <german>Leerer Flüssigkeitstank</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -1914,6 +2008,7 @@
     <recipe key="encased_industrial_beam">
         <name>
             <english>Encased Industrial Beam</english>
+            <german>Stahlbetonträger</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1936,6 +2031,7 @@
     <recipe key="encased_plutonium_cell">
         <name>
             <english>Encased Plutonium Cell</english>
+            <german>Ummantelte Plutoniumzelle</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -1958,6 +2054,7 @@
     <recipe key="encased_uranium_cell">
         <name>
             <english>Encased Uranium Cell</english>
+            <german>Ummantelte Uranzelle</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -1988,6 +2085,7 @@
     <recipe key="excited_photonic_matter">
         <name>
             <english>Excited Photonic Matter</english>
+            <german>Angeregte Photonische Materie</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients />
@@ -2001,6 +2099,7 @@
     <recipe key="explosive_rebar">
         <name>
             <english>Explosive Rebar</english>
+            <german>Explosionsbolzen</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2027,6 +2126,7 @@
     <recipe key="fabric">
         <name>
             <english>Fabric</english>
+            <german>Gewebe</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2049,6 +2149,7 @@
     <recipe key="ficsite_ingot_(aluminum)">
         <name>
             <english>Ficsite Ingot (Aluminum)</english>
+            <german>Ficsit-Barren (Aluminium)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2071,6 +2172,7 @@
     <recipe key="ficsite_ingot_(caterium)">
         <name>
             <english>Ficsite Ingot (Caterium)</english>
+            <german>Ficsit-Barren (Caterium)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2093,6 +2195,7 @@
     <recipe key="ficsite_ingot_(iron)">
         <name>
             <english>Ficsite Ingot (Iron)</english>
+            <german>Ficsit-Barren (Eisen)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2115,6 +2218,7 @@
     <recipe key="ficsite_trigon">
         <name>
             <english>Ficsite Trigon</english>
+            <german>Ficsit-Trigon</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -2133,6 +2237,7 @@
     <recipe key="ficsonium">
         <name>
             <english>Ficsonium</english>
+            <german>Ficsonium</german>
         </name>
         <producedIn>accelerator</producedIn>
         <ingredients>
@@ -2156,25 +2261,10 @@
             </product>
         </products>
     </recipe>
-    <recipe key="ficsonium_fuel_rod_(burning)">
-        <name>
-            <english>Ficsonium Fuel Rod (burning)</english>
-        </name>
-        <producedIn>nuclear_power_plant</producedIn>
-        <ingredients>
-            <ingredient>
-                <resource>ficsonium_fuel_rod</resource>
-                <amount>1</amount>
-            </ingredient>
-            <ingredient>
-                <resource>water</resource>
-                <amount>240</amount>
-            </ingredient>
-        </ingredients>
-    </recipe>
     <recipe key="fused_modular_frame">
         <name>
             <english>Fused Modular Frame</english>
+            <german>Verschmolzener modularer Rahmen</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -2201,6 +2291,7 @@
     <recipe key="gas_filter">
         <name>
             <english>Gas Filter</english>
+            <german>Gasfilter</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2227,6 +2318,7 @@
     <recipe key="gas_nobelisk">
         <name>
             <english>Gas Nobelisk</english>
+            <german>Gas-Nobelisk</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2249,6 +2341,7 @@
     <recipe key="hatcher_protein">
         <name>
             <english>Hatcher Protein</english>
+            <german>Krabbenbrüter Protein</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -2267,6 +2360,7 @@
     <recipe key="heat_sink">
         <name>
             <english>Heat Sink</english>
+            <german>Kühlkörper</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2289,6 +2383,7 @@
     <recipe key="heavy_modular_frame">
         <name>
             <english>Heavy Modular Frame</english>
+            <german>Schwerer modularer Rahmen</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2319,6 +2414,7 @@
     <recipe key="high_speed_connector">
         <name>
             <english>High-Speed Connector</english>
+            <german>Highspeed-Anschluss</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2345,6 +2441,7 @@
     <recipe key="hog_protein">
         <name>
             <english>Hog Protein</english>
+            <german>Keiler Protein</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -2363,6 +2460,7 @@
     <recipe key="homing_rifle_ammo">
         <name>
             <english>Homing Rifle Ammo</english>
+            <german>Zielsuch-Gewehrmunition</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2385,6 +2483,7 @@
     <recipe key="iodine_infused_filter">
         <name>
             <english>Iodine-Infused Filter</english>
+            <german>Jodfilter</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2411,6 +2510,7 @@
     <recipe key="iron_ore_(limestone)">
         <name>
             <english>Iron Ore (Limestone)</english>
+            <german>Eisenerz (Kalkstein)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2433,6 +2533,7 @@
     <recipe key="iron_rebar">
         <name>
             <english>Iron Rebar</english>
+            <german>Armierungsbolzen</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -2451,6 +2552,7 @@
     <recipe key="limestone_(sulfur)">
         <name>
             <english>Limestone (Sulfur)</english>
+            <german>Kalkstein (Schwefel)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2473,6 +2575,7 @@
     <recipe key="magnetic_field_generator">
         <name>
             <english>Magnetic Field Generator</english>
+            <german>Magnetfeld-Generator</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2495,6 +2598,7 @@
     <recipe key="modular_engine">
         <name>
             <english>Modular Engine</english>
+            <german>Modularer Motor</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2521,6 +2625,7 @@
     <recipe key="modular_frame">
         <name>
             <english>Modular Frame</english>
+            <german>Modularer Rahmen</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2543,6 +2648,7 @@
     <recipe key="motor">
         <name>
             <english>Motor</english>
+            <german>Motor</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2565,6 +2671,7 @@
     <recipe key="neural_quantum_processor">
         <name>
             <english>Neural-Quantum Processor</english>
+            <german>Neural-Quantenprozessor</german>
         </name>
         <producedIn>encoder</producedIn>
         <ingredients>
@@ -2599,6 +2706,7 @@
     <recipe key="nitric_acid">
         <name>
             <english>Nitric Acid</english>
+            <german>Salpetersäure</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -2625,6 +2733,7 @@
     <recipe key="nitrogen_gas_(bauxite)">
         <name>
             <english>Nitrogen Gas (Bauxite)</english>
+            <german>Stickstoffgas (Bauxit)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2647,6 +2756,7 @@
     <recipe key="nitrogen_gas_(caterium)">
         <name>
             <english>Nitrogen Gas (Caterium)</english>
+            <german>Stickstoffgas (Caterium)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -2669,6 +2779,7 @@
     <recipe key="nobelisk">
         <name>
             <english>Nobelisk</english>
+            <german>Nobelisk</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -2691,6 +2802,7 @@
     <recipe key="non_fissile_uranium">
         <name>
             <english>Non-Fissile Uranium</english>
+            <german>Unspaltbares Uran</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -2725,6 +2837,7 @@
     <recipe key="nuclear_pasta">
         <name>
             <english>Nuclear Pasta</english>
+            <german>Nukleare Pasta</german>
         </name>
         <producedIn>accelerator</producedIn>
         <ingredients>
@@ -2747,6 +2860,7 @@
     <recipe key="nuke_nobelisk">
         <name>
             <english>Nuke Nobelisk</english>
+            <german>Nuklear-Nobelisk</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -2777,6 +2891,7 @@
     <recipe key="packaged_alumina_solution">
         <name>
             <english>Packaged Alumina Solution</english>
+            <german>Abgefüllte Aluminiumoxidlösung</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2799,6 +2914,7 @@
     <recipe key="packaged_fuel">
         <name>
             <english>Packaged Fuel</english>
+            <german>Abgefüllter Treibstoff</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2821,6 +2937,7 @@
     <recipe key="packaged_heavy_oil_residue">
         <name>
             <english>Packaged Heavy Oil Residue</english>
+            <german>Abgefüllter Schwerölrückstand</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2843,6 +2960,7 @@
     <recipe key="packaged_ionized_fuel">
         <name>
             <english>Packaged Ionized Fuel</english>
+            <german>Abgefüllter ionisierter Treibstoff</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2865,6 +2983,7 @@
     <recipe key="packaged_liquid_biofuel">
         <name>
             <english>Packaged Liquid Biofuel</english>
+            <german>Abgefüllter flüssiger Biotreibstoff</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2887,6 +3006,7 @@
     <recipe key="packaged_nitric_acid">
         <name>
             <english>Packaged Nitric Acid</english>
+            <german>Abgefüllte Salpetersäure</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2909,6 +3029,7 @@
     <recipe key="packaged_nitrogen_gas">
         <name>
             <english>Packaged Nitrogen Gas</english>
+            <german>Abgefülltes Stickstoffgas</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2931,6 +3052,7 @@
     <recipe key="packaged_oil">
         <name>
             <english>Packaged Oil</english>
+            <german>Abgefülltes Öl</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2953,6 +3075,7 @@
     <recipe key="packaged_rocket_fuel">
         <name>
             <english>Packaged Rocket Fuel</english>
+            <german>Abgefüllter Raketentreibstoff</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2975,6 +3098,7 @@
     <recipe key="packaged_sulfuric_acid">
         <name>
             <english>Packaged Sulfuric Acid</english>
+            <german>Abgefüllte Schwefelsäure</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -2997,6 +3121,7 @@
     <recipe key="packaged_turbofuel">
         <name>
             <english>Packaged Turbofuel</english>
+            <german>Abgefüllter Turbotreibstoff</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -3019,6 +3144,7 @@
     <recipe key="packaged_water">
         <name>
             <english>Packaged Water</english>
+            <german>Abgefülltes Wasser</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -3041,6 +3167,7 @@
     <recipe key="plastic">
         <name>
             <english>Plastic</english>
+            <german>Kunststoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3060,31 +3187,10 @@
             </product>
         </products>
     </recipe>
-    <recipe key="plutonium_fuel_rod_(burning)">
-        <name>
-            <english>Plutonium Fuel Rod (burning)</english>
-        </name>
-        <producedIn>nuclear_power_plant</producedIn>
-        <ingredients>
-            <ingredient>
-                <resource>plutonium_fuel_rod</resource>
-                <amount>0.1</amount>
-            </ingredient>
-            <ingredient>
-                <resource>water</resource>
-                <amount>240</amount>
-            </ingredient>
-        </ingredients>
-        <products>
-            <product>
-                <resource>plutonium_waste</resource>
-                <amount>1</amount>
-            </product>
-        </products>
-    </recipe>
     <recipe key="plutonium_pellet">
         <name>
             <english>Plutonium Pellet</english>
+            <german>Plutoniumpellet</german>
         </name>
         <producedIn>accelerator</producedIn>
         <ingredients>
@@ -3107,6 +3213,7 @@
     <recipe key="polyester_fabric">
         <name>
             <english>Polyester Fabric</english>
+            <german>Polyester Fabric</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3129,6 +3236,7 @@
     <recipe key="power_shard_(1)">
         <name>
             <english>Power Shard (1)</english>
+            <german>Energiefragment (1)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3147,6 +3255,7 @@
     <recipe key="power_shard_(2)">
         <name>
             <english>Power Shard (2)</english>
+            <german>Energiefragment (2)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3165,6 +3274,7 @@
     <recipe key="power_shard_(5)">
         <name>
             <english>Power Shard (5)</english>
+            <german>Energiefragment (5)</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3183,6 +3293,7 @@
     <recipe key="pressure_conversion_cube">
         <name>
             <english>Pressure Conversion Cube</english>
+            <german>Druckumwandlungswürfel</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3205,6 +3316,7 @@
     <recipe key="pulse_nobelisk">
         <name>
             <english>Pulse Nobelisk</english>
+            <german>Impuls-Nobelisk</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3227,6 +3339,7 @@
     <recipe key="quartz_crystal">
         <name>
             <english>Quartz Crystal</english>
+            <german>Quarzkristall</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3245,6 +3358,7 @@
     <recipe key="quickwire">
         <name>
             <english>Quickwire</english>
+            <german>Turbodraht</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3263,6 +3377,7 @@
     <recipe key="radio_control_unit">
         <name>
             <english>Radio Control Unit</english>
+            <german>Funksteuerungseinheit</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3289,6 +3404,7 @@
     <recipe key="raw_quartz_(bauxite)">
         <name>
             <english>Raw Quartz (Bauxite)</english>
+            <german>Quarz (Bauxit)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -3311,6 +3427,7 @@
     <recipe key="raw_quartz_(coal)">
         <name>
             <english>Raw Quartz (Coal)</english>
+            <german>Quarz (Kohle)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -3333,6 +3450,7 @@
     <recipe key="reanimated_sam">
         <name>
             <english>Reanimated SAM</english>
+            <german>Reanimierte SAM</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3351,6 +3469,7 @@
     <recipe key="residual_fuel">
         <name>
             <english>Residual Fuel</english>
+            <german>Resttreibstoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3369,6 +3488,7 @@
     <recipe key="residual_plastic">
         <name>
             <english>Residual Plastic</english>
+            <german>Restkunststoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3391,6 +3511,7 @@
     <recipe key="residual_rubber">
         <name>
             <english>Residual Rubber</english>
+            <german>Restgummi</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3413,6 +3534,7 @@
     <recipe key="rifle_ammo">
         <name>
             <english>Rifle Ammo</english>
+            <german>Gewehrmunition</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3435,6 +3557,7 @@
     <recipe key="rotor">
         <name>
             <english>Rotor</english>
+            <german>Rotor</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3457,6 +3580,7 @@
     <recipe key="rubber">
         <name>
             <english>Rubber</english>
+            <german>Gummi</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3479,6 +3603,7 @@
     <recipe key="sam_fluctuator">
         <name>
             <english>SAM Fluctuator</english>
+            <german>SAM-Fluktuator</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3505,6 +3630,7 @@
     <recipe key="shatter_rebar">
         <name>
             <english>Shatter Rebar</english>
+            <german>Splitterbolzen</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3527,6 +3653,7 @@
     <recipe key="silica">
         <name>
             <english>Silica</english>
+            <german>Quarzsand</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3545,6 +3672,7 @@
     <recipe key="singularity_cell">
         <name>
             <english>Singularity Cell</english>
+            <german>Singularitätszelle</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3575,6 +3703,7 @@
     <recipe key="smart_plating">
         <name>
             <english>Smart Plating</english>
+            <german>Intelligente Beschichtung</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3597,6 +3726,7 @@
     <recipe key="smokeless_powder">
         <name>
             <english>Smokeless Powder</english>
+            <german>Rauchschwaches Pulver</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3619,6 +3749,7 @@
     <recipe key="spitter_protein">
         <name>
             <english>Spitter Protein</english>
+            <german>Spucker Protein</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3637,6 +3768,7 @@
     <recipe key="stator">
         <name>
             <english>Stator</english>
+            <german>Stator</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3659,6 +3791,7 @@
     <recipe key="steel_beam">
         <name>
             <english>Steel Beam</english>
+            <german>Stahlträger</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3677,6 +3810,7 @@
     <recipe key="steel_ingot">
         <name>
             <english>Steel Ingot</english>
+            <german>Stahlbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <ingredients>
@@ -3699,6 +3833,7 @@
     <recipe key="steel_pipe">
         <name>
             <english>Steel Pipe</english>
+            <german>Stahlrohr</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3717,6 +3852,7 @@
     <recipe key="stinger_protein">
         <name>
             <english>Stinger Protein</english>
+            <german>Stecher Protein</german>
         </name>
         <producedIn>constructor</producedIn>
         <ingredients>
@@ -3735,6 +3871,7 @@
     <recipe key="stun_rebar">
         <name>
             <english>Stun Rebar</english>
+            <german>Betäubungsbolzen</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -3757,6 +3894,7 @@
     <recipe key="sulfur_(coal)">
         <name>
             <english>Sulfur (Coal)</english>
+            <german>Schwefel (Kohle)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -3779,6 +3917,7 @@
     <recipe key="sulfur_(iron)">
         <name>
             <english>Sulfur (Iron)</english>
+            <german>Schwefel (Eisen)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -3801,6 +3940,7 @@
     <recipe key="sulfuric_acid">
         <name>
             <english>Sulfuric Acid</english>
+            <german>Schwefelsäure</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
@@ -3823,6 +3963,7 @@
     <recipe key="supercomputer">
         <name>
             <english>Supercomputer</english>
+            <german>Supercomputer</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3853,6 +3994,7 @@
     <recipe key="superposition_oscillator">
         <name>
             <english>Superposition Oscillator</english>
+            <german>Überlagerungsoszillator</german>
         </name>
         <producedIn>encoder</producedIn>
         <ingredients>
@@ -3887,6 +4029,7 @@
     <recipe key="synthetic_power_shard">
         <name>
             <english>Synthetic Power Shard</english>
+            <german>Synthetic Power Shard</german>
         </name>
         <producedIn>encoder</producedIn>
         <ingredients>
@@ -3921,6 +4064,7 @@
     <recipe key="thermal_propulsion_rocket">
         <name>
             <english>Thermal Propulsion Rocket</english>
+            <german>Thermaler Raketenantrieb</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3951,6 +4095,7 @@
     <recipe key="time_crystal">
         <name>
             <english>Time Crystal</english>
+            <german>Zeitkristall</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -3969,6 +4114,7 @@
     <recipe key="turbo_motor">
         <name>
             <english>Turbo Motor</english>
+            <german>Turbomotor</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <ingredients>
@@ -3999,6 +4145,7 @@
     <recipe key="turbo_rifle_ammo">
         <name>
             <english>Turbo Rifle Ammo</english>
+            <german>Turbo-Gewehrmunition</german>
         </name>
         <producedIn>blender</producedIn>
         <ingredients>
@@ -4025,6 +4172,7 @@
     <recipe key="unpackage_alumina_solution">
         <name>
             <english>Unpackage Alumina Solution</english>
+            <german>Aluminiumoxidlösung entpacken (abgefüllte Aluminiumoxidlösung)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4047,6 +4195,7 @@
     <recipe key="unpackage_fuel">
         <name>
             <english>Unpackage Fuel</english>
+            <german>Treibstoff entleeren (abgefüllter Treibstoff)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4069,6 +4218,7 @@
     <recipe key="unpackage_heavy_oil_residue">
         <name>
             <english>Unpackage Heavy Oil Residue</english>
+            <german>Schwerölrückstand entleeren (abgefüllter Schwerölrückstand)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4091,6 +4241,7 @@
     <recipe key="unpackage_ionized_fuel">
         <name>
             <english>Unpackage Ionized Fuel</english>
+            <german>Ionisierten Treibstoff entleeren (abgefüllter ionisierter Treibstoff)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4113,6 +4264,7 @@
     <recipe key="unpackage_liquid_biofuel">
         <name>
             <english>Unpackage Liquid Biofuel</english>
+            <german>Flüssigen Biotreibstoff entleeren (abgefüllter flüssiger Biotreibstoff)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4135,6 +4287,7 @@
     <recipe key="unpackage_nitric_acid">
         <name>
             <english>Unpackage Nitric Acid</english>
+            <german>Salpetersäure entleeren (abgefüllte Salpetersäure)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4157,6 +4310,7 @@
     <recipe key="unpackage_nitrogen_gas">
         <name>
             <english>Unpackage Nitrogen Gas</english>
+            <german>Stickstoffgas entleeren (Abgefülltes Stickstoffgas)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4179,6 +4333,7 @@
     <recipe key="unpackage_oil">
         <name>
             <english>Unpackage Oil</english>
+            <german>Öl entleeren (Abgefülltes Öl)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4201,6 +4356,7 @@
     <recipe key="unpackage_rocket_fuel">
         <name>
             <english>Unpackage Rocket Fuel</english>
+            <german>Raketentreibstoff entleeren (Abgefüllter Raketentreibstoff)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4223,6 +4379,7 @@
     <recipe key="unpackage_sulfuric_acid">
         <name>
             <english>Unpackage Sulfuric Acid</english>
+            <german>Schwefelsäure entleeren (abgefüllte Schwefelsäure)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4245,6 +4402,7 @@
     <recipe key="unpackage_turbofuel">
         <name>
             <english>Unpackage Turbofuel</english>
+            <german>Turbotreibstoff entleeren (Abgefüllter Turbotreibstoff)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4267,6 +4425,7 @@
     <recipe key="unpackage_water">
         <name>
             <english>Unpackage Water</english>
+            <german>Wasser entleeren (Abgefülltes Wasser)</german>
         </name>
         <producedIn>packager</producedIn>
         <ingredients>
@@ -4286,31 +4445,10 @@
             </product>
         </products>
     </recipe>
-    <recipe key="uranium_fuel_rod_(burning)">
-        <name>
-            <english>Uranium Fuel Rod (burning)</english>
-        </name>
-        <producedIn>nuclear_power_plant</producedIn>
-        <ingredients>
-            <ingredient>
-                <resource>uranium_fuel_rod</resource>
-                <amount>0.2</amount>
-            </ingredient>
-            <ingredient>
-                <resource>water</resource>
-                <amount>240</amount>
-            </ingredient>
-        </ingredients>
-        <products>
-            <product>
-                <resource>uranium_waste</resource>
-                <amount>10</amount>
-            </product>
-        </products>
-    </recipe>
     <recipe key="uranium_ore_(bauxite)">
         <name>
             <english>Uranium Ore (Bauxite)</english>
+            <german>Uran (Bauxit)</german>
         </name>
         <producedIn>converter</producedIn>
         <ingredients>
@@ -4333,6 +4471,7 @@
     <recipe key="versatile_framework">
         <name>
             <english>Versatile Framework</english>
+            <german>Mehrzweckgerüst</german>
         </name>
         <producedIn>assembler</producedIn>
         <ingredients>
@@ -4355,6 +4494,7 @@
     <recipe key="alclad_casing">
         <name>
             <english>Alclad Casing</english>
+            <german>Alclad Gehäuse</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4378,6 +4518,7 @@
     <recipe key="aluminum_beam">
         <name>
             <english>Aluminum Beam</english>
+            <german>Aluminiumträger</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -4397,6 +4538,7 @@
     <recipe key="automated_miner">
         <name>
             <english>Automated Miner</english>
+            <german>Automatisierter Miner</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4420,6 +4562,7 @@
     <recipe key="automated_speed_wiring">
         <name>
             <english>Automated Speed Wiring</english>
+            <german>Automatische Turboverkabelung</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -4466,6 +4609,7 @@
     <recipe key="bolted_frame">
         <name>
             <english>Bolted Frame</english>
+            <german>Verschraubter Rahmen</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4489,6 +4633,7 @@
     <recipe key="caterium_circuit_board">
         <name>
             <english>Caterium Circuit Board</english>
+            <german>Caterium-Platine</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4512,6 +4657,7 @@
     <recipe key="caterium_computer">
         <name>
             <english>Caterium Computer</english>
+            <german>Caterium-Computer</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -4558,6 +4704,7 @@
     <recipe key="cheap_silica">
         <name>
             <english>Cheap Silica</english>
+            <german>Billiger Quarzsand</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4581,6 +4728,7 @@
     <recipe key="classic_battery">
         <name>
             <english>Classic Battery</english>
+            <german>Klassische Batterie</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -4635,6 +4783,7 @@
     <recipe key="coated_iron_canister">
         <name>
             <english>Coated Iron Canister</english>
+            <german>Beschichteter Eisenkanister</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4658,6 +4807,7 @@
     <recipe key="coke_steel_ingot">
         <name>
             <english>Coke Steel Ingot</english>
+            <german>Koks-Stahlbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -4681,6 +4831,7 @@
     <recipe key="compacted_steel_ingot">
         <name>
             <english>Compacted Steel Ingot</english>
+            <german>Verdichteter Stahlbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -4704,6 +4855,7 @@
     <recipe key="cooling_device">
         <name>
             <english>Cooling Device</english>
+            <german>Kühlgerät</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -4731,6 +4883,7 @@
     <recipe key="copper_rotor">
         <name>
             <english>Copper Rotor</english>
+            <german>Kupfer-Rotor</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4754,6 +4907,7 @@
     <recipe key="crystal_computer">
         <name>
             <english>Crystal Computer</english>
+            <german>Quarz-Computer</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4846,6 +5000,7 @@
     <recipe key="diluted_fuel">
         <name>
             <english>Diluted Fuel</english>
+            <german>Verdünnter Treibstoff</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -4869,6 +5024,7 @@
     <recipe key="diluted_packaged_fuel">
         <name>
             <english>Diluted Packaged Fuel</english>
+            <german>Verdünnter abgefüllter Treibstoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -4892,6 +5048,7 @@
     <recipe key="distilled_silica">
         <name>
             <english>Distilled Silica</english>
+            <german>Destillierter Quarzsand</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -4923,6 +5080,7 @@
     <recipe key="electric_motor">
         <name>
             <english>Electric Motor</english>
+            <german>Elektromotor</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4946,6 +5104,7 @@
     <recipe key="electrode_aluminum_scrap">
         <name>
             <english>Electrode Aluminum Scrap</english>
+            <german>Aluminiumschrott-Elektrode</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -4973,6 +5132,7 @@
     <recipe key="electrode_circuit_board">
         <name>
             <english>Electrode Circuit Board</english>
+            <german>Elektroden-Leiterplatte</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -4996,6 +5156,7 @@
     <recipe key="electromagnetic_connection_rod">
         <name>
             <english>Electromagnetic Connection Rod</english>
+            <german>Elektromagnetische Verbindungsstange</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5019,6 +5180,7 @@
     <recipe key="encased_industrial_pipe">
         <name>
             <english>Encased Industrial Pipe</english>
+            <german>Stahlbetonrohr</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5042,6 +5204,7 @@
     <recipe key="fertile_uranium">
         <name>
             <english>Fertile Uranium</english>
+            <german>Brütbares Uran</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -5077,6 +5240,7 @@
     <recipe key="fine_black_powder">
         <name>
             <english>Fine Black Powder</english>
+            <german>Feines Schwarzpulver</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5100,6 +5264,7 @@
     <recipe key="flexible_framework">
         <name>
             <english>Flexible Framework</english>
+            <german>Flexibles Gerüst</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5127,6 +5292,7 @@
     <recipe key="fused_quartz_crystal">
         <name>
             <english>Fused Quartz Crystal</english>
+            <german>Verschmolzener Quarzkristall</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -5150,6 +5316,7 @@
     <recipe key="fused_quickwire">
         <name>
             <english>Fused Quickwire</english>
+            <german>Turbodraht</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5173,6 +5340,7 @@
     <recipe key="heat_exchanger">
         <name>
             <english>Heat Exchanger</english>
+            <german>Wärmetauscher</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5196,6 +5364,7 @@
     <recipe key="heat_fused_frame">
         <name>
             <english>Heat-Fused Frame</english>
+            <german>Verschweißter Rahmen</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -5227,6 +5396,7 @@
     <recipe key="heavy_encased_frame">
         <name>
             <english>Heavy Encased Frame</english>
+            <german>Schwerer ummantelter Rahmen</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5258,6 +5428,7 @@
     <recipe key="heavy_flexible_frame">
         <name>
             <english>Heavy Flexible Frame</english>
+            <german>Schwerer flexibler Rahmen</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5289,6 +5460,7 @@
     <recipe key="heavy_oil_residue">
         <name>
             <english>Heavy Oil Residue</english>
+            <german>Schwerölrückstand</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5312,6 +5484,7 @@
     <recipe key="infused_uranium_cell">
         <name>
             <english>Infused Uranium Cell</english>
+            <german>Angereicherte Uranzelle</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5343,6 +5516,7 @@
     <recipe key="instant_plutonium_cell">
         <name>
             <english>Instant Plutonium Cell</english>
+            <german>Instant-Plutoniumzelle</german>
         </name>
         <producedIn>accelerator</producedIn>
         <alternate>true</alternate>
@@ -5366,6 +5540,7 @@
     <recipe key="instant_scrap">
         <name>
             <english>Instant Scrap</english>
+            <german>Instant-Schrott</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -5401,6 +5576,7 @@
     <recipe key="insulated_crystal_oscillator">
         <name>
             <english>Insulated Crystal Oscillator</english>
+            <german>Isolierter Quarzoszillator</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5428,6 +5604,7 @@
     <recipe key="iron_pipe">
         <name>
             <english>Iron Pipe</english>
+            <german>Eisenrohr</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -5447,6 +5624,7 @@
     <recipe key="leached_caterium_ingot">
         <name>
             <english>Leached Caterium Ingot</english>
+            <german>Ausgeätzter Caterium-Barren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5470,6 +5648,7 @@
     <recipe key="molded_beam">
         <name>
             <english>Molded Beam</english>
+            <german>Formträger</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -5493,6 +5672,7 @@
     <recipe key="molded_steel_pipe">
         <name>
             <english>Molded Steel Pipe</english>
+            <german>Formstahlrohr</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -5551,6 +5731,7 @@
     <recipe key="oc_supercomputer">
         <name>
             <english>OC Supercomputer</english>
+            <german>Übertakteter Supercomputer</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5635,6 +5816,7 @@
     <recipe key="plastic_ai_limiter">
         <name>
             <english>Plastic AI Limiter</english>
+            <german>Kunststoff-KI-Begrenzer</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5658,6 +5840,7 @@
     <recipe key="plastic_smart_plating">
         <name>
             <english>Plastic Smart Plating</english>
+            <german>Intelligente Kunstoffbeschichtung</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5685,6 +5868,7 @@
     <recipe key="plutonium_fuel_unit">
         <name>
             <english>Plutonium Fuel Unit</english>
+            <german>Plutoniumbrenneinheit</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5708,6 +5892,7 @@
     <recipe key="polymer_resin">
         <name>
             <english>Polymer Resin</english>
+            <german>Polymerharz</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5731,6 +5916,7 @@
     <recipe key="pure_aluminum_ingot">
         <name>
             <english>Pure Aluminum Ingot</english>
+            <german>Reiner Aluminium-Barren</german>
         </name>
         <producedIn>smelter</producedIn>
         <alternate>true</alternate>
@@ -5750,6 +5936,7 @@
     <recipe key="pure_caterium_ingot">
         <name>
             <english>Pure Caterium Ingot</english>
+            <german>Reiner Caterium-Barren</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5773,6 +5960,7 @@
     <recipe key="pure_quartz_crystal">
         <name>
             <english>Pure Quartz Crystal</english>
+            <german>Reiner Quarzkristall</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5796,6 +5984,7 @@
     <recipe key="quartz_purification">
         <name>
             <english>Quartz Purification</english>
+            <german>Quarzläuterung</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5823,6 +6012,7 @@
     <recipe key="quickwire_stator">
         <name>
             <english>Quickwire Stator</english>
+            <german>Turbodraht-Stator</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -5846,6 +6036,7 @@
     <recipe key="radio_connection_unit">
         <name>
             <english>Radio Connection Unit</english>
+            <german>Funkverbindungseinheit</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5873,6 +6064,7 @@
     <recipe key="radio_control_system">
         <name>
             <english>Radio Control System</english>
+            <german>Funksteuerungssystem</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5904,6 +6096,7 @@
     <recipe key="recycled_plastic">
         <name>
             <english>Recycled Plastic</english>
+            <german>Recycelter Kunststoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5927,6 +6120,7 @@
     <recipe key="recycled_rubber">
         <name>
             <english>Recycled Rubber</english>
+            <german>Recycelter Gummi</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -5950,6 +6144,7 @@
     <recipe key="rigor_motor">
         <name>
             <english>Rigor Motor</english>
+            <german>Rigour-Motor</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -5977,6 +6172,7 @@
     <recipe key="silicon_circuit_board">
         <name>
             <english>Silicon Circuit Board</english>
+            <german>Silizium-Platine</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -6000,6 +6196,7 @@
     <recipe key="silicon_high_speed_connector">
         <name>
             <english>Silicon High-Speed Connector</english>
+            <german>Silizium Highspeed-Anschluss</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -6027,6 +6224,7 @@
     <recipe key="sloppy_alumina">
         <name>
             <english>Sloppy Alumina</english>
+            <german>Wässriges Aluoxid</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -6050,6 +6248,7 @@
     <recipe key="solid_steel_ingot">
         <name>
             <english>Solid Steel Ingot</english>
+            <german>Solider Stahlbarren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -6073,6 +6272,7 @@
     <recipe key="steamed_copper_sheet">
         <name>
             <english>Steamed Copper Sheet</english>
+            <german>Bedampftes Kupferblech</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -6096,6 +6296,7 @@
     <recipe key="steel_canister">
         <name>
             <english>Steel Canister</english>
+            <german>Stahlkanister</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -6115,6 +6316,7 @@
     <recipe key="steel_rotor">
         <name>
             <english>Steel Rotor</english>
+            <german>Stahl-Rotor</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -6138,6 +6340,7 @@
     <recipe key="steeled_frame">
         <name>
             <english>Steeled Frame</english>
+            <german>Stahlrahmen</german>
         </name>
         <producedIn>assembler</producedIn>
         <alternate>true</alternate>
@@ -6161,6 +6364,7 @@
     <recipe key="super_state_computer">
         <name>
             <english>Super-State Computer</english>
+            <german>Supraleit-Computer</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -6192,6 +6396,7 @@
     <recipe key="tempered_caterium_ingot">
         <name>
             <english>Tempered Caterium Ingot</english>
+            <german>Gehärteter Caterium-Barren</german>
         </name>
         <producedIn>foundry</producedIn>
         <alternate>true</alternate>
@@ -6215,6 +6420,7 @@
     <recipe key="turbo_blend_fuel">
         <name>
             <english>Turbo Blend Fuel</english>
+            <german>Turbo-Mischtreibstoff</german>
         </name>
         <producedIn>blender</producedIn>
         <alternate>true</alternate>
@@ -6269,6 +6475,7 @@
     <recipe key="turbo_electric_motor">
         <name>
             <english>Turbo Electric Motor</english>
+            <german>Turbo-Elektromotor</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -6300,6 +6507,7 @@
     <recipe key="turbo_heavy_fuel">
         <name>
             <english>Turbo Heavy Fuel</english>
+            <german>Turbo-Schwertreibstoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <alternate>true</alternate>
@@ -6323,6 +6531,7 @@
     <recipe key="turbo_pressure_motor">
         <name>
             <english>Turbo Pressure Motor</english>
+            <german>Turbodruck-Motor</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>
@@ -6354,6 +6563,7 @@
     <recipe key="uranium_fuel_unit">
         <name>
             <english>Uranium Fuel Unit</english>
+            <german>Uranbrenneinheit</german>
         </name>
         <producedIn>manufacturer</producedIn>
         <alternate>true</alternate>

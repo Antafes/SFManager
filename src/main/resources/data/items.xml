@@ -121,7 +121,7 @@
     <i:item key="caterium">
         <i:name>
             <i:english>Caterium Ore</i:english>
-            <i:german>Caterium-Erz</i:german>
+            <i:german>Cateriumerz</i:german>
         </i:name>
         <i:icon>images/items/caterium_ore.webp</i:icon>
         <i:productions>
@@ -239,7 +239,7 @@
     <i:item key="sam">
         <i:name>
             <i:english>SAM</i:english>
-            <i:german>SAM-Erz</i:german>
+            <i:german>SAM</i:german>
         </i:name>
         <i:icon>images/items/sam.webp</i:icon>
         <i:productions>
@@ -267,586 +267,1027 @@
     <i:item key="sulfuric_acid">
         <i:name>
             <i:english>Sulfuric Acid</i:english>
+            <i:german>Schwefelsäure</i:german>
         </i:name>
         <i:icon>images/items/sulfuric_acid.webp</i:icon>
     </i:item>
     <i:item key="iron_plate">
         <i:name>
             <i:english>Iron Plate</i:english>
+            <i:german>Eisenplatte</i:german>
         </i:name>
         <i:icon>images/items/iron_plate.webp</i:icon>
     </i:item>
     <i:item key="plastic">
         <i:name>
             <i:english>Plastic</i:english>
+            <i:german>Kunststoff</i:german>
         </i:name>
         <i:icon>images/items/plastic.webp</i:icon>
     </i:item>
     <i:item key="steel_ingot">
         <i:name>
             <i:english>Steel Ingot</i:english>
+            <i:german>Stahlbarren</i:german>
         </i:name>
         <i:icon>images/items/steel_ingot.webp</i:icon>
     </i:item>
     <i:item key="iron_rod">
         <i:name>
             <i:english>Iron Rod</i:english>
+            <i:german>Eisenstange</i:german>
         </i:name>
         <i:icon>images/items/iron_rod.webp</i:icon>
     </i:item>
     <i:item key="aluminum_ingot">
         <i:name>
             <i:english>Aluminum Ingot</i:english>
+            <i:german>Aluminiumbarren</i:german>
         </i:name>
         <i:icon>images/items/aluminum_ingot.webp</i:icon>
     </i:item>
     <i:item key="copper_ingot">
         <i:name>
             <i:english>Copper Ingot</i:english>
+            <i:german>Kupferbarren</i:german>
         </i:name>
         <i:icon>images/items/copper_ingot.webp</i:icon>
     </i:item>
     <i:item key="petroleum_coke">
         <i:name>
             <i:english>Petroleum Coke</i:english>
+            <i:german>Petrolkoks</i:german>
         </i:name>
         <i:icon>images/items/petroleum_coke.webp</i:icon>
     </i:item>
     <i:item key="wire">
         <i:name>
             <i:english>Wire</i:english>
+            <i:german>Draht</i:german>
         </i:name>
         <i:icon>images/items/wire.webp</i:icon>
     </i:item>
     <i:item key="caterium_ingot">
         <i:name>
             <i:english>Caterium Ingot</i:english>
+            <i:german>Caterium-Barren</i:german>
         </i:name>
         <i:icon>images/items/caterium_ingot.webp</i:icon>
     </i:item>
     <i:item key="cable">
         <i:name>
             <i:english>Cable</i:english>
+            <i:german>Kabel</i:german>
         </i:name>
         <i:icon>images/items/cable.webp</i:icon>
     </i:item>
     <i:item key="heavy_oil_residue">
         <i:name>
             <i:english>Heavy Oil Residue</i:english>
+            <i:german>Schwerölrückstand</i:german>
         </i:name>
         <i:icon>images/items/heavy_oil_residue.webp</i:icon>
     </i:item>
     <i:item key="rubber">
         <i:name>
             <i:english>Rubber</i:english>
+            <i:german>Gummi</i:german>
         </i:name>
         <i:icon>images/items/rubber.png</i:icon>
     </i:item>
     <i:item key="quickwire">
         <i:name>
             <i:english>Quickwire</i:english>
+            <i:german>Turbodraht</i:german>
         </i:name>
         <i:icon>images/items/quickwire.webp</i:icon>
     </i:item>
     <i:item key="silica">
         <i:name>
             <i:english>Silica</i:english>
+            <i:german>Quarzsand</i:german>
         </i:name>
         <i:icon>images/items/silica.webp</i:icon>
     </i:item>
     <i:item key="concrete">
         <i:name>
             <i:english>Concrete</i:english>
+            <i:german>Beton</i:german>
         </i:name>
         <i:icon>images/items/concrete.png</i:icon>
     </i:item>
     <i:item key="screws">
         <i:name>
             <i:english>Screws</i:english>
+            <i:german>Schrauben</i:german>
         </i:name>
         <i:icon>images/items/screws.webp</i:icon>
     </i:item>
     <i:item key="steel_beam">
         <i:name>
             <i:english>Steel Beam</i:english>
+            <i:german>Stahlträger</i:german>
         </i:name>
         <i:icon>images/items/steel_beam.webp</i:icon>
     </i:item>
     <i:item key="reinforced_iron_plate">
         <i:name>
             <i:english>Reinforced Iron Plate</i:english>
+            <i:german>Verstärkte Eisenplatte</i:german>
         </i:name>
         <i:icon>images/items/reinforced_iron_plate.webp</i:icon>
     </i:item>
     <i:item key="biomass">
         <i:name>
             <i:english>Biomass</i:english>
+            <i:german>Biomasse</i:german>
         </i:name>
         <i:icon>images/items/biomass.webp</i:icon>
     </i:item>
     <i:item key="alien_protein">
         <i:name>
             <i:english>Alien Protein</i:english>
+            <i:german>Alien-Protein</i:german>
         </i:name>
         <i:icon>images/items/alien_protein.webp</i:icon>
     </i:item>
     <i:item key="leaves">
         <i:name>
             <i:english>Leaves</i:english>
+            <i:german>Blätter</i:german>
         </i:name>
         <i:icon>images/items/leaves.webp</i:icon>
     </i:item>
     <i:item key="mycelia">
         <i:name>
             <i:english>Mycelia</i:english>
+            <i:german>Myzelium</i:german>
         </i:name>
         <i:icon>images/items/mycelia.webp</i:icon>
     </i:item>
     <i:item key="wood">
         <i:name>
             <i:english>Wood</i:english>
+            <i:german>Holz</i:german>
         </i:name>
         <i:icon>images/items/wood.webp</i:icon>
     </i:item>
     <i:item key="adaptive_control_unit">
-        <i:name><i:english>Adaptive Control Unit</i:english></i:name>
+        <i:name>
+            <i:english>Adaptive Control Unit</i:english>
+            <i:german>Adaptive Steuereinheit</i:german>
+        </i:name>
     </i:item>
     <i:item key="ai_expansion_server">
-        <i:name><i:english>AI Expansion Server</i:english></i:name>
+        <i:name>
+            <i:english>AI Expansion Server</i:english>
+            <i:german>KI-Erweiterungsserver</i:german>
+        </i:name>
     </i:item>
     <i:item key="ai_limiter">
-        <i:name><i:english>AI Limiter</i:english></i:name>
+        <i:name>
+            <i:english>AI Limiter</i:english>
+            <i:german>KI-Begrenzer</i:german>
+        </i:name>
     </i:item>
     <i:item key="alclad_aluminum_sheet">
-        <i:name><i:english>Alclad Aluminum Sheet</i:english></i:name>
+        <i:name>
+            <i:english>Alclad Aluminum Sheet</i:english>
+            <i:german>Alclad-Aluminiumblech</i:german>
+        </i:name>
     </i:item>
     <i:item key="alien_dna_capsule">
-        <i:name><i:english>Alien DNA Capsule</i:english></i:name>
+        <i:name>
+            <i:english>Alien DNA Capsule</i:english>
+            <i:german>Alien DNA-Kapsel</i:german>
+        </i:name>
     </i:item>
     <i:item key="alien_power_matrix">
-        <i:name><i:english>Alien Power Matrix</i:english></i:name>
+        <i:name>
+            <i:english>Alien Power Matrix</i:english>
+            <i:german>Alien Power Matrix</i:german>
+        </i:name>
     </i:item>
     <i:item key="aluminum_casing">
-        <i:name><i:english>Aluminum Casing</i:english></i:name>
+        <i:name>
+            <i:english>Aluminum Casing</i:english>
+            <i:german>Aluminiumgehäuse</i:german>
+        </i:name>
     </i:item>
     <i:item key="aluminum_scrap">
-        <i:name><i:english>Aluminum Scrap</i:english></i:name>
+        <i:name>
+            <i:english>Aluminum Scrap</i:english>
+            <i:german>Aluminiumschrott</i:german>
+        </i:name>
     </i:item>
     <i:item key="alumina_solution">
-        <i:name><i:english>Alumina Solution</i:english></i:name>
+        <i:name>
+            <i:english>Alumina Solution</i:english>
+            <i:german>Aluminiumoxidlösung</i:german>
+        </i:name>
     </i:item>
     <i:item key="assembly_director_system">
-        <i:name><i:english>Assembly Director System</i:english></i:name>
+        <i:name>
+            <i:english>Assembly Director System</i:english>
+            <i:german>Montage-Leitsystem</i:german>
+        </i:name>
     </i:item>
     <i:item key="automated_wiring">
-        <i:name><i:english>Automated Wiring</i:english></i:name>
+        <i:name>
+            <i:english>Automated Wiring</i:english>
+            <i:german>Automatische Verkabelung</i:german>
+        </i:name>
     </i:item>
     <i:item key="bacon_agaric">
-        <i:name><i:english>Bacon Agaric</i:english></i:name>
+        <i:name>
+            <i:english>Bacon Agaric</i:english>
+            <i:german>Speckpilz</i:german>
+        </i:name>
     </i:item>
     <i:item key="ballistic_warp_drive">
-        <i:name><i:english>Ballistic Warp Drive</i:english></i:name>
+        <i:name>
+            <i:english>Ballistic Warp Drive</i:english>
+            <i:german>Ballistischer Warpantrieb</i:german>
+        </i:name>
     </i:item>
     <i:item key="battery">
-        <i:name><i:english>Battery</i:english></i:name>
+        <i:name>
+            <i:english>Battery</i:english>
+            <i:german>Batterie</i:german>
+        </i:name>
     </i:item>
     <i:item key="beryl_nut">
-        <i:name><i:english>Beryl Nut</i:english></i:name>
+        <i:name>
+            <i:english>Beryl Nut</i:english>
+            <i:german>Beryllnuss</i:german>
+        </i:name>
     </i:item>
     <i:item key="biochemical_sculptor">
-        <i:name><i:english>Biochemical Sculptor</i:english></i:name>
+        <i:name>
+            <i:english>Biochemical Sculptor</i:english>
+            <i:german>Biochemischer Modellierer</i:german>
+        </i:name>
     </i:item>
     <i:item key="black_powder">
-        <i:name><i:english>Black Powder</i:english></i:name>
+        <i:name>
+            <i:english>Black Powder</i:english>
+            <i:german>Schwarzpulver</i:german>
+        </i:name>
     </i:item>
     <i:item key="blade_runners">
-        <i:name><i:english>Blade Runners</i:english></i:name>
+        <i:name>
+            <i:english>Blade Runners</i:english>
+        </i:name>
     </i:item>
     <i:item key="boom_box">
-        <i:name><i:english>Boom Box</i:english></i:name>
+        <i:name>
+            <i:english>Boom Box</i:english>
+        </i:name>
     </i:item>
     <i:item key="caterium_ore">
-        <i:name><i:english>Caterium Ore</i:english></i:name>
+        <i:name>
+            <i:english>Caterium Ore</i:english>
+            <i:german>Cateriumerz</i:german>
+        </i:name>
     </i:item>
     <i:item key="chainsaw">
-        <i:name><i:english>Chainsaw</i:english></i:name>
+        <i:name>
+            <i:english>Chainsaw</i:english>
+        </i:name>
     </i:item>
     <i:item key="circuit_board">
-        <i:name><i:english>Circuit Board</i:english></i:name>
+        <i:name>
+            <i:english>Circuit Board</i:english>
+            <i:german>Platine</i:german>
+        </i:name>
     </i:item>
     <i:item key="compacted_coal">
-        <i:name><i:english>Compacted Coal</i:english></i:name>
+        <i:name>
+            <i:english>Compacted Coal</i:english>
+            <i:german>Verdichtete Kohle</i:german>
+        </i:name>
     </i:item>
     <i:item key="computer">
-        <i:name><i:english>Computer</i:english></i:name>
+        <i:name>
+            <i:english>Computer</i:english>
+            <i:german>Computer</i:german>
+        </i:name>
     </i:item>
     <i:item key="cooling_system">
-        <i:name><i:english>Cooling System</i:english></i:name>
+        <i:name>
+            <i:english>Cooling System</i:english>
+            <i:german>Kühlsystem</i:german>
+        </i:name>
     </i:item>
     <i:item key="copper_ore">
-        <i:name><i:english>Copper Ore</i:english></i:name>
+        <i:name>
+            <i:english>Copper Ore</i:english>
+            <i:german>Kupfererz</i:german>
+        </i:name>
     </i:item>
     <i:item key="copper_powder">
-        <i:name><i:english>Copper Powder</i:english></i:name>
+        <i:name>
+            <i:english>Copper Powder</i:english>
+            <i:german>Kupferpulver</i:german>
+        </i:name>
     </i:item>
     <i:item key="copper_sheet">
-        <i:name><i:english>Copper Sheet</i:english></i:name>
+        <i:name>
+            <i:english>Copper Sheet</i:english>
+            <i:german>Kupferblech</i:german>
+        </i:name>
     </i:item>
     <i:item key="crude_oil">
-        <i:name><i:english>Crude Oil</i:english></i:name>
+        <i:name>
+            <i:english>Crude Oil</i:english>
+            <i:german>Rohöl</i:german>
+        </i:name>
     </i:item>
     <i:item key="crystal_oscillator">
-        <i:name><i:english>Crystal Oscillator</i:english></i:name>
+        <i:name>
+            <i:english>Crystal Oscillator</i:english>
+            <i:german>Quarzoszillator</i:german>
+        </i:name>
     </i:item>
     <i:item key="cup">
-        <i:name><i:english>Cup</i:english></i:name>
+        <i:name>
+            <i:english>Cup</i:english>
+        </i:name>
     </i:item>
     <i:item key="dark_matter_crystal">
-        <i:name><i:english>Dark Matter Crystal</i:english></i:name>
+        <i:name>
+            <i:english>Dark Matter Crystal</i:english>
+            <i:german>Dunkle-Materie-Kristall</i:german>
+        </i:name>
     </i:item>
     <i:item key="dark_matter_residue">
-        <i:name><i:english>Dark Matter Residue</i:english></i:name>
+        <i:name>
+            <i:english>Dark Matter Residue</i:english>
+            <i:german>Dunkle-Materie-Überrest</i:german>
+        </i:name>
     </i:item>
     <i:item key="diamonds">
-        <i:name><i:english>Diamonds</i:english></i:name>
+        <i:name>
+            <i:english>Diamonds</i:english>
+            <i:german>Diamanten</i:german>
+        </i:name>
     </i:item>
     <i:item key="dissolved_silica">
-        <i:name><i:english>Dissolved Silica</i:english></i:name>
+        <i:name>
+            <i:english>Dissolved Silica</i:english>
+            <i:german>Gelöster Quarzsand</i:german>
+        </i:name>
     </i:item>
     <i:item key="electromagnetic_control_rod">
-        <i:name><i:english>Electromagnetic Control Rod</i:english></i:name>
+        <i:name>
+            <i:english>Electromagnetic Control Rod</i:english>
+            <i:german>Elektromagnetische Steuerstange</i:german>
+        </i:name>
     </i:item>
     <i:item key="empty_canister">
-        <i:name><i:english>Empty Canister</i:english></i:name>
+        <i:name>
+            <i:english>Empty Canister</i:english>
+            <i:german>Leerer Kanister</i:german>
+        </i:name>
     </i:item>
     <i:item key="empty_fluid_tank">
-        <i:name><i:english>Empty Fluid Tank</i:english></i:name>
+        <i:name>
+            <i:english>Empty Fluid Tank</i:english>
+            <i:german>Leerer Flüssigkeitstank</i:german>
+        </i:name>
     </i:item>
     <i:item key="encased_industrial_beam">
-        <i:name><i:english>Encased Industrial Beam</i:english></i:name>
+        <i:name>
+            <i:english>Encased Industrial Beam</i:english>
+            <i:german>Stahlbetonträger</i:german>
+        </i:name>
     </i:item>
     <i:item key="encased_plutonium_cell">
-        <i:name><i:english>Encased Plutonium Cell</i:english></i:name>
+        <i:name>
+            <i:english>Encased Plutonium Cell</i:english>
+            <i:german>Ummantelte Plutoniumzelle</i:german>
+        </i:name>
     </i:item>
     <i:item key="encased_uranium_cell">
-        <i:name><i:english>Encased Uranium Cell</i:english></i:name>
+        <i:name>
+            <i:english>Encased Uranium Cell</i:english>
+            <i:german>Ummantelte Uranzelle</i:german>
+        </i:name>
     </i:item>
     <i:item key="excited_photonic_matter">
-        <i:name><i:english>Excited Photonic Matter</i:english></i:name>
+        <i:name>
+            <i:english>Excited Photonic Matter</i:english>
+            <i:german>Angeregte Photonische Materie</i:german>
+        </i:name>
     </i:item>
     <i:item key="fabric">
-        <i:name><i:english>Fabric</i:english></i:name>
+        <i:name>
+            <i:english>Fabric</i:english>
+            <i:german>Gewebe</i:german>
+        </i:name>
     </i:item>
     <i:item key="ficsite_ingot">
-        <i:name><i:english>Ficsite Ingot</i:english></i:name>
+        <i:name>
+            <i:english>Ficsite Ingot</i:english>
+            <i:german>Ficsit-Barren</i:german>
+        </i:name>
     </i:item>
     <i:item key="ficsite_trigon">
-        <i:name><i:english>Ficsite Trigon</i:english></i:name>
+        <i:name>
+            <i:english>Ficsite Trigon</i:english>
+            <i:german>Ficsit-Trigon</i:german>
+        </i:name>
     </i:item>
     <i:item key="ficsonium">
-        <i:name><i:english>Ficsonium</i:english></i:name>
+        <i:name>
+            <i:english>Ficsonium</i:english>
+            <i:german>Ficsonium</i:german>
+        </i:name>
     </i:item>
     <i:item key="ficsonium_fuel_rod">
-        <i:name><i:english>Ficsonium Fuel Rod</i:english></i:name>
+        <i:name>
+            <i:english>Ficsonium Fuel Rod</i:english>
+            <i:german>Ficsonium-Brennstab</i:german>
+        </i:name>
     </i:item>
     <i:item key="fuel">
-        <i:name><i:english>Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Fuel</i:english>
+            <i:german>Treibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="fused_modular_frame">
-        <i:name><i:english>Fused Modular Frame</i:english></i:name>
+        <i:name>
+            <i:english>Fused Modular Frame</i:english>
+            <i:german>Verschmolzener modularer Rahmen</i:german>
+        </i:name>
     </i:item>
     <i:item key="gas_mask">
-        <i:name><i:english>Gas Mask</i:english></i:name>
+        <i:name>
+            <i:english>Gas Mask</i:english>
+        </i:name>
     </i:item>
     <i:item key="hazmat_suit">
-        <i:name><i:english>Hazmat Suit</i:english></i:name>
+        <i:name>
+            <i:english>Hazmat Suit</i:english>
+        </i:name>
     </i:item>
     <i:item key="heat_sink">
-        <i:name><i:english>Heat Sink</i:english></i:name>
+        <i:name>
+            <i:english>Heat Sink</i:english>
+            <i:german>Kühlkörper</i:german>
+        </i:name>
     </i:item>
     <i:item key="heavy_modular_frame">
-        <i:name><i:english>Heavy Modular Frame</i:english></i:name>
+        <i:name>
+            <i:english>Heavy Modular Frame</i:english>
+            <i:german>Schwerer modularer Rahmen</i:german>
+        </i:name>
     </i:item>
     <i:item key="high_speed_connector">
-        <i:name><i:english>High-Speed Connector</i:english></i:name>
+        <i:name>
+            <i:english>High-Speed Connector</i:english>
+            <i:german>Highspeed-Anschluss</i:german>
+        </i:name>
     </i:item>
     <i:item key="hoverpack">
-        <i:name><i:english>Hoverpack</i:english></i:name>
+        <i:name>
+            <i:english>Hoverpack</i:english>
+        </i:name>
     </i:item>
     <i:item key="iron_ore">
-        <i:name><i:english>Iron Ore</i:english></i:name>
+        <i:name>
+            <i:english>Iron Ore</i:english>
+            <i:german>Eisenerz</i:german>
+        </i:name>
     </i:item>
     <i:item key="ionized_fuel">
-        <i:name><i:english>Ionized Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Ionized Fuel</i:english>
+            <i:german>Ionisierter Treibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="jetpack">
-        <i:name><i:english>Jetpack</i:english></i:name>
+        <i:name>
+            <i:english>Jetpack</i:english>
+        </i:name>
     </i:item>
     <i:item key="liquid_biofuel">
-        <i:name><i:english>Liquid Biofuel</i:english></i:name>
+        <i:name>
+            <i:english>Liquid Biofuel</i:english>
+            <i:german>Flüssiger Biotreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="magnetic_field_generator">
-        <i:name><i:english>Magnetic Field Generator</i:english></i:name>
+        <i:name>
+            <i:english>Magnetic Field Generator</i:english>
+            <i:german>Magnetfeld-Generator</i:german>
+        </i:name>
     </i:item>
     <i:item key="medicinal_inhaler">
-        <i:name><i:english>Medicinal Inhaler</i:english></i:name>
+        <i:name>
+            <i:english>Medicinal Inhaler</i:english>
+            <i:german>Medizinischer Inhalator</i:german>
+        </i:name>
     </i:item>
     <i:item key="mercer_sphere">
-        <i:name><i:english>Mercer Sphere</i:english></i:name>
+        <i:name>
+            <i:english>Mercer Sphere</i:english>
+        </i:name>
     </i:item>
     <i:item key="miner">
-        <i:name><i:english>Miner</i:english></i:name>
+        <i:name>
+            <i:english>Miner</i:english>
+        </i:name>
     </i:item>
     <i:item key="modular_engine">
-        <i:name><i:english>Modular Engine</i:english></i:name>
+        <i:name>
+            <i:english>Modular Engine</i:english>
+            <i:german>Modularer Motor</i:german>
+        </i:name>
     </i:item>
     <i:item key="modular_frame">
-        <i:name><i:english>Modular Frame</i:english></i:name>
+        <i:name>
+            <i:english>Modular Frame</i:english>
+            <i:german>Modularer Rahmen</i:german>
+        </i:name>
     </i:item>
     <i:item key="motor">
-        <i:name><i:english>Motor</i:english></i:name>
+        <i:name>
+            <i:english>Motor</i:english>
+            <i:german>Motor</i:german>
+        </i:name>
     </i:item>
     <i:item key="neural_quantum_processor">
-        <i:name><i:english>Neural-Quantum Processor</i:english></i:name>
+        <i:name>
+            <i:english>Neural-Quantum Processor</i:english>
+            <i:german>Neural-Quantenprozessor</i:german>
+        </i:name>
     </i:item>
     <i:item key="nitric_acid">
-        <i:name><i:english>Nitric Acid</i:english></i:name>
+        <i:name>
+            <i:english>Nitric Acid</i:english>
+            <i:german>Salpetersäure</i:german>
+        </i:name>
     </i:item>
     <i:item key="nobelisk_detonator">
-        <i:name><i:english>Nobelisk Detonator</i:english></i:name>
+        <i:name>
+            <i:english>Nobelisk Detonator</i:english>
+        </i:name>
     </i:item>
     <i:item key="non_fissile_uranium">
-        <i:name><i:english>Non-Fissile Uranium</i:english></i:name>
+        <i:name>
+            <i:english>Non-Fissile Uranium</i:english>
+            <i:german>Unspaltbares Uran</i:german>
+        </i:name>
     </i:item>
     <i:item key="nuclear_pasta">
-        <i:name><i:english>Nuclear Pasta</i:english></i:name>
+        <i:name>
+            <i:english>Nuclear Pasta</i:english>
+            <i:german>Nukleare Pasta</i:german>
+        </i:name>
     </i:item>
     <i:item key="object_scanner">
-        <i:name><i:english>Object Scanner</i:english></i:name>
+        <i:name>
+            <i:english>Object Scanner</i:english>
+        </i:name>
     </i:item>
     <i:item key="packaged_alumina_solution">
-        <i:name><i:english>Packaged Alumina Solution</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Alumina Solution</i:english>
+            <i:german>Abgefüllte Aluminiumoxidlösung</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_fuel">
-        <i:name><i:english>Packaged Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Fuel</i:english>
+            <i:german>Abgefüllter Treibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_heavy_oil_residue">
-        <i:name><i:english>Packaged Heavy Oil Residue</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Heavy Oil Residue</i:english>
+            <i:german>Abgefüllter Schwerölrückstand</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_ionized_fuel">
-        <i:name><i:english>Packaged Ionized Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Ionized Fuel</i:english>
+            <i:german>Abgefüllter ionisierter Treibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_liquid_biofuel">
-        <i:name><i:english>Packaged Liquid Biofuel</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Liquid Biofuel</i:english>
+            <i:german>Abgefüllter flüssiger Biotreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_nitric_acid">
-        <i:name><i:english>Packaged Nitric Acid</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Nitric Acid</i:english>
+            <i:german>Abgefüllte Salpetersäure</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_nitrogen_gas">
-        <i:name><i:english>Packaged Nitrogen Gas</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Nitrogen Gas</i:english>
+            <i:german>Abgefülltes Stickstoffgas</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_oil">
-        <i:name><i:english>Packaged Oil</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Oil</i:english>
+            <i:german>Abgefülltes Rohöl</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_rocket_fuel">
-        <i:name><i:english>Packaged Rocket Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Rocket Fuel</i:english>
+            <i:german>Abgefüllter Raketentreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_sulfuric_acid">
-        <i:name><i:english>Packaged Sulfuric Acid</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Sulfuric Acid</i:english>
+            <i:german>Abgefüllte Schwefelsäure</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_turbofuel">
-        <i:name><i:english>Packaged Turbofuel</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Turbofuel</i:english>
+            <i:german>Abgefüllter Turbotreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="packaged_water">
-        <i:name><i:english>Packaged Water</i:english></i:name>
+        <i:name>
+            <i:english>Packaged Water</i:english>
+            <i:german>Abgefülltes Wasser</i:german>
+        </i:name>
     </i:item>
     <i:item key="paleberry">
-        <i:name><i:english>Paleberry</i:english></i:name>
+        <i:name>
+            <i:english>Paleberry</i:english>
+            <i:german>Paläobeere</i:german>
+        </i:name>
     </i:item>
     <i:item key="parachute">
-        <i:name><i:english>Parachute</i:english></i:name>
+        <i:name>
+            <i:english>Parachute</i:english>
+        </i:name>
     </i:item>
     <i:item key="plutonium_fuel_rod">
-        <i:name><i:english>Plutonium Fuel Rod</i:english></i:name>
+        <i:name>
+            <i:english>Plutonium Fuel Rod</i:english>
+            <i:german>Plutonium-Brennstab</i:german>
+        </i:name>
     </i:item>
     <i:item key="plutonium_pellet">
-        <i:name><i:english>Plutonium Pellet</i:english></i:name>
+        <i:name>
+            <i:english>Plutonium Pellet</i:english>
+            <i:german>Plutoniumpellet</i:german>
+        </i:name>
     </i:item>
     <i:item key="plutonium_waste">
-        <i:name><i:english>Plutonium Waste</i:english></i:name>
+        <i:name>
+            <i:english>Plutonium Waste</i:english>
+            <i:german>Plutoniummüll</i:german>
+        </i:name>
     </i:item>
     <i:item key="polymer_resin">
-        <i:name><i:english>Polymer Resin</i:english></i:name>
+        <i:name>
+            <i:english>Polymer Resin</i:english>
+            <i:german>Polymerharz</i:german>
+        </i:name>
     </i:item>
     <i:item key="power_shard">
-        <i:name><i:english>Power Shard</i:english></i:name>
+        <i:name>
+            <i:english>Power Shard</i:english>
+            <i:german>Energiefragment</i:german>
+        </i:name>
     </i:item>
     <i:item key="power_slug">
-        <i:name><i:english>Power Slug</i:english></i:name>
+        <i:name>
+            <i:english>Power Slug</i:english>
+        </i:name>
     </i:item>
     <i:item key="pressure_conversion_cube">
-        <i:name><i:english>Pressure Conversion Cube</i:english></i:name>
+        <i:name>
+            <i:english>Pressure Conversion Cube</i:english>
+            <i:german>Druckumwandlungswürfel</i:german>
+        </i:name>
     </i:item>
     <i:item key="quartz_crystal">
-        <i:name><i:english>Quartz Crystal</i:english></i:name>
+        <i:name>
+            <i:english>Quartz Crystal</i:english>
+            <i:german>Quarzkristall</i:german>
+        </i:name>
     </i:item>
     <i:item key="radio_control_unit">
-        <i:name><i:english>Radio Control Unit</i:english></i:name>
+        <i:name>
+            <i:english>Radio Control Unit</i:english>
+            <i:german>Funksteuerungseinheit</i:german>
+        </i:name>
     </i:item>
     <i:item key="raw_quartz">
-        <i:name><i:english>Raw Quartz</i:english></i:name>
+        <i:name>
+            <i:english>Raw Quartz</i:english>
+            <i:german>Quarz</i:german>
+        </i:name>
     </i:item>
     <i:item key="reanimated_sam">
-        <i:name><i:english>Reanimated SAM</i:english></i:name>
+        <i:name>
+            <i:english>Reanimated SAM</i:english>
+            <i:german>Reanimierte SAM</i:german>
+        </i:name>
     </i:item>
     <i:item key="rebar_gun">
-        <i:name><i:english>Rebar Gun</i:english></i:name>
+        <i:name>
+            <i:english>Rebar Gun</i:english>
+        </i:name>
     </i:item>
     <i:item key="rifle">
-        <i:name><i:english>Rifle</i:english></i:name>
+        <i:name>
+            <i:english>Rifle</i:english>
+        </i:name>
     </i:item>
     <i:item key="rocket_fuel">
-        <i:name><i:english>Rocket Fuel</i:english></i:name>
+        <i:name>
+            <i:english>Rocket Fuel</i:english>
+            <i:german>Raketentreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="rotor">
-        <i:name><i:english>Rotor</i:english></i:name>
+        <i:name>
+            <i:english>Rotor</i:english>
+            <i:german>Rotor</i:german>
+        </i:name>
     </i:item>
     <i:item key="sam_fluctuator">
-        <i:name><i:english>SAM Fluctuator</i:english></i:name>
+        <i:name>
+            <i:english>SAM Fluctuator</i:english>
+            <i:german>SAM-Fluktuator</i:german>
+        </i:name>
     </i:item>
     <i:item key="singularity_cell">
-        <i:name><i:english>Singularity Cell</i:english></i:name>
+        <i:name>
+            <i:english>Singularity Cell</i:english>
+            <i:german>Singularitätszelle</i:german>
+        </i:name>
     </i:item>
     <i:item key="smart_plating">
-        <i:name><i:english>Smart Plating</i:english></i:name>
+        <i:name>
+            <i:english>Smart Plating</i:english>
+            <i:german>Intelligente Beschichtung</i:german>
+        </i:name>
     </i:item>
     <i:item key="smokeless_powder">
-        <i:name><i:english>Smokeless Powder</i:english></i:name>
+        <i:name>
+            <i:english>Smokeless Powder</i:english>
+            <i:german>Rauchschwaches Pulver</i:german>
+        </i:name>
     </i:item>
     <i:item key="solid_biofuel">
-        <i:name><i:english>Solid Biofuel</i:english></i:name>
+        <i:name>
+            <i:english>Solid Biofuel</i:english>
+            <i:german>Fester Biotreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="somersloop">
-        <i:name><i:english>Somersloop</i:english></i:name>
+        <i:name>
+            <i:english>Somersloop</i:english>
+        </i:name>
     </i:item>
     <i:item key="stator">
-        <i:name><i:english>Stator</i:english></i:name>
+        <i:name>
+            <i:english>Stator</i:english>
+            <i:german>Stator</i:german>
+        </i:name>
     </i:item>
     <i:item key="steel_pipe">
-        <i:name><i:english>Steel Pipe</i:english></i:name>
+        <i:name>
+            <i:english>Steel Pipe</i:english>
+            <i:german>Stahlrohr</i:german>
+        </i:name>
     </i:item>
     <i:item key="supercomputer">
-        <i:name><i:english>Supercomputer</i:english></i:name>
+        <i:name>
+            <i:english>Supercomputer</i:english>
+            <i:german>Supercomputer</i:german>
+        </i:name>
     </i:item>
     <i:item key="superposition_oscillator">
-        <i:name><i:english>Superposition Oscillator</i:english></i:name>
+        <i:name>
+            <i:english>Superposition Oscillator</i:english>
+            <i:german>Überlagerungsoszillator</i:german>
+        </i:name>
     </i:item>
     <i:item key="thermal_propulsion_rocket">
-        <i:name><i:english>Thermal Propulsion Rocket</i:english></i:name>
+        <i:name>
+            <i:english>Thermal Propulsion Rocket</i:english>
+            <i:german>Thermaler Raketenantrieb</i:german>
+        </i:name>
     </i:item>
     <i:item key="time_crystal">
-        <i:name><i:english>Time Crystal</i:english></i:name>
+        <i:name>
+            <i:english>Time Crystal</i:english>
+            <i:german>Zeitkristall</i:german>
+        </i:name>
     </i:item>
     <i:item key="turbo_motor">
-        <i:name><i:english>Turbo Motor</i:english></i:name>
+        <i:name>
+            <i:english>Turbo Motor</i:english>
+            <i:german>Turbomotor</i:german>
+        </i:name>
     </i:item>
     <i:item key="turbofuel">
-        <i:name><i:english>Turbofuel</i:english></i:name>
+        <i:name>
+            <i:english>Turbofuel</i:english>
+            <i:german>Turbotreibstoff</i:german>
+        </i:name>
     </i:item>
     <i:item key="uranium_fuel_rod">
-        <i:name><i:english>Uranium Fuel Rod</i:english></i:name>
+        <i:name>
+            <i:english>Uranium Fuel Rod</i:english>
+            <i:german>Uranbrennstab</i:german>
+        </i:name>
     </i:item>
     <i:item key="uranium_waste">
-        <i:name><i:english>Uranium Waste</i:english></i:name>
+        <i:name>
+            <i:english>Uranium Waste</i:english>
+            <i:german>Uran-Abfall</i:german>
+        </i:name>
     </i:item>
     <i:item key="versatile_framework">
-        <i:name><i:english>Versatile Framework</i:english></i:name>
+        <i:name>
+            <i:english>Versatile Framework</i:english>
+            <i:german>Mehrzweckgerüst</i:german>
+        </i:name>
     </i:item>
     <i:item key="xeno_basher">
-        <i:name><i:english>Xeno-Basher</i:english></i:name>
+        <i:name>
+            <i:english>Xeno-Basher</i:english>
+        </i:name>
     </i:item>
     <i:item key="xeno_zapper">
-        <i:name><i:english>Xeno-Zapper</i:english></i:name>
+        <i:name>
+            <i:english>Xeno-Zapper</i:english>
+        </i:name>
     </i:item>
     <i:item key="zipline">
-        <i:name><i:english>Zipline</i:english></i:name>
+        <i:name>
+            <i:english>Zipline</i:english>
+        </i:name>
     </i:item>
     <i:item key="hatcher_protein">
-        <i:name><i:english>Hatcher Protein</i:english></i:name>
+        <i:name>
+            <i:english>Hatcher Protein</i:english>
+        </i:name>
     </i:item>
     <i:item key="hog_protein">
-        <i:name><i:english>Hog Protein</i:english></i:name>
+        <i:name>
+            <i:english>Hog Protein</i:english>
+        </i:name>
     </i:item>
     <i:item key="spitter_protein">
-        <i:name><i:english>Spitter Protein</i:english></i:name>
+        <i:name>
+            <i:english>Spitter Protein</i:english>
+        </i:name>
     </i:item>
     <i:item key="stinger_protein">
-        <i:name><i:english>Stinger Protein</i:english></i:name>
+        <i:name>
+            <i:english>Stinger Protein</i:english>
+        </i:name>
     </i:item>
     <i:item key="nobelisk">
-        <i:name><i:english>Nobelisk</i:english></i:name>
+        <i:name>
+            <i:english>Nobelisk</i:english>
+            <i:german>Nobelisk</i:german>
+        </i:name>
     </i:item>
     <i:item key="cluster_nobelisk">
-        <i:name><i:english>Cluster Nobelisk</i:english></i:name>
+        <i:name>
+            <i:english>Cluster Nobelisk</i:english>
+            <i:german>Splitter-Nobelisk</i:german>
+        </i:name>
     </i:item>
     <i:item key="iron_rebar">
-        <i:name><i:english>Iron Rebar</i:english></i:name>
+        <i:name>
+            <i:english>Iron Rebar</i:english>
+            <i:german>Armierungsbolzen</i:german>
+        </i:name>
     </i:item>
     <i:item key="explosive_rebar">
-        <i:name><i:english>Explosive Rebar</i:english></i:name>
+        <i:name>
+            <i:english>Explosive Rebar</i:english>
+            <i:german>Explosionsbolzen</i:german>
+        </i:name>
     </i:item>
     <i:item key="gas_filter">
-        <i:name><i:english>Gas Filter</i:english></i:name>
+        <i:name>
+            <i:english>Gas Filter</i:english>
+            <i:german>Gasfilter</i:german>
+        </i:name>
     </i:item>
     <i:item key="gas_nobelisk">
-        <i:name><i:english>Gas Nobelisk</i:english></i:name>
+        <i:name>
+            <i:english>Gas Nobelisk</i:english>
+            <i:german>Gas-Nobelisk</i:german>
+        </i:name>
     </i:item>
     <i:item key="hatcher_remains">
-        <i:name><i:english>Hatcher Remains</i:english></i:name>
+        <i:name>
+            <i:english>Hatcher Remains</i:english>
+            <i:german>Krabbenbrüter Überreste</i:german>
+        </i:name>
     </i:item>
     <i:item key="hog_remains">
-        <i:name><i:english>Hog Remains</i:english></i:name>
+        <i:name>
+            <i:english>Hog Remains</i:english>
+            <i:german>Keiler Überreste</i:german>
+        </i:name>
     </i:item>
     <i:item key="rifle_ammo">
-        <i:name><i:english>Rifle Ammo</i:english></i:name>
+        <i:name>
+            <i:english>Rifle Ammo</i:english>
+            <i:german>Gewehrmunition</i:german>
+        </i:name>
     </i:item>
     <i:item key="homing_rifle_ammo">
-        <i:name><i:english>Homing Rifle Ammo</i:english></i:name>
+        <i:name>
+            <i:english>Homing Rifle Ammo</i:english>
+            <i:german>Zielsuch-Gewehrmunition</i:german>
+        </i:name>
     </i:item>
     <i:item key="iodine_infused_filter">
-        <i:name><i:english>Iodine-Infused Filter</i:english></i:name>
+        <i:name>
+            <i:english>Iodine-Infused Filter</i:english>
+            <i:german>Jodfilter</i:german>
+        </i:name>
     </i:item>
     <i:item key="nuke_nobelisk">
-        <i:name><i:english>Nuke Nobelisk</i:english></i:name>
+        <i:name>
+            <i:english>Nuke Nobelisk</i:english>
+            <i:german>Nuklear-Nobelisk</i:german>
+        </i:name>
     </i:item>
     <i:item key="blue_power_slug">
-        <i:name><i:english>Blue Power Slug</i:english></i:name>
+        <i:name>
+            <i:english>Blue Power Slug</i:english>
+            <i:german>Blaue Elektroschnecke</i:german>
+        </i:name>
     </i:item>
     <i:item key="yellow_power_slug">
-        <i:name><i:english>Yellow Power Slug</i:english></i:name>
+        <i:name>
+            <i:english>Yellow Power Slug</i:english>
+            <i:german>Gelbe Elektroschnecke</i:german>
+        </i:name>
     </i:item>
     <i:item key="purple_power_slug">
-        <i:name><i:english>Purple Power Slug</i:english></i:name>
+        <i:name>
+            <i:english>Purple Power Slug</i:english>
+            <i:german>Violette Elektroschnecke</i:german>
+        </i:name>
     </i:item>
     <i:item key="pulse_nobelisk">
-        <i:name><i:english>Pulse Nobelisk</i:english></i:name>
+        <i:name>
+            <i:english>Pulse Nobelisk</i:english>
+            <i:german>Impuls-Nobelisk</i:german>
+        </i:name>
     </i:item>
     <i:item key="shatter_rebar">
-        <i:name><i:english>Shatter Rebar</i:english></i:name>
+        <i:name>
+            <i:english>Shatter Rebar</i:english>
+            <i:german>Splitterbolzen</i:german>
+        </i:name>
     </i:item>
     <i:item key="spitter_remains">
-        <i:name><i:english>Spitter Remains</i:english></i:name>
+        <i:name>
+            <i:english>Spitter Remains</i:english>
+            <i:german>Spucker-Überreste</i:german>
+        </i:name>
     </i:item>
     <i:item key="stinger_remains">
-        <i:name><i:english>Stinger Remains</i:english></i:name>
+        <i:name>
+            <i:english>Stinger Remains</i:english>
+            <i:german>Stecher Überreste</i:german>
+        </i:name>
     </i:item>
     <i:item key="stun_rebar">
-        <i:name><i:english>Stun Rebar</i:english></i:name>
+        <i:name>
+            <i:english>Stun Rebar</i:english>
+            <i:german>Betäubungsbolzen</i:german>
+        </i:name>
     </i:item>
     <i:item key="turbo_rifle_ammo">
-        <i:name><i:english>Turbo Rifle Ammo</i:english></i:name>
+        <i:name>
+            <i:english>Turbo Rifle Ammo</i:english>
+            <i:german>Turbo-Gewehrmunition</i:german>
+        </i:name>
     </i:item>
     <i:item key="portable_miner">
-        <i:name><i:english>Portable Miner</i:english></i:name>
+        <i:name>
+            <i:english>Portable Miner</i:english>
+            <i:german>Mobiler Miner</i:german>
+        </i:name>
     </i:item>
 </i:items>

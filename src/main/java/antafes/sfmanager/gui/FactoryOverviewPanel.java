@@ -11,6 +11,7 @@ import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -21,6 +22,7 @@ import java.util.Comparator;
 import java.util.Locale;
 
 @org.springframework.stereotype.Component
+@Scope("prototype")
 public class FactoryOverviewPanel extends JPanel
 {
     @Autowired

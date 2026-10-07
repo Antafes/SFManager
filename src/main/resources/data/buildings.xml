@@ -12,6 +12,7 @@
     <b:building key="miner_1">
         <b:name>
             <b:english>Miner Mk.1</b:english>
+            <b:german>Miner Mk.1</b:german>
         </b:name>
         <b:category>production</b:category>
         <b:power>-5</b:power>
@@ -21,6 +22,7 @@
     <b:building key="miner_2">
         <b:name>
             <b:english>Miner Mk.2</b:english>
+            <b:german>Miner Mk.2</b:german>
         </b:name>
         <b:category>production</b:category>
         <b:power>-15</b:power>
@@ -30,6 +32,7 @@
     <b:building key="miner_3">
         <b:name>
             <b:english>Miner Mk.3</b:english>
+            <b:german>Miner Mk.3</b:german>
         </b:name>
         <b:category>production</b:category>
         <b:power>-45</b:power>
@@ -168,6 +171,7 @@
     <b:building key="encoder">
         <b:name>
             <b:english>Quantum Encoder</b:english>
+            <b:german>Quantenkodierer</b:german>
         </b:name>
         <b:category>production</b:category>
         <b:power>1000</b:power>
@@ -177,6 +181,7 @@
     <b:building key="converter">
         <b:name>
             <b:english>Converter</b:english>
+            <b:german>Konverter</b:german>
         </b:name>
         <b:category>production</b:category>
         <b:power>250</b:power>
@@ -186,6 +191,7 @@
     <b:building key="burner">
         <b:name>
             <b:english>Biomass Burner</b:english>
+            <b:german>Biomassegenerator</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>30</b:power>
@@ -194,6 +200,7 @@
     <b:building key="coal_generator">
         <b:name>
             <b:english>Coal-Powered Generator</b:english>
+            <b:german>Kohlegenerator</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>75</b:power>
@@ -202,6 +209,7 @@
     <b:building key="fuel_generator">
         <b:name>
             <b:english>Fuel-Powered Generator</b:english>
+            <b:german>Treibstoffgenerator</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>250</b:power>
@@ -210,6 +218,7 @@
     <b:building key="geothermal_generator">
         <b:name>
             <b:english>Geothermal Generator</b:english>
+            <b:german>Geothermie-Generator</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>200</b:power>
@@ -218,6 +227,7 @@
     <b:building key="nuclear_power_plant">
         <b:name>
             <b:english>Nuclear Power Plant</b:english>
+            <b:german>Atomkraftwerk</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>2500</b:power>
@@ -226,6 +236,7 @@
     <b:building key="power_augmenter">
         <b:name>
             <b:english>Alien Power Augmenter</b:english>
+            <b:german>Alien-Energieverstärker</b:german>
         </b:name>
         <b:category>power</b:category>
         <b:power>500</b:power>
@@ -236,6 +247,7 @@
     <b:building key="pump_1">
         <b:name>
             <b:english>Pipeline Pump Mk.1</b:english>
+            <b:german>Pipeline-Pumpe Mk.1</b:german>
         </b:name>
         <b:category>logistics</b:category>
         <b:power>-4</b:power>
@@ -244,6 +256,7 @@
     <b:building key="pump_2">
         <b:name>
             <b:english>Pipeline Pump Mk.2</b:english>
+            <b:german>Pipeline-Pumpe Mk.2</b:german>
         </b:name>
         <b:category>logistics</b:category>
         <b:power>-8</b:power>
@@ -252,6 +265,7 @@
     <b:building key="truck_station">
         <b:name>
             <b:english>Truck Station</b:english>
+            <b:german>Lkw-Station</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-20</b:power>
@@ -260,6 +274,7 @@
     <b:building key="drone_port">
         <b:name>
             <b:english>Drone Port</b:english>
+            <b:german>Drohnenhafen</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-100</b:power>
@@ -268,6 +283,7 @@
     <b:building key="train_station">
         <b:name>
             <b:english>Train Station</b:english>
+            <b:german>Bahnhof</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-50</b:power>
@@ -276,6 +292,7 @@
     <b:building key="freight_platform">
         <b:name>
             <b:english>Freight Platform</b:english>
+            <b:german>Frachtplattform</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-50</b:power>
@@ -284,6 +301,7 @@
     <b:building key="fluid_freight_platform">
         <b:name>
             <b:english>Fluid Freight Platform</b:english>
+            <b:german>Flüssige Frachtplattform</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-50</b:power>
@@ -292,6 +310,7 @@
     <b:building key="locomotive">
         <b:name>
             <b:english>Electric Locomotive</b:english>
+            <b:german>Elektrolokomotive</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-110</b:power>
@@ -300,6 +319,7 @@
     <b:building key="hypertube_entrance">
         <b:name>
             <b:english>Hypertube Entrance</b:english>
+            <b:german>Hypertube-Eingang</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-10</b:power>
@@ -308,6 +328,7 @@
     <b:building key="jump_pad">
         <b:name>
             <b:english>Jump Pad</b:english>
+            <b:german>Sprungfläche</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-5</b:power>
@@ -316,6 +337,7 @@
     <b:building key="landing_pad">
         <b:name>
             <b:english>Jelly Landing Pad</b:english>
+            <b:german>Gel-Landepad</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-5</b:power>
@@ -324,6 +346,7 @@
     <b:building key="elevator">
         <b:name>
             <b:english>Personnel Elevator</b:english>
+            <b:german>Personenaufzug</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-20</b:power>
@@ -332,6 +355,7 @@
     <b:building key="main_portal">
         <b:name>
             <b:english>Main Portal</b:english>
+            <b:german>Hauptportal</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-250</b:power>
@@ -340,6 +364,7 @@
     <b:building key="satellite_portal">
         <b:name>
             <b:english>Satellite Portal</b:english>
+            <b:german>Satellitenportal</b:german>
         </b:name>
         <b:category>transportation</b:category>
         <b:power>-250</b:power>
@@ -380,6 +405,7 @@
     <b:building key="radar_tower">
         <b:name>
             <b:english>Radar Tower</b:english>
+            <b:german>Radarturm</b:german>
         </b:name>
         <b:category>organization</b:category>
         <b:power>-30</b:power>

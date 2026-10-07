@@ -1,6 +1,7 @@
 package antafes.sfmanager;
 
 import antafes.sfmanager.language.English;
+import antafes.sfmanager.language.German;
 import antafes.utilities.BaseConfiguration;
 import antafes.utilities.Utilities;
 import lombok.Getter;
@@ -96,15 +97,18 @@ public class Configuration extends BaseConfiguration
     @Getter
     public enum Language implements LanguageInterface
     {
-        ENGLISH(English.class.getName(), "English", "images/english.png");
+        ENGLISH(English.class.getName(), "English", "English", "images/english.png"),
+        GERMAN(German.class.getName(), "German", "Deutsch", "images/german.png");
 
         private final String languageString;
         private final String name;
+        private final String displayName;
         private final ImageIcon icon;
 
-        Language(String languageString, String name, String iconPath) {
+        Language(String languageString, String name, String displayName, String iconPath) {
             this.languageString = languageString;
             this.name = name;
+            this.displayName = displayName;
             Toolkit kit = Toolkit.getDefaultToolkit();
             Image img = kit.createImage(Utilities.getResourceInJar(iconPath));
             this.icon = new ImageIcon(img);
