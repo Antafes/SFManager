@@ -4,19 +4,14 @@ import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Building;
 import antafes.sfmanager.entity.Item;
 import antafes.sfmanager.entity.Recipe;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RepositoryLoadingTest extends BaseTest
 {

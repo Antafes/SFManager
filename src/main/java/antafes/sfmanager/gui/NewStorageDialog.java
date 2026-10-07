@@ -11,8 +11,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.swing.JDialog;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)

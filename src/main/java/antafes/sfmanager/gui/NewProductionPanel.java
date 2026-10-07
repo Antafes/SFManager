@@ -1,30 +1,26 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Category;
-import antafes.sfmanager.entity.Purity;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.entity.recipe.Item;
+import antafes.sfmanager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sfmanager.gui.renderer.LocalizedNameRenderer;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
-import antafes.utilities.gui.OrderFocusTraversalPolicy;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import jakarta.annotation.PostConstruct;
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
+import java.io.IOException;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.text.DecimalFormatSymbols;
+import java.util.*;
 import java.util.List;
-import java.io.IOException;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -136,7 +132,7 @@ public class NewProductionPanel extends BasePanel
         order.add(this.usedSomersloopsField);
         order.add(this.okButton);
         order.add(this.cancelButton);
-        this.setFocusTraversalPolicy(new OrderFocusTraversalPolicy(order));
+        this.setFocusTraversalPolicy(new DynamicFocusTraversalPolicy(order));
         this.setFocusTraversalPolicyProvider(true);
     }
 
@@ -281,6 +277,7 @@ public class NewProductionPanel extends BasePanel
             this.productSelectPanel.setVisible(false);
             this.recipeSelectLabel.setVisible(false);
             this.updateSummaries();
+            this.createFocusTraversalPolicy();
             return;
         }
 
@@ -309,6 +306,7 @@ public class NewProductionPanel extends BasePanel
             this.recipeSelectLabel.setText(this.getLanguage().translate("recipe"));
         }
         this.updateSummaries();
+        this.createFocusTraversalPolicy();
     }
 
     private void restoreSelectedPressurizer()
@@ -1000,4 +998,5 @@ public class NewProductionPanel extends BasePanel
             }
         }
     }
+
 }

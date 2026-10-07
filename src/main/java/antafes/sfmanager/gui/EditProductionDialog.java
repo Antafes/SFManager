@@ -12,10 +12,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import javax.swing.JDialog;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import java.awt.Frame;
+import javax.swing.*;
+import java.awt.*;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;

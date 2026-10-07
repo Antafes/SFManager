@@ -3,8 +3,8 @@ package antafes.sfmanager.gui.order;
 import antafes.sfmanager.entity.Item;
 import lombok.experimental.UtilityClass;
 
-import javax.swing.JTabbedPane;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;

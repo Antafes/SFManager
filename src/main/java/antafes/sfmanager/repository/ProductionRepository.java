@@ -1,12 +1,7 @@
 package antafes.sfmanager.repository;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Purity;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.repository.xml.productions.ProductionData;
 import antafes.sfmanager.repository.xml.productions.ProductionsData;
 import antafes.sfmanager.util.FactoryName;
@@ -27,15 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository

@@ -22,7 +22,6 @@
 
 package antafes.sfmanager.repository;
 
-import antafes.sfmanager.entity.Building;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 

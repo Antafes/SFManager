@@ -1,19 +1,11 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.BaseTest;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Purity;
-import antafes.sfmanager.entity.Production;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
@@ -21,17 +13,12 @@ import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import javax.swing.JButton;
-import javax.swing.JTable;
-import java.awt.Component;
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ResourceProductionPanelTest extends BaseTest
 {

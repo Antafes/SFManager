@@ -2,19 +2,10 @@ package antafes.sfmanager.gui.editor;
 
 import antafes.utilities.language.LanguageInterface;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.util.UUID;
 import java.util.function.Function;
 

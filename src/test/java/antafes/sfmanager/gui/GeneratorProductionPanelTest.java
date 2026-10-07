@@ -7,21 +7,14 @@ import antafes.sfmanager.entity.Name;
 import antafes.sfmanager.entity.Production;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.order.LocalizedBuildingOrder;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 

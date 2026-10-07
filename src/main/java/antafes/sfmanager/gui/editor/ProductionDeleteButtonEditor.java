@@ -3,13 +3,10 @@ package antafes.sfmanager.gui.editor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.utilities.language.LanguageInterface;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.JButton;
-import javax.swing.JOptionPane;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
-import java.awt.Component;
+import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;

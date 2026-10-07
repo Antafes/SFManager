@@ -1,22 +1,18 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Name;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Purity;
+import antafes.sfmanager.entity.*;
+import antafes.sfmanager.gui.editor.MinerUpgrade;
 import antafes.sfmanager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sfmanager.gui.editor.ProductionEditButtonEditor;
-import antafes.sfmanager.gui.editor.MinerUpgrade;
 import antafes.sfmanager.gui.editor.ProductionUpgradeButtonEditor;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.dto.ResourceProductionEntry;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
 import antafes.utilities.language.LanguageInterface;
-import lombok.Getter;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -25,14 +21,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")

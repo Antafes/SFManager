@@ -1,31 +1,22 @@
 package antafes.sfmanager.service;
 
 import antafes.sfmanager.BaseTest;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Purity;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.entity.*;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.repository.xml.productions.ProductionData;
 import antafes.sfmanager.repository.xml.productions.ProductionsData;
+import antafes.sfmanager.service.dto.FactoryOverviewData;
+import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import antafes.sfmanager.service.event.ProductionDeletedEvent;
 import antafes.sfmanager.service.event.ProductionSavedEvent;
-import antafes.sfmanager.service.dto.FactoryOverviewData;
-import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
+import jakarta.xml.bind.JAXBContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import jakarta.xml.bind.JAXBContext;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,13 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ProductionServiceTest extends BaseTest
 {

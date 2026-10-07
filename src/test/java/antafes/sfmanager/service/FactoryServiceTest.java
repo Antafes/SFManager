@@ -4,18 +4,15 @@ import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.repository.FactoryRepository;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FactoryServiceTest extends BaseTest
 {

@@ -3,8 +3,8 @@ package antafes.sfmanager.repository;
 import antafes.sfmanager.BaseTest;
 import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.util.FactoryName;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;

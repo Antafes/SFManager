@@ -1,19 +1,10 @@
 package antafes.sfmanager.service;
 
 import antafes.sfmanager.BaseTest;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
-import antafes.sfmanager.entity.Storage;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
-import antafes.sfmanager.repository.StorageRepository;
-import antafes.sfmanager.service.dto.StorageItem;
+import antafes.sfmanager.entity.*;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
+import antafes.sfmanager.service.dto.StorageItem;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -21,9 +12,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StorageServiceTest extends BaseTest
 {

@@ -1,14 +1,14 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
-import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.SFManager;
+import antafes.sfmanager.entity.Factory;
 import antafes.sfmanager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
-import jakarta.annotation.PostConstruct;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
 import antafes.utilities.language.LanguageInterface;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationEventPublisher;

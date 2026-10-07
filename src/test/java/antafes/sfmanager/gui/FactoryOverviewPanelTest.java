@@ -1,35 +1,21 @@
 package antafes.sfmanager.gui;
 
 import antafes.sfmanager.BaseTest;
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Name;
-import antafes.sfmanager.entity.Purity;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.gui.order.LocalizedItemOrder;
-import antafes.sfmanager.repository.BuildingRepository;
-import antafes.sfmanager.repository.FactoryRepository;
-import antafes.sfmanager.repository.ItemRepository;
-import antafes.sfmanager.repository.ProductionRepository;
-import antafes.sfmanager.repository.RecipeRepository;
+import antafes.sfmanager.repository.*;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.ProductionService;
 import antafes.sfmanager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import javax.swing.JTable;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FactoryOverviewPanelTest extends BaseTest
 {

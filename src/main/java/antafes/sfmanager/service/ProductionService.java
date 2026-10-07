@@ -1,39 +1,22 @@
 package antafes.sfmanager.service;
 
-import antafes.sfmanager.entity.Building;
-import antafes.sfmanager.entity.Factory;
-import antafes.sfmanager.entity.Item;
-import antafes.sfmanager.entity.Production;
-import antafes.sfmanager.entity.Recipe;
-import antafes.sfmanager.entity.Category;
+import antafes.sfmanager.entity.*;
 import antafes.sfmanager.repository.BuildingRepository;
 import antafes.sfmanager.repository.ItemRepository;
 import antafes.sfmanager.repository.ProductionRepository;
 import antafes.sfmanager.repository.RecipeRepository;
-import antafes.sfmanager.service.event.ProductionSavedEvent;
+import antafes.sfmanager.service.dto.*;
 import antafes.sfmanager.service.event.ProductionDeletedEvent;
-import antafes.sfmanager.service.dto.FactoryOverviewData;
-import antafes.sfmanager.service.dto.FactoryOverviewMaterial;
-import antafes.sfmanager.service.dto.FactoryOverviewPowerSource;
-import antafes.sfmanager.service.dto.GeneratorProductionEntry;
-import antafes.sfmanager.service.dto.GeneratorProductionIngredient;
-import antafes.sfmanager.service.dto.RecipeProductionEntry;
-import antafes.sfmanager.service.dto.RecipeProductionMaterial;
-import antafes.sfmanager.service.dto.ResourceProductionEntry;
+import antafes.sfmanager.service.event.ProductionSavedEvent;
 import antafes.sfmanager.util.PowerCalculator;
 import antafes.sfmanager.util.ProductionCalculator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
