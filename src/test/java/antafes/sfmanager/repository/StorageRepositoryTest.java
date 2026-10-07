@@ -61,6 +61,14 @@ public class StorageRepositoryTest extends BaseTest
             assertEquals(1, storage.getEntries().size());
             assertEquals(productionId, storage.getEntries().getFirst().getProductionId());
             assertEquals("iron_ingot", storage.getEntries().getFirst().getItemKey());
+
+            UUID secondProductionId = UUID.randomUUID();
+            storage.getEntries().add(new Storage.Entry()
+                .setProductionId(secondProductionId)
+                .setItemKey("copper_ingot"));
+            storageRepository.saveStorage(factoryRepository.findOne(factory.getId()), storage);
+            assertEquals(2, storage.getEntries().size());
+            assertEquals(secondProductionId, storage.getEntries().getLast().getProductionId());
         }
     }
 }

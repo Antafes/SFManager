@@ -84,12 +84,15 @@ public class StoragePanelTest extends BaseTest
             panel.refresh();
             JTable table = panel.getTable();
 
-            assertEquals(3, table.getColumnCount());
+            assertEquals(4, table.getColumnCount());
             assertEquals("Item", table.getColumnName(0));
             assertEquals("Stored / min", table.getColumnName(1));
             assertEquals("Source productions", table.getColumnName(2));
+            assertEquals("", table.getColumnName(3));
+            assertEquals(40, table.getColumnModel().getColumn(3).getPreferredWidth());
             assertEquals(1, table.getRowCount());
             assertFalse(table.isCellEditable(0, 0));
+            assertTrue(table.isCellEditable(0, 3));
             assertTrue(table.getAutoCreateRowSorter());
             assertEquals("Iron Ingot", table.getValueAt(0, 0));
             assertEquals("30 / min", table.getValueAt(0, 1));
@@ -97,6 +100,8 @@ public class StoragePanelTest extends BaseTest
             assertTrue(table.getValueAt(0, 2).toString().contains("Iron Ingot"));
             assertTrue(table.getValueAt(0, 2).toString().contains("Ingot Line"));
             assertTrue(table.getValueAt(0, 2).toString().contains("A1"));
+            assertFalse(table.getValueAt(0, 2).toString().contains("#"));
+            assertTrue(table.getValueAt(0, 3) instanceof antafes.sfmanager.service.dto.StorageItem);
         }
     }
 }

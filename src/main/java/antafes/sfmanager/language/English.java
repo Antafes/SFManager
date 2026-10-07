@@ -28,6 +28,9 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("storedRate", "Stored / min");
         this.getTranslations().put("sourceProductions", "Source productions");
         this.getTranslations().put("storageSavingFailed", "Could not save the storage option.");
+        this.getTranslations().put("confirmDeleteStorage", "Are you sure you want to remove this stored item?");
+        this.getTranslations().put("deleteStorage", "Remove stored item");
+        this.getTranslations().put("storageDeletionFailed", "Could not remove the stored item.");
     }
 
     private void newProduction()

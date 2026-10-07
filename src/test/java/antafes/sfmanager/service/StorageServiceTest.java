@@ -99,6 +99,11 @@ public class StorageServiceTest extends BaseTest
                 () -> storageService.addStorageEntries(List.of(entry))
             );
 
+            storageService.removeStorageEntries(List.of(entry));
+            assertTrue(storageService.getStoredItems().isEmpty());
+            assertEquals(1, storageService.getAvailableChoices().size());
+
+            storageService.addStorageEntries(List.of(entry));
             productionService.deleteProduction(production.getId());
             assertTrue(storageService.getStoredItems().isEmpty());
         }

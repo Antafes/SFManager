@@ -2,6 +2,7 @@ package antafes.sfmanager.gui;
 
 import antafes.sfmanager.Configuration;
 import antafes.sfmanager.entity.Name;
+import antafes.sfmanager.gui.editor.StorageDeleteButtonEditor;
 import antafes.sfmanager.service.FactoryService;
 import antafes.sfmanager.service.StorageService;
 import antafes.sfmanager.service.dto.StorageItem;
@@ -75,7 +76,8 @@ public class StoragePanel extends JPanel
             .forEach(storageItem -> this.tableModel.addRow(new Object[] {
                 this.localizedName(storageItem.item().getName()),
                 this.perMinute(storageItem.rate()),
-                this.sourceDescriptions(storageItem.sources())
+                this.sourceDescriptions(storageItem.sources()),
+                storageItem
             }));
     }
 
@@ -84,16 +86,28 @@ public class StoragePanel extends JPanel
         this.tableModel = new DefaultTableModel(new Object[] {
             this.language.translate("item"),
             this.language.translate("storedRate"),
-            this.language.translate("sourceProductions")
+            this.language.translate("sourceProductions"),
+            ""
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return false;
+                return column == 3;
             }
         };
         this.table = new JTable(this.tableModel);
         this.table.setAutoCreateRowSorter(true);
+        var actionColumn = this.table.getColumnModel().getColumn(3);
+        actionColumn.setPreferredWidth(40);
+        actionColumn.setMaxWidth(50);
+        StorageDeleteButtonEditor deleteButton = new StorageDeleteButtonEditor(
+            this.storageService,
+            this.language,
+            this,
+            this::refresh
+        );
+        actionColumn.setCellRenderer(deleteButton);
+        actionColumn.setCellEditor(deleteButton);
     }
 
     private String sourceDescriptions(List<StorageProductionChoice> sources)
@@ -118,7 +132,6 @@ public class StoragePanel extends JPanel
         if (choice.production().getPosition() != null && !choice.production().getPosition().isBlank()) {
             context.add(choice.production().getPosition());
         }
-        context.add("#" + choice.production().getId().toString().substring(0, 8));
         return String.join(" — ", context);
     }
 

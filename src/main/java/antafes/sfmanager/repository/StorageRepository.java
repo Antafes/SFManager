@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -78,11 +79,11 @@ public class StorageRepository extends BaseRepository<Storage, UUID>
                 }
                 Storage storage = new Storage()
                     .setFactoryId(factory.getId())
-                    .setEntries(data.entries.stream()
+                    .setEntries(new ArrayList<>(data.entries.stream()
                         .map(entry -> new Storage.Entry()
                             .setProductionId(UUID.fromString(entry.productionId))
                             .setItemKey(entry.itemKey))
-                        .toList());
+                        .toList()));
                 this.validateStorage(factory, storage);
                 if (this.entities.putIfAbsent(factory.getId(), storage) != null) {
                     throw new IllegalStateException("Duplicate storage data for " + factory.getName());

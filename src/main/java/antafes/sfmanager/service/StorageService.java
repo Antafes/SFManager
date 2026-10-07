@@ -104,6 +104,29 @@ public class StorageService
         this.eventPublisher.publishEvent(new StorageChangedEvent(factory));
     }
 
+    public void removeStorageEntries(List<Storage.Entry> entries) throws IOException
+    {
+        Factory factory = this.getCurrentFactory();
+        if (entries == null || entries.isEmpty()) {
+            throw new IllegalArgumentException("At least one storage entry is required.");
+        }
+
+        Storage storage = this.storageRepository.getStorage(factory);
+        List<Storage.Entry> originalEntries = List.copyOf(storage.getEntries());
+        Set<String> entryKeys = entries.stream().map(this::toEntryKey).collect(Collectors.toSet());
+        if (!originalEntries.stream().map(this::toEntryKey).collect(Collectors.toSet()).containsAll(entryKeys)) {
+            throw new IllegalArgumentException("The selected storage output does not exist.");
+        }
+        storage.getEntries().removeIf(entry -> entryKeys.contains(this.toEntryKey(entry)));
+        try {
+            this.storageRepository.saveStorage(factory, storage);
+        } catch (IOException | RuntimeException failure) {
+            storage.setEntries(new ArrayList<>(originalEntries));
+            throw failure;
+        }
+        this.eventPublisher.publishEvent(new StorageChangedEvent(factory));
+    }
+
     public double getStoredRate(UUID productionId, String itemKey)
     {
         return this.getStoredItems().stream()
