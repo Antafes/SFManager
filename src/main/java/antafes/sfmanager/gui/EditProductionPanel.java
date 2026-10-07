@@ -201,6 +201,25 @@ public class EditProductionPanel extends BasePanel
         this.saveButton.addActionListener(event -> this.saveProduction());
         this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
         this.clockSpeedSlider.addChangeListener(event -> this.syncClockSpeedFieldFromSlider());
+        this.clockSpeedField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent event)
+            {
+                EditProductionPanel.this.updateClockSpeedSliderFromField();
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent event)
+            {
+                EditProductionPanel.this.updateClockSpeedSliderFromField();
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent event)
+            {
+                EditProductionPanel.this.updateClockSpeedSliderFromField();
+            }
+        });
         this.clockSpeedField.addActionListener(event -> this.commitClockSpeedField());
     }
 
@@ -221,6 +240,20 @@ public class EditProductionPanel extends BasePanel
     {
         if (!this.syncingClockSpeed) {
             this.clockSpeedField.setText(this.clockSpeedFormat.format(this.clockSpeedSlider.getValue()));
+        }
+    }
+
+    private void updateClockSpeedSliderFromField()
+    {
+        if (this.syncingClockSpeed) {
+            return;
+        }
+
+        Double clockSpeed = this.parseClockSpeed();
+        if (clockSpeed != null && clockSpeed <= 250) {
+            this.syncingClockSpeed = true;
+            this.clockSpeedSlider.setValue((int) Math.round(clockSpeed));
+            this.syncingClockSpeed = false;
         }
     }
 
