@@ -22,7 +22,6 @@
   -->
 
 <xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:b="http://www.w3schools.com/SFManager/buildings" targetNamespace="http://www.w3schools.com/SFManager/buildings">
-    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2001/03/xml.xsd" />
     <xs:element name="buildings">
         <xs:complexType>
             <xs:sequence>
