@@ -18,8 +18,8 @@
                     </snapshots>
                 </repository>
                 <repository>
-                    <id>github-myxml</id>
-                    <url>https://maven.pkg.github.com/antafes/myxml</url>
+                    <id>github-sf-saveparser</id>
+                    <url>https://maven.pkg.github.com/antafes/SFSaveparser</url>
                     <releases><enabled>true</enabled></releases>
                     <snapshots>
                         <enabled>true</enabled>
@@ -54,7 +54,7 @@
             <password>[[YourPasswordHere]]</password>
         </server>
         <server>
-            <id>github-myxml</id>
+            <id>github-sf-saveparser</id>
             <username>[[YourUsernameHere]]</username>
             <password>[[YourPasswordHere]]</password>
         </server>

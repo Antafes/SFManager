@@ -33,8 +33,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>antafes</groupId>
-    <artifactId>sfmanager</artifactId>
+    <groupId>antafes.sf</groupId>
+    <artifactId>manager</artifactId>
     <version>0.1</version>
 
     <properties>
@@ -47,7 +47,7 @@
 
     <distributionManagement>
         <repository>
-            <id>github-sc-refman</id>
+            <id>github-sfmanager</id>
             <name>Github Antafes SF Manager</name>
             <url>https://maven.pkg.github.com/Antafes/SFManager</url>
         </repository>
@@ -101,21 +101,27 @@
             <artifactId>event-dispatcher</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>antafes.sf</groupId>
+            <artifactId>saveparser</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>SFManager-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
-                    <finalName>SFManager-${project.version}</finalName>
+                    <finalName>${project.build.finalName}</finalName>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>antafes.sfmanager.SFManager</mainClass>
+                            <mainClass>antafes.sf.manager.SFManager</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -201,7 +207,7 @@
                             <icon>${project.basedir}/resources/logo_en_64.ico</icon>
                             <errTitle>App Error</errTitle>
                             <classPath>
-                                <mainClass>antafes.sfmanager.SFManager</mainClass>
+                                <mainClass>antafes.sf.manager.SFManager</mainClass>
                                 <addDependencies>true</addDependencies>
                             </classPath>
                             <jre>
