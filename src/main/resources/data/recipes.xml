@@ -6638,4 +6638,22 @@
             </product>
         </products>
     </recipe>
+    <recipe key="petroleum_coke">
+        <name>
+            <english>Petroleum Coke</english>
+        </name>
+        <producedIn>refinery</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>heavy_oil_residue</resource>
+                <amount>40</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>petroleum_coke</resource>
+                <amount>120</amount>
+            </product>
+        </products>
+    </recipe>
 </recipes>
