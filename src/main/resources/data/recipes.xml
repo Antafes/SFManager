@@ -3079,7 +3079,7 @@
         <producedIn>packager</producedIn>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>30</amount>
             </ingredient>
             <ingredient>
@@ -3194,7 +3194,7 @@
         <producedIn>refinery</producedIn>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>30</amount>
             </ingredient>
         </ingredients>
@@ -3607,7 +3607,7 @@
         <producedIn>refinery</producedIn>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>30</amount>
             </ingredient>
         </ingredients>
@@ -4366,7 +4366,7 @@
         </ingredients>
         <products>
             <product>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>60</amount>
             </product>
             <product>
@@ -5488,7 +5488,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>30</amount>
             </ingredient>
         </ingredients>
@@ -5782,7 +5782,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>200</amount>
             </ingredient>
         </ingredients>
@@ -5920,7 +5920,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>crude_oil</resource>
+                <resource>oil</resource>
                 <amount>60</amount>
             </ingredient>
         </ingredients>

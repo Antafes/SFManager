@@ -613,12 +613,6 @@
             <i:german>Kupferblech</i:german>
         </i:name>
     </i:item>
-    <i:item key="crude_oil">
-        <i:name>
-            <i:english>Crude Oil</i:english>
-            <i:german>Rohöl</i:german>
-        </i:name>
-    </i:item>
     <i:item key="crystal_oscillator">
         <i:name>
             <i:english>Crystal Oscillator</i:english>
