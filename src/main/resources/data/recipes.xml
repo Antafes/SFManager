@@ -6657,4 +6657,27 @@
             </product>
         </products>
     </recipe>
+    <recipe key="fuel">
+        <name>
+            <english>Fuel</english>
+            <german>Treibstoff</german>
+        </name>
+        <producedIn>refinery</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>oil</resource>
+                <amount>60</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>fuel</resource>
+                <amount>40</amount>
+            </product>
+            <product>
+                <resource>polymer_resin</resource>
+                <amount>30</amount>
+            </product>
+        </products>
+    </recipe>
 </recipes>

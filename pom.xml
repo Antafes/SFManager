@@ -35,7 +35,7 @@
 
     <groupId>antafes.sf</groupId>
     <artifactId>manager</artifactId>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
