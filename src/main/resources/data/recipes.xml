@@ -6680,4 +6680,80 @@
             </product>
         </products>
     </recipe>
+    <recipe key="turbofuel">
+        <name>
+            <english>Turbofuel</english>
+            <german>Turbotreibstoff</german>
+        </name>
+        <producedIn>refinery</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>fuel</resource>
+                <amount>22.5</amount>
+            </ingredient>
+            <ingredient>
+                <resource>compacted_coal</resource>
+                <amount>15</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>turbofuel</resource>
+                <amount>18.75</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="rocket_fuel">
+        <name>
+            <english>Rocket Fuel</english>
+            <german>Raketentreibstoff</german>
+        </name>
+        <producedIn>blender</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>turbofuel</resource>
+                <amount>60</amount>
+            </ingredient>
+            <ingredient>
+                <resource>nitric_acid</resource>
+                <amount>10</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>rocket_fuel</resource>
+                <amount>100</amount>
+            </product>
+            <product>
+                <resource>compacted_coal</resource>
+                <amount>10</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="ionized_fuel">
+        <name>
+            <english>Ionized Fuel</english>
+        </name>
+        <producedIn>refinery</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>rocket_fuel</resource>
+                <amount>40</amount>
+            </ingredient>
+            <ingredient>
+                <resource>power_shard</resource>
+                <amount>2.5</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>ionized_fuel</resource>
+                <amount>40</amount>
+            </product>
+            <product>
+                <resource>compacted_coal</resource>
+                <amount>5</amount>
+            </product>
+        </products>
+    </recipe>
 </recipes>
