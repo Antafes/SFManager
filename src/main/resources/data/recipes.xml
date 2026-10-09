@@ -6614,4 +6614,28 @@
             </product>
         </products>
     </recipe>
+    <recipe key="compacted_coal">
+        <name>
+            <english>Compacted Coal</english>
+            <german>Verdichtete Kohle</german>
+        </name>
+        <producedIn>assembler</producedIn>
+        <alternate>true</alternate>
+        <ingredients>
+            <ingredient>
+                <resource>coal</resource>
+                <amount>25</amount>
+            </ingredient>
+            <ingredient>
+                <resource>sulfur</resource>
+                <amount>25</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>compacted_coal</resource>
+                <amount>25</amount>
+            </product>
+        </products>
+    </recipe>
 </recipes>

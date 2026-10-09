@@ -26,6 +26,14 @@
                     </snapshots>
                 </repository>
                 <repository>
+                    <id>github-sf-manager</id>
+                    <url>https://maven.pkg.github.com/antafes/SFManager</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
                     <id>central</id>
                     <url>https://repo1.maven.org/maven2</url>
                     <releases><enabled>true</enabled></releases>
@@ -37,12 +45,6 @@
                     <releases><enabled>true</enabled></releases>
 					<snapshots><enabled>true</enabled></snapshots>
 				</repository>
-                <repository>
-                    <id>github-packer-maven</id>
-                    <url>https://maven.pkg.github.com/stevenmz/packer-maven-plugin</url>
-                    <releases><enabled>true</enabled></releases>
-                    <snapshots><enabled>true</enabled></snapshots>
-                </repository>
             </repositories> 
         </profile>
     </profiles>
@@ -64,7 +66,7 @@
             <password>[[YourPasswordHere]]</password>
         </server>
         <server>
-            <id>github-packer-maven</id>
+            <id>github-sf-manager</id>
             <username>[[YourUsernameHere]]</username>
             <password>[[YourPasswordHere]]</password>
         </server>
