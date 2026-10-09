@@ -6733,6 +6733,7 @@
     <recipe key="ionized_fuel">
         <name>
             <english>Ionized Fuel</english>
+            <german>Ionisierter Treibstoff</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
