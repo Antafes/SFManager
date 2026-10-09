@@ -161,21 +161,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>assembly</id>
-                        <phase>package</phase>
-                        <goals><goal>single</goal></goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/assembly/dep.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.15.0</version>
@@ -215,6 +200,21 @@
                                 <requiresJdk>false</requiresJdk>
                                 <requires64Bit>true</requires64Bit>
                             </jre>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals><goal>single</goal></goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/dep.xml</descriptor>
+                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>
