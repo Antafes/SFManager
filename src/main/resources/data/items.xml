@@ -998,12 +998,6 @@
             <i:german>Funksteuerungseinheit</i:german>
         </i:name>
     </i:item>
-    <i:item key="raw_quartz">
-        <i:name>
-            <i:english>Raw Quartz</i:english>
-            <i:german>Quarz</i:german>
-        </i:name>
-    </i:item>
     <i:item key="reanimated_sam">
         <i:name>
             <i:english>Reanimated SAM</i:english>

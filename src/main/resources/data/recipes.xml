@@ -1633,7 +1633,7 @@
                 <amount>10</amount>
             </ingredient>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>120</amount>
             </ingredient>
         </ingredients>
@@ -1806,7 +1806,7 @@
                 <amount>10</amount>
             </ingredient>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>100</amount>
             </ingredient>
         </ingredients>
@@ -3366,7 +3366,7 @@
         <producedIn>constructor</producedIn>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>37.5</amount>
             </ingredient>
         </ingredients>
@@ -3423,7 +3423,7 @@
             </product>
         </products>
     </recipe>
-    <recipe key="raw_quartz_(bauxite)">
+    <recipe key="quartz_(bauxite)">
         <name>
             <english>Raw Quartz (Bauxite)</english>
             <german>Quarz (Bauxit)</german>
@@ -3441,12 +3441,12 @@
         </ingredients>
         <products>
             <product>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>120</amount>
             </product>
         </products>
     </recipe>
-    <recipe key="raw_quartz_(coal)">
+    <recipe key="quartz_(coal)">
         <name>
             <english>Raw Quartz (Coal)</english>
             <german>Quarz (Kohle)</german>
@@ -3464,7 +3464,7 @@
         </ingredients>
         <products>
             <product>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>120</amount>
             </product>
         </products>
@@ -3680,7 +3680,7 @@
         <producedIn>constructor</producedIn>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>22.5</amount>
             </ingredient>
         </ingredients>
@@ -4732,7 +4732,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>22.5</amount>
             </ingredient>
             <ingredient>
@@ -5320,7 +5320,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>75</amount>
             </ingredient>
             <ingredient>
@@ -5988,7 +5988,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>67.5</amount>
             </ingredient>
             <ingredient>
@@ -6012,7 +6012,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>raw_quartz</resource>
+                <resource>quartz</resource>
                 <amount>120</amount>
             </ingredient>
             <ingredient>
