@@ -6641,6 +6641,7 @@
     <recipe key="petroleum_coke">
         <name>
             <english>Petroleum Coke</english>
+            <german>Petrolkoks</german>
         </name>
         <producedIn>refinery</producedIn>
         <ingredients>
