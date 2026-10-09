@@ -566,12 +566,6 @@
             <i:english>Boom Box</i:english>
         </i:name>
     </i:item>
-    <i:item key="caterium_ore">
-        <i:name>
-            <i:english>Caterium Ore</i:english>
-            <i:german>Cateriumerz</i:german>
-        </i:name>
-    </i:item>
     <i:item key="chainsaw">
         <i:name>
             <i:english>Chainsaw</i:english>

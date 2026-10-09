@@ -1495,7 +1495,7 @@
                 <amount>10</amount>
             </ingredient>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>150</amount>
             </ingredient>
         </ingredients>
@@ -1587,7 +1587,7 @@
         <producedIn>smelter</producedIn>
         <ingredients>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>45</amount>
             </ingredient>
         </ingredients>
@@ -1598,7 +1598,7 @@
             </product>
         </products>
     </recipe>
-    <recipe key="caterium_ore_(copper)">
+    <recipe key="caterium_(copper)">
         <name>
             <english>Caterium Ore (Copper)</english>
             <german>Caterium-Erz (Kupfer)</german>
@@ -1616,12 +1616,12 @@
         </ingredients>
         <products>
             <product>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>120</amount>
             </product>
         </products>
     </recipe>
-    <recipe key="caterium_ore_(quartz)">
+    <recipe key="caterium_(quartz)">
         <name>
             <english>Caterium Ore (Quartz)</english>
             <german>Caterium-Erz (Quarz)</german>
@@ -1639,7 +1639,7 @@
         </ingredients>
         <products>
             <product>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>120</amount>
             </product>
         </products>
@@ -2787,7 +2787,7 @@
                 <amount>10</amount>
             </ingredient>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>120</amount>
             </ingredient>
         </ingredients>
@@ -5652,7 +5652,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>54</amount>
             </ingredient>
             <ingredient>
@@ -5964,7 +5964,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>24</amount>
             </ingredient>
             <ingredient>
@@ -6424,7 +6424,7 @@
         <alternate>true</alternate>
         <ingredients>
             <ingredient>
-                <resource>caterium_ore</resource>
+                <resource>caterium</resource>
                 <amount>45</amount>
             </ingredient>
             <ingredient>
