@@ -35,7 +35,7 @@
 
     <groupId>antafes.sf</groupId>
     <artifactId>manager</artifactId>
-    <version>0.2</version>
+    <version>0.2.1</version>
 
     <properties>
         <maven.compiler.source>25</maven.compiler.source>
@@ -95,11 +95,6 @@
             <groupId>antafes</groupId>
             <artifactId>utilities</artifactId>
             <version>2.2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>antafes</groupId>
-            <artifactId>event-dispatcher</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>antafes.sf</groupId>

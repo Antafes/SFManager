@@ -23,7 +23,6 @@
 package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
-import antafes.sf.manager.SFManager;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.sf.manager.service.FactoryService;
@@ -68,7 +67,7 @@ public class OpenFactoryDialog extends JDialog
         this.setTitle(this.language.translate("openFactory"));
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.setResizable(false);
-        SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
+        this.eventPublisher.publishEvent(new RegisterEscapeCloseOperationEvent(this));
 
         this.factorySelect = new JComboBox<>();
         this.factoryService.getFactories().stream()

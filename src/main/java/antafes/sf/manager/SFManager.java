@@ -22,7 +22,6 @@
 
 package antafes.sf.manager;
 
-import antafes.eventDispatcher.Application;
 import antafes.sf.manager.gui.BaseWindow;
 import antafes.sf.manager.gui.Splash;
 import antafes.sf.manager.repository.*;
@@ -40,7 +39,7 @@ import java.awt.*;
 
 @SpringBootApplication
 @ComponentScan({"antafes.sf.manager", "antafes.sf.saveparser"})
-public class SFManager extends Application implements CommandLineRunner
+public class SFManager implements CommandLineRunner
 {
     @Autowired
     private Configuration configuration;

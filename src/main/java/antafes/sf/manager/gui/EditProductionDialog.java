@@ -88,7 +88,7 @@ public class EditProductionDialog extends JDialog
 
     private void initComponents()
     {
-        SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
+        this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
         this.add(this.applicationContext.getBean(
             EditProductionPanel.class,
             this,

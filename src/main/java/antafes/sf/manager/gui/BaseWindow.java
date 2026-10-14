@@ -23,7 +23,6 @@
 package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
-import antafes.sf.manager.SFManager;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.gui.event.*;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
@@ -92,7 +91,6 @@ public class BaseWindow extends JFrame
     {
         this.language = this.configuration.getLanguageObject();
         this.initComponents();
-        this.registerEvents();
         this.init();
         this.setFieldTexts();
     }
@@ -166,14 +164,14 @@ public class BaseWindow extends JFrame
         menuBar.add(this.languageMenu);
 
         this.newFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
-        this.newFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewFactoryEvent()));
+        this.newFactoryMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new NewFactoryEvent()));
 
         this.openFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
-        this.openFactoryMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new OpenFactoryEvent()));
+        this.openFactoryMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new OpenFactoryEvent()));
         this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
-        this.newProductionMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new NewProductionEvent()));
+        this.newProductionMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new NewProductionEvent()));
         this.newProductionMenuItem.setEnabled(this.factoryService.getCurrentFactory() != null);
 
         this.newStorageMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, InputEvent.CTRL_DOWN_MASK));
@@ -185,33 +183,39 @@ public class BaseWindow extends JFrame
         this.useStorageMenuItem.addActionListener(e -> this.setUseStorage(this.useStorageMenuItem.isSelected()));
 
         this.closeMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, InputEvent.CTRL_DOWN_MASK));
-        this.closeMenuItem.addActionListener(e -> SFManager.getDispatcher().dispatch(new CloseProgramEvent()));
+        this.closeMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new CloseProgramEvent()));
 
         this.setJMenuBar(menuBar);
     }
 
-    private void registerEvents()
+    @EventListener
+    private void onCloseProgram(CloseProgramEvent event)
     {
-        SFManager.getDispatcher().addListener(
-            CloseProgramEvent.class,
-            new CloseProgramListener((closeProgramEvent) -> this.closeProgram())
-        );
-        SFManager.getDispatcher().addListener(
-            NewProductionEvent.class,
-            new NewProductionListener(newProductionEvent -> this.openNewProductionDialog())
-        );
-        SFManager.getDispatcher().addListener(
-            NewFactoryEvent.class,
-            new NewFactoryListener(newFactoryEvent -> this.openNewFactoryDialog())
-        );
-        SFManager.getDispatcher().addListener(
-            OpenFactoryEvent.class,
-            new OpenFactoryListener(openFactoryEvent -> this.openFactoryDialog())
-        );
-        SFManager.getDispatcher().addListener(
-            RegisterEscapeCloseOperationEvent.class,
-            new RegisterEscapeCloseOperationListener((event) -> this.registerEscapeCloseOperation(event.getDialog()))
-        );
+        this.closeProgram();
+    }
+
+    @EventListener
+    private void onNewProduction(NewProductionEvent event)
+    {
+        this.openNewProductionDialog();
+    }
+
+    @EventListener
+    private void onNewFactory(NewFactoryEvent event)
+    {
+        this.openNewFactoryDialog();
+    }
+
+    @EventListener
+    private void onOpenFactory(OpenFactoryEvent event)
+    {
+        this.openFactoryDialog();
+    }
+
+    @EventListener
+    private void onRegisterEscapeCloseOperation(RegisterEscapeCloseOperationEvent event)
+    {
+        this.registerEscapeCloseOperation(event.dialog());
     }
 
     private void openNewProductionDialog()
