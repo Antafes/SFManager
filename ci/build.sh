@@ -40,7 +40,7 @@ VERSION=`cat VERSION`
 $( pwd )/ci/set-m2-settings.sh ${ACCESS_TOKEN}
 
 # Start build without tests
-mvn -Dmaven.test.skip=true clean package
+mvn -Drevision=${VERSION} -Dmaven.test.skip=true clean package
 
 cp target/*.zip ../dist
 

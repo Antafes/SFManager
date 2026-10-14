@@ -28,3 +28,6 @@ replay_pid*
 /resources/
 /.aiassistant/
 /ci/variables.yml
+
+.flattened-pom.xml
+/.mvn/maven.config

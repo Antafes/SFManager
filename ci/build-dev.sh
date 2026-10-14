@@ -38,11 +38,11 @@ fi
 $( pwd )/ci/set-m2-settings.sh ${ACCESS_TOKEN}
 
 # Start build without tests
-mvn -Dmaven.test.skip=true clean package
+TAG=`cat VERSION`
+mvn -Drevision=${TAG} -Dmaven.test.skip=true clean package
 
 cp target/*.zip ../dist
 DATE=`date +%d%m%Y%H%M`
 echo "build-$DATE" >> ../dist/name
-TAG=`cat VERSION`
 echo "$TAG-$DATE" >> ../dist/tag
 cp .git/ref ../dist/commit_sha
