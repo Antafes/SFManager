@@ -12,3 +12,4 @@ build/
 out/
 
 .m2/settings.xml
+ci/variables.yml

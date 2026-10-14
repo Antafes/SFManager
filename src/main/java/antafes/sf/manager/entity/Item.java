@@ -35,5 +35,6 @@ public class Item
     private String key;
     private Name name;
     private String icon;
+    private boolean handCollected;
     private List<Production> productions;
 }

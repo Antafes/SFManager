@@ -426,28 +426,28 @@
         </i:name>
         <i:icon>images/items/biomass.webp</i:icon>
     </i:item>
-    <i:item key="alien_protein">
+    <i:item key="alien_protein" handCollected="true">
         <i:name>
             <i:english>Alien Protein</i:english>
             <i:german>Alien-Protein</i:german>
         </i:name>
         <i:icon>images/items/alien_protein.webp</i:icon>
     </i:item>
-    <i:item key="leaves">
+    <i:item key="leaves" handCollected="true">
         <i:name>
             <i:english>Leaves</i:english>
             <i:german>Blätter</i:german>
         </i:name>
         <i:icon>images/items/leaves.webp</i:icon>
     </i:item>
-    <i:item key="mycelia">
+    <i:item key="mycelia" handCollected="true">
         <i:name>
             <i:english>Mycelia</i:english>
             <i:german>Myzelium</i:german>
         </i:name>
         <i:icon>images/items/mycelia.webp</i:icon>
     </i:item>
-    <i:item key="wood">
+    <i:item key="wood" handCollected="true">
         <i:name>
             <i:english>Wood</i:english>
             <i:german>Holz</i:german>

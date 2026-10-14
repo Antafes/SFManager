@@ -368,7 +368,9 @@ public class NewProductionPanel extends BasePanel
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
         boolean visible = selectedRecipe != null
             && selectedRecipe.getIngredients() != null
-            && !selectedRecipe.getIngredients().isEmpty();
+            && selectedRecipe.getIngredients().stream()
+                .anyMatch(ingredient -> ingredient.getResource() == null
+                    || !ingredient.getResource().isHandCollected());
         this.materialSourcesLabel.setVisible(visible);
         this.materialSourcesPanel.setVisible(visible);
         if (!visible) {
@@ -381,6 +383,9 @@ public class NewProductionPanel extends BasePanel
             antafes.sf.manager.entity.Item item = ingredient.getResource();
             if (item == null || item.getKey() == null) {
                 throw new IllegalStateException("A recipe ingredient has no material.");
+            }
+            if (item.isHandCollected()) {
+                continue;
             }
             JLabel itemLabel = new JLabel(
                 item.getName().getLocalizedName(this.selectedLanguage) + " *"

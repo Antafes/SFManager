@@ -80,6 +80,7 @@ public class ItemRepository extends BaseRepository<Item, String>
             .setKey(data.key)
             .setName(name)
             .setIcon(data.icon == null || data.icon.isBlank() ? FALLBACK_ICON_PATH : data.icon)
+            .setHandCollected(Boolean.TRUE.equals(data.handCollected))
             .setProductions(productions);
     }
 }
