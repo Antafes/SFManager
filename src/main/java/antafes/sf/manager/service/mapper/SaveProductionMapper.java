@@ -208,12 +208,10 @@ public class SaveProductionMapper
 
     private static String formatPosition(ActorHeader actor)
     {
-        if (actor.position().size() < 3) {
+        if (actor.position().size() < 2) {
             return null;
         }
-        return toMeters(actor.position().get(0)) + ", "
-            + toMeters(actor.position().get(1)) + ", "
-            + toMeters(actor.position().get(2));
+        return toMeters(actor.position().get(0)) + ", " + toMeters(actor.position().get(1));
     }
 
     private static long toMeters(double centimeters)
