@@ -443,10 +443,7 @@ public class BaseWindow extends JFrame
                         ));
                         return;
                     }
-                    BaseWindow.this.showImportError(
-                        BaseWindow.this.language.translate("importParseError")
-                            + "\n" + exception.getCause().getMessage()
-                    );
+                    BaseWindow.this.showImportError(BaseWindow.this.language.translate("importParseError"));
                 }
             }
         }.execute();
@@ -485,10 +482,10 @@ public class BaseWindow extends JFrame
             this.importService.importFactory(result, name.toString().trim());
             this.openFactoryMenuItem.setEnabled(true);
         } catch (IllegalArgumentException exception) {
-            this.showImportError(this.language.translate("importInvalidName") + "\n" + exception.getMessage());
+            this.showImportError(this.language.translate("importInvalidName"));
         } catch (IOException | RuntimeException exception) {
             Logger.getLogger(BaseWindow.class.getName()).log(Level.SEVERE, null, exception);
-            this.showImportError(this.language.translate("importFailed") + "\n" + exception.getMessage());
+            this.showImportError(this.language.translate("importFailed"));
         }
     }
 
