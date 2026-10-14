@@ -28,7 +28,6 @@ import antafes.sf.manager.repository.ProductionRepository;
 import antafes.sf.manager.service.dto.ImportResult;
 import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
-import antafes.sf.manager.service.event.ProductionSavedEvent;
 import antafes.sf.manager.service.mapper.SaveProductionMapper;
 import antafes.sf.saveparser.SaveParserService;
 import antafes.sf.saveparser.dto.ParsedSave;
@@ -95,7 +94,7 @@ public class ImportService
 
     /**
      * Creates a factory with the imported productions. If any step fails, the new factory and its
-     * productions are removed again and no events are published.
+     * productions are removed again. Listeners are not notified, see {@link #publishImport}.
      *
      * @throws IllegalArgumentException if the name is invalid, already used, or there is nothing to import
      * @throws IOException if persisting fails
@@ -119,9 +118,16 @@ public class ImportService
             throw failure;
         }
 
-        this.eventPublisher.publishEvent(new FactorySelectedEvent(factory));
-        productions.forEach(production -> this.eventPublisher.publishEvent(new ProductionSavedEvent(production)));
         return factory;
+    }
+
+    /**
+     * Announces a successfully imported factory to the listeners. A single event is published on purpose, as every
+     * listener refresh rebuilds the whole UI.
+     */
+    public void publishImport(Factory factory)
+    {
+        this.eventPublisher.publishEvent(new FactorySelectedEvent(factory));
     }
 
     private ImportResult mapSave(ParsedSave save) throws UnsupportedSaveVersionException

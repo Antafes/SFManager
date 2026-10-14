@@ -133,6 +133,7 @@ class ImportServiceTest extends BaseTest
 
             ImportResult result = this.importService.readSave(this.fixture());
             Factory factory = this.importService.importFactory(result, "Imported Factory");
+            this.importService.publishImport(factory);
 
             assertEquals(24, factory.getProductions().size());
             assertTrue(context.getBean(FactoryService.class).getFactories().stream()

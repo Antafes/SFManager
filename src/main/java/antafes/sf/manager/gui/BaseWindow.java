@@ -419,6 +419,7 @@ public class BaseWindow extends JFrame
         this.configuration.saveProperties();
         java.nio.file.Path path = chooser.getSelectedFile().toPath();
         this.importFactoryMenuItem.setEnabled(false);
+        JDialog loadingDialog = this.createLoadingDialog("importLoading");
         new SwingWorker<ImportResult, Void>()
         {
             @Override
@@ -430,6 +431,7 @@ public class BaseWindow extends JFrame
             @Override
             protected void done()
             {
+                loadingDialog.dispose();
                 BaseWindow.this.importFactoryMenuItem.setEnabled(true);
                 try {
                     BaseWindow.this.finishImport(this.get());
@@ -447,6 +449,27 @@ public class BaseWindow extends JFrame
                 }
             }
         }.execute();
+        loadingDialog.setVisible(true);
+    }
+
+    private JDialog createLoadingDialog(String messageKey)
+    {
+        JDialog dialog = new JDialog(this, this.language.translate("importFactoryMenu"), true);
+        dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        dialog.setResizable(false);
+
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        JPanel content = new JPanel(new java.awt.BorderLayout(0, 10));
+        content.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        content.add(new JLabel(this.language.translate(messageKey)), java.awt.BorderLayout.NORTH);
+        content.add(progressBar, java.awt.BorderLayout.CENTER);
+        dialog.setContentPane(content);
+        dialog.pack();
+        dialog.setMinimumSize(new java.awt.Dimension(300, dialog.getHeight()));
+        dialog.setLocationRelativeTo(this);
+
+        return dialog;
     }
 
     private void finishImport(ImportResult result)
@@ -478,15 +501,50 @@ public class BaseWindow extends JFrame
             return;
         }
 
-        try {
-            this.importService.importFactory(result, name.toString().trim());
-            this.openFactoryMenuItem.setEnabled(true);
-        } catch (IllegalArgumentException exception) {
-            this.showImportError(this.language.translate("importInvalidName"));
-        } catch (IOException | RuntimeException exception) {
-            Logger.getLogger(BaseWindow.class.getName()).log(Level.SEVERE, null, exception);
-            this.showImportError(this.language.translate("importFailed"));
-        }
+        this.persistImport(result, name.toString().trim());
+    }
+
+    private void persistImport(ImportResult result, String name)
+    {
+        this.importFactoryMenuItem.setEnabled(false);
+        JDialog loadingDialog = this.createLoadingDialog("importCreating");
+        new SwingWorker<Factory, Void>()
+        {
+            @Override
+            protected Factory doInBackground() throws Exception
+            {
+                return BaseWindow.this.importService.importFactory(result, name);
+            }
+
+            @Override
+            protected void done()
+            {
+                try {
+                    Factory factory = this.get();
+                    BaseWindow.this.importService.publishImport(factory);
+                    BaseWindow.this.openFactoryMenuItem.setEnabled(true);
+                    // The listeners refresh the UI via invokeLater, so closing is queued behind them.
+                    SwingUtilities.invokeLater(() -> {
+                        loadingDialog.dispose();
+                        BaseWindow.this.importFactoryMenuItem.setEnabled(true);
+                    });
+                } catch (InterruptedException exception) {
+                    loadingDialog.dispose();
+                    BaseWindow.this.importFactoryMenuItem.setEnabled(true);
+                    Thread.currentThread().interrupt();
+                } catch (java.util.concurrent.ExecutionException exception) {
+                    loadingDialog.dispose();
+                    BaseWindow.this.importFactoryMenuItem.setEnabled(true);
+                    if (exception.getCause() instanceof IllegalArgumentException) {
+                        BaseWindow.this.showImportError(BaseWindow.this.language.translate("importInvalidName"));
+                        return;
+                    }
+                    Logger.getLogger(BaseWindow.class.getName()).log(Level.SEVERE, null, exception.getCause());
+                    BaseWindow.this.showImportError(BaseWindow.this.language.translate("importFailed"));
+                }
+            }
+        }.execute();
+        loadingDialog.setVisible(true);
     }
 
     private void showImportError(String message)

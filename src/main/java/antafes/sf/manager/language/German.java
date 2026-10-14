@@ -54,6 +54,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("importSummary", "%d Produktionen werden importiert (%d Maschinen übersprungen). Fabrikname:");
         this.getTranslations().put("importInvalidName", "Die Fabrik konnte nicht angelegt werden. Bitte einen gültigen Namen verwenden, der nicht bereits von einer anderen Fabrik genutzt wird.");
         this.getTranslations().put("importFailed", "Der Import ist fehlgeschlagen.");
+        this.getTranslations().put("importLoading", "Spielstand wird gelesen…");
+        this.getTranslations().put("importCreating", "Fabrik und Produktionen werden angelegt…");
         this.getTranslations().put(
             "importUnsupportedVersion",
             "Dieser Spielstand (Speicherversion %d) ist zu alt. Seine Maschinendaten können nicht gelesen werden, daher kann er nicht importiert werden."
