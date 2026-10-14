@@ -27,6 +27,7 @@ import antafes.sf.manager.entity.*;
 import antafes.sf.manager.repository.xml.productions.ProductionData;
 import antafes.sf.manager.repository.xml.productions.ProductionsData;
 import antafes.sf.manager.util.FactoryName;
+import antafes.sf.manager.util.NaturalOrder;
 import antafes.utilities.Utilities;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
@@ -68,7 +69,7 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
                 && buildingKey.equals(production.getSelectedBuilding().getKey()))
             .sorted(Comparator.comparing(
                     Production::getGroup,
-                    Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)
+                    NaturalOrder.COMPARATOR
                 )
                 .thenComparing(production -> Objects.toString(production.getId(), "")))
             .toList();
