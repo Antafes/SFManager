@@ -30,6 +30,7 @@ import antafes.sf.manager.repository.RecipeRepository;
 import antafes.sf.manager.service.dto.*;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
 import antafes.sf.manager.service.event.ProductionSavedEvent;
+import antafes.sf.manager.util.NaturalOrder;
 import antafes.sf.manager.util.PowerCalculator;
 import antafes.sf.manager.util.ProductionCalculator;
 import org.springframework.beans.factory.ObjectProvider;
@@ -312,7 +313,7 @@ public class ProductionService
             .map(Production::getGroup)
             .filter(group -> group != null && !group.isBlank())
             .distinct()
-            .sorted(String.CASE_INSENSITIVE_ORDER)
+            .sorted(NaturalOrder.COMPARATOR)
             .toList();
     }
 
@@ -331,7 +332,7 @@ public class ProductionService
             .filter(production -> production.getGroup() != null && !production.getGroup().isBlank())
             .collect(Collectors.groupingBy(
                 Production::getGroup,
-                () -> new TreeMap<>(String.CASE_INSENSITIVE_ORDER),
+                () -> new TreeMap<>(NaturalOrder.COMPARATOR),
                 Collectors.summingDouble(production ->
                     this.getMaterialSourceProduction(production, item, productionsById)
                 )
@@ -1215,6 +1216,7 @@ public class ProductionService
                 }
                 return production;
             })
+            .sorted(Comparator.comparing(Production::getGroup, NaturalOrder.COMPARATOR))
             .toList();
     }
 }

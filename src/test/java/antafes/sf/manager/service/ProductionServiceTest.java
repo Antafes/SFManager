@@ -1197,6 +1197,52 @@ public class ProductionServiceTest extends BaseTest
         }
     }
 
+    @Test
+    public void testSortsGroupsAndProductionsNaturally() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Natural Order Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building building = this.productionService.getBuildings().stream()
+                .filter(candidate -> "smelter".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe recipe = this.productionService.getRecipesForBuilding(building.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            for (String group : List.of("Group 10", "Group 2", "Group 1")) {
+                this.productionService.saveProduction(new Production()
+                    .setSelectedBuilding(building)
+                    .setSelectedRecipe(recipe)
+                    .setGroup(group)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+            }
+
+            assertEquals(
+                List.of("Group 1", "Group 2", "Group 10"),
+                this.productionService.getProductionGroups()
+            );
+            assertEquals(
+                List.of("Group 1", "Group 2", "Group 10"),
+                this.productionService.getRecipeProductions(recipe.getProducts().getFirst().getResource()).stream()
+                    .map(entry -> entry.production().getGroup())
+                    .toList()
+            );
+        }
+    }
+
     private ProductionMaterialSource source(String itemKey, String group)
     {
         return new ProductionMaterialSource().setItemKey(itemKey).setGroup(group);

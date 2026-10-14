@@ -121,11 +121,11 @@ public class ResourceProductionPanelTest extends BaseTest
             List<ResourceProductionEntry> entries = productionService.getResourceProductions(water);
             assertEquals(4, entries.size());
             assertEquals(1, productionService.getResourceProductions(iron).size());
-            assertEquals(pressurizer, entries.get(0).pressurizer());
-            assertEquals(60, entries.get(0).baseAmount());
+            assertEquals(pressurizer, entries.get(1).pressurizer());
+            assertEquals(120, entries.get(0).baseAmount());
             assertEquals(60, entries.get(1).baseAmount());
             assertEquals(60, entries.get(2).baseAmount());
-            assertEquals(120, entries.get(3).baseAmount());
+            assertEquals(60, entries.get(3).baseAmount());
 
             ResourceProductionPanel panel = context.getBean(
                 ResourceProductionPanel.class,
@@ -151,56 +151,56 @@ public class ResourceProductionPanelTest extends BaseTest
             assertTrue(table.getColumnModel().getColumn(8).getPreferredWidth() <= 50);
             assertTrue(table.getColumnModel().getColumn(9).getPreferredWidth() <= 50);
             assertTrue(table.getColumnModel().getColumn(10).getPreferredWidth() <= 50);
-            assertEquals("Resource Well Pressurizer", table.getValueAt(0, 0));
-            assertEquals("W1", table.getValueAt(0, 1));
-            assertEquals("Well Group", table.getValueAt(0, 2));
-            assertEquals("150%", table.getValueAt(0, 4));
-            assertTrue(table.getValueAt(0, 7).toString().endsWith(" MW"));
-            assertEquals("Resource Well Extractor", table.getValueAt(1, 0));
+            assertEquals("Resource Well Pressurizer", table.getValueAt(1, 0));
+            assertEquals("W1", table.getValueAt(1, 1));
             assertEquals("Well Group", table.getValueAt(1, 2));
-            assertEquals("Pure", table.getValueAt(1, 3));
-            assertEquals("180 / min", table.getValueAt(1, 5));
-            assertEquals("", table.getValueAt(1, 1));
-            assertEquals("", table.getValueAt(1, 4));
-            assertEquals("", table.getValueAt(1, 7));
+            assertEquals("150%", table.getValueAt(1, 4));
+            assertTrue(table.getValueAt(1, 7).toString().endsWith(" MW"));
             assertEquals("Resource Well Extractor", table.getValueAt(2, 0));
             assertEquals("Well Group", table.getValueAt(2, 2));
             assertEquals("Pure", table.getValueAt(2, 3));
             assertEquals("180 / min", table.getValueAt(2, 5));
+            assertEquals("", table.getValueAt(2, 1));
+            assertEquals("", table.getValueAt(2, 4));
+            assertEquals("", table.getValueAt(2, 7));
             assertEquals("Resource Well Extractor", table.getValueAt(3, 0));
             assertEquals("Well Group", table.getValueAt(3, 2));
-            assertEquals("Normal", table.getValueAt(3, 3));
-            assertEquals("90 / min", table.getValueAt(3, 5));
-            assertEquals("Water Extractor", table.getValueAt(4, 0));
-            assertEquals("W2", table.getValueAt(4, 1));
-            assertEquals("Water Group", table.getValueAt(4, 2));
-            assertEquals("120 / min", table.getValueAt(4, 5));
-            assertEquals("20 MW", table.getValueAt(4, 7));
+            assertEquals("Pure", table.getValueAt(3, 3));
+            assertEquals("180 / min", table.getValueAt(3, 5));
+            assertEquals("Resource Well Extractor", table.getValueAt(4, 0));
+            assertEquals("Well Group", table.getValueAt(4, 2));
+            assertEquals("Normal", table.getValueAt(4, 3));
+            assertEquals("90 / min", table.getValueAt(4, 5));
+            assertEquals("Water Extractor", table.getValueAt(0, 0));
+            assertEquals("W2", table.getValueAt(0, 1));
+            assertEquals("Water Group", table.getValueAt(0, 2));
+            assertEquals("120 / min", table.getValueAt(0, 5));
+            assertEquals("20 MW", table.getValueAt(0, 7));
             for (int row = 0; row < table.getRowCount(); row++) {
-                assertEquals(row == 0 ? "" : "0 / min", table.getValueAt(row, 6));
+                assertEquals(row == 1 ? "" : "0 / min", table.getValueAt(row, 6));
                 assertEquals(null, table.getValueAt(row, 8));
                 assertNotNull(table.getValueAt(row, 9));
                 assertNotNull(table.getValueAt(row, 10));
                 assertFalse(table.isCellEditable(row, 8));
             }
-            assertFalse(table.getCellRenderer(0, 8).getTableCellRendererComponent(
+            assertFalse(table.getCellRenderer(1, 8).getTableCellRendererComponent(
                 table,
-                table.getValueAt(0, 8),
+                table.getValueAt(1, 8),
                 false,
                 false,
-                0,
+                1,
                 8
             ) instanceof JButton);
             ProductionEditButtonEditor editButton = new ProductionEditButtonEditor(
                 this.configuration.getLanguageObject(),
-                productionId -> productionId.equals(table.getValueAt(0, 9)),
+                productionId -> productionId.equals(table.getValueAt(1, 9)),
                 panel::refresh
             );
             JButton edit = (JButton) editButton.getTableCellEditorComponent(
                 table,
-                table.getValueAt(0, 9),
+                table.getValueAt(1, 9),
                 false,
-                0,
+                1,
                 9
             );
             assertEquals("", edit.getText());
@@ -215,17 +215,17 @@ public class ResourceProductionPanelTest extends BaseTest
             );
             Component deleteRenderer = deleteButton.getTableCellRendererComponent(
                 table,
-                table.getValueAt(0, 10),
+                table.getValueAt(1, 10),
                 false,
                 false,
-                0,
+                1,
                 10
             );
             JButton button = (JButton) deleteButton.getTableCellEditorComponent(
                 table,
-                table.getValueAt(0, 10),
+                table.getValueAt(1, 10),
                 false,
-                0,
+                1,
                 10
             );
             assertNotSame(deleteRenderer, button);
