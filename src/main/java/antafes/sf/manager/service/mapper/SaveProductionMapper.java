@@ -211,9 +211,14 @@ public class SaveProductionMapper
         if (actor.position().size() < 3) {
             return null;
         }
-        return Math.round(actor.position().get(0)) + ", "
-            + Math.round(actor.position().get(1)) + ", "
-            + Math.round(actor.position().get(2));
+        return toMeters(actor.position().get(0)) + ", "
+            + toMeters(actor.position().get(1)) + ", "
+            + toMeters(actor.position().get(2));
+    }
+
+    private static long toMeters(double centimeters)
+    {
+        return Math.round(centimeters / 100);
     }
 
     private synchronized Properties getMapping()
