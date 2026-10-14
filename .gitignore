@@ -27,3 +27,4 @@ replay_pid*
 /target/
 /resources/
 /.aiassistant/
+/ci/variables.yml
