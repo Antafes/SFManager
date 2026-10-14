@@ -4612,6 +4612,7 @@
     <recipe key="biocoal">
         <name>
             <english>Biocoal</english>
+            <german>Biokohle</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -4707,6 +4708,7 @@
     <recipe key="charcoal">
         <name>
             <english>Charcoal</english>
+            <german>Holzkohle</german>
         </name>
         <producedIn>constructor</producedIn>
         <alternate>true</alternate>
@@ -6754,6 +6756,48 @@
             <product>
                 <resource>compacted_coal</resource>
                 <amount>5</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="solid_biofuel">
+        <name>
+            <english>Solid Biofuel</english>
+            <german>Fester Biotreibstoff</german>
+        </name>
+        <producedIn>constructor</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>biomass</resource>
+                <amount>120</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>solid_biofuel</resource>
+                <amount>60</amount>
+            </product>
+        </products>
+    </recipe>
+    <recipe key="liquid_biofuel">
+        <name>
+            <english>Liquid Biofuel</english>
+            <german>Flüssiger Biotreibstoff</german>
+        </name>
+        <producedIn>refinery</producedIn>
+        <ingredients>
+            <ingredient>
+                <resource>solid_biofuel</resource>
+                <amount>90</amount>
+            </ingredient>
+            <ingredient>
+                <resource>water</resource>
+                <amount>45</amount>
+            </ingredient>
+        </ingredients>
+        <products>
+            <product>
+                <resource>liquid_biofuel</resource>
+                <amount>60</amount>
             </product>
         </products>
     </recipe>
