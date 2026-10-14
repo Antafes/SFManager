@@ -79,7 +79,7 @@ public class RepositoryLoadingTest extends BaseTest
     {
         ItemRepository repository = this.context.getBean(ItemRepository.class);
 
-        assertEquals(184, repository.findAll().size());
+        assertEquals(182, repository.findAll().size());
         Item iron = repository.findOne("iron");
         assertNotNull(iron);
         assertEquals("Iron Ore", iron.getName().getEnglish());
@@ -103,7 +103,7 @@ public class RepositoryLoadingTest extends BaseTest
     {
         RecipeRepository repository = this.context.getBean(RecipeRepository.class);
 
-        assertEquals(280, repository.findAll().size());
+        assertEquals(286, repository.findAll().size());
         assertNull(repository.findOne("well_extractor_crude_oil"));
         assertNull(repository.findOne("well_extractor_water"));
         assertNull(repository.findOne("well_extractor_nitrogen"));
