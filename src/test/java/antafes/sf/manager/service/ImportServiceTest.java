@@ -31,6 +31,11 @@ import antafes.sf.manager.service.dto.ImportResult;
 import antafes.sf.manager.service.dto.SkippedMachine;
 import antafes.sf.manager.service.mapper.SaveProductionMapper;
 import antafes.sf.saveparser.SaveParser;
+import antafes.sf.saveparser.SaveParserService;
+import antafes.sf.saveparser.dto.ParsedSave;
+import antafes.sf.saveparser.dto.SaveFileInfo;
+import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
@@ -44,6 +49,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ImportServiceTest extends BaseTest
 {
@@ -174,6 +182,27 @@ class ImportServiceTest extends BaseTest
                     assertNotNull(recipes.findOne(value), key);
                 }
             });
+        }
+    }
+
+    @Test
+    void testOldSaveVersionIsRejected() throws IOException
+    {
+        SaveParserService parser = mock(SaveParserService.class);
+        ParsedSave save = mock(ParsedSave.class);
+        SaveFileInfo info = mock(SaveFileInfo.class);
+        when(info.saveVersion()).thenReturn(36L);
+        when(save.fileInfo()).thenReturn(info);
+        when(parser.readFullSaveFile(any(InputStream.class))).thenReturn(save);
+        try (AnnotationConfigApplicationContext context = this.context()) {
+            ImportService service = new ImportService();
+            ReflectionTestUtils.setField(service, "saveParserService", parser);
+
+            UnsupportedSaveVersionException exception = assertThrows(
+                UnsupportedSaveVersionException.class,
+                () -> service.readSave(new ByteArrayInputStream(new byte[0]))
+            );
+            assertEquals(36, exception.getSaveVersion());
         }
     }
 

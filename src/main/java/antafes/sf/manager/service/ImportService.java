@@ -26,10 +26,12 @@ import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.repository.ProductionRepository;
 import antafes.sf.manager.service.dto.ImportResult;
+import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import antafes.sf.manager.service.event.ProductionSavedEvent;
 import antafes.sf.manager.service.mapper.SaveProductionMapper;
 import antafes.sf.saveparser.SaveParserService;
+import antafes.sf.saveparser.dto.ParsedSave;
 import antafes.sf.saveparser.error.SaveParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -47,6 +49,9 @@ import java.util.UUID;
 @Service
 public class ImportService
 {
+    // The parser returns empty object data for this save version, so no machine settings can be read.
+    private static final long SAVE_VERSION_WITHOUT_OBJECT_DATA = 36;
+
     @Autowired
     private SaveParserService saveParserService;
     @Autowired
@@ -61,12 +66,13 @@ public class ImportService
     /**
      * Parses the save file and maps its machines. Nothing is persisted.
      *
+     * @throws UnsupportedSaveVersionException if the save version does not contain machine data
      * @throws IOException if the file cannot be read or is not a valid save
      */
     public ImportResult readSave(Path path) throws IOException
     {
         try {
-            return this.saveProductionMapper.map(this.saveParserService.readFullSaveFile(path));
+            return this.mapSave(this.saveParserService.readFullSaveFile(path));
         } catch (SaveParseException exception) {
             throw new IOException(exception.getMessage(), exception);
         }
@@ -75,12 +81,13 @@ public class ImportService
     /**
      * Parses the save stream and maps its machines. Nothing is persisted.
      *
+     * @throws UnsupportedSaveVersionException if the save version does not contain machine data
      * @throws IOException if the stream cannot be read or is not a valid save
      */
     public ImportResult readSave(InputStream inputStream) throws IOException
     {
         try {
-            return this.saveProductionMapper.map(this.saveParserService.readFullSaveFile(inputStream));
+            return this.mapSave(this.saveParserService.readFullSaveFile(inputStream));
         } catch (SaveParseException exception) {
             throw new IOException(exception.getMessage(), exception);
         }
@@ -115,6 +122,17 @@ public class ImportService
         this.eventPublisher.publishEvent(new FactorySelectedEvent(factory));
         productions.forEach(production -> this.eventPublisher.publishEvent(new ProductionSavedEvent(production)));
         return factory;
+    }
+
+    private ImportResult mapSave(ParsedSave save) throws UnsupportedSaveVersionException
+    {
+        long saveVersion = save.fileInfo().saveVersion();
+
+        if (saveVersion == SAVE_VERSION_WITHOUT_OBJECT_DATA) {
+            throw new UnsupportedSaveVersionException(saveVersion);
+        }
+
+        return this.saveProductionMapper.map(save);
     }
 
     private void rollback(Factory factory, List<UUID> productionIds, Exception failure)

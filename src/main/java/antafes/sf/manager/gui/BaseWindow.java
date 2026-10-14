@@ -31,6 +31,7 @@ import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ImportService;
 import antafes.sf.manager.service.dto.ImportResult;
+import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
@@ -435,6 +436,13 @@ public class BaseWindow extends JFrame
                 } catch (InterruptedException exception) {
                     Thread.currentThread().interrupt();
                 } catch (java.util.concurrent.ExecutionException exception) {
+                    if (exception.getCause() instanceof UnsupportedSaveVersionException unsupported) {
+                        BaseWindow.this.showImportError(String.format(
+                            BaseWindow.this.language.translate("importUnsupportedVersion"),
+                            unsupported.getSaveVersion()
+                        ));
+                        return;
+                    }
                     BaseWindow.this.showImportError(
                         BaseWindow.this.language.translate("importParseError")
                             + "\n" + exception.getCause().getMessage()
