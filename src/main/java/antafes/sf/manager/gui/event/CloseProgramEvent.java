@@ -22,8 +22,6 @@
 
 package antafes.sf.manager.gui.event;
 
-import scripts.laniax.framework.event_dispatcher.Event;
-
-public class CloseProgramEvent extends Event
+public record CloseProgramEvent()
 {
 }

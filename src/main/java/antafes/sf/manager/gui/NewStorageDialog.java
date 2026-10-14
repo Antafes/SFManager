@@ -23,7 +23,6 @@
 package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
-import antafes.sf.manager.SFManager;
 import antafes.sf.manager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -57,7 +56,7 @@ public class NewStorageDialog extends JDialog
         this.language = this.configuration.getLanguageObject();
         this.setResizable(false);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
+        this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
 
         NewStoragePanel panel = this.applicationContext.getBean(
             NewStoragePanel.class,

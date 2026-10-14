@@ -87,7 +87,7 @@ public class NewProductionDialog extends JDialog
     {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
-        SFManager.getDispatcher().dispatch(new RegisterEscapeCloseOperationEvent(this));
+        this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
 
         NewProductionPanel panel = this.applicationContext.getBean(
             NewProductionPanel.class, this, this.configuration

@@ -22,8 +22,6 @@
 
 package antafes.sf.manager.gui.event;
 
-import scripts.laniax.framework.event_dispatcher.Event;
-
-public class NewProductionEvent extends Event
+public record NewProductionEvent()
 {
 }

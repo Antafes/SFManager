@@ -22,17 +22,8 @@
 
 package antafes.sf.manager.gui.event;
 
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import scripts.laniax.framework.event_dispatcher.Event;
-
 import javax.swing.*;
 
-@Getter
-@RequiredArgsConstructor
-public class RegisterEscapeCloseOperationEvent extends Event
+public record RegisterEscapeCloseOperationEvent(JDialog dialog)
 {
-    @NonNull
-    private JDialog dialog;
 }
