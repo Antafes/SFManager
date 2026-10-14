@@ -38,6 +38,8 @@ public class ItemsData
     {
         @XmlAttribute
         public String key;
+        @XmlAttribute
+        public Boolean handCollected;
         public NameData name;
         public String icon;
 

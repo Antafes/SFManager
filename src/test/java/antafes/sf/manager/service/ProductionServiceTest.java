@@ -1153,6 +1153,50 @@ public class ProductionServiceTest extends BaseTest
         }
     }
 
+    @Test
+    public void testHandCollectedIngredientsNeedNoMaterialSource() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Hand Collected Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building constructor = this.productionService.getBuildings().stream()
+                .filter(candidate -> "constructor".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe biomass = this.productionService.getRecipesForBuilding(constructor.getKey()).stream()
+                .filter(candidate -> "biomass_wood".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow();
+            assertTrue(biomass.getIngredients().getFirst().getResource().isHandCollected());
+
+            Production production = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(constructor)
+                .setSelectedRecipe(biomass)
+                .setMaterialSources(List.of())
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            assertNotNull(production.getId());
+
+            Production withSource = new Production()
+                .setSelectedBuilding(constructor)
+                .setSelectedRecipe(biomass)
+                .setMaterialSources(List.of(this.source("wood", "Forest")))
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0);
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.saveProduction(withSource));
+        }
+    }
+
     private ProductionMaterialSource source(String itemKey, String group)
     {
         return new ProductionMaterialSource().setItemKey(itemKey).setGroup(group);

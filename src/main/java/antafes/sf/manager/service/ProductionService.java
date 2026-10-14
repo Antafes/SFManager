@@ -1028,6 +1028,9 @@ public class ProductionService
                 if (item == null || item.getKey() == null) {
                     throw new IllegalStateException("A recipe ingredient has no material.");
                 }
+                if (item.isHandCollected()) {
+                    continue;
+                }
                 ingredients.put(item.getKey(), item);
             }
         }

@@ -398,6 +398,9 @@ public class EditProductionPanel extends BasePanel
             if (item == null || item.getKey() == null) {
                 throw new IllegalStateException("A recipe ingredient has no material.");
             }
+            if (item.isHandCollected()) {
+                continue;
+            }
             JLabel itemLabel = new JLabel(
                 item.getName().getLocalizedName(this.selectedLanguage) + " *"
             );
@@ -420,8 +423,8 @@ public class EditProductionPanel extends BasePanel
             this.materialSourceFields.put(item.getKey(), sourceGroupSelect);
             this.addMaterialSourceRow(row++, itemLabel, sourceGroupSelect);
         }
-        this.materialSourcesLabel.setVisible(true);
-        this.materialSourcesPanel.setVisible(true);
+        this.materialSourcesLabel.setVisible(row > 0);
+        this.materialSourcesPanel.setVisible(row > 0);
     }
 
     private void addMaterialSourceRow(

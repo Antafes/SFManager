@@ -37,4 +37,4 @@ fi
 # Setup maven settings
 $( pwd )/ci/set-m2-settings.sh ${ACCESS_TOKEN}
 
-mvn test
+mvn -Drevision=`cat VERSION` test

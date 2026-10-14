@@ -96,6 +96,8 @@ public class RepositoryLoadingTest extends BaseTest
         assertNotNull(ironIngot);
         assertNotNull(ironIngot.getProductions());
         assertEquals(0, ironIngot.getProductions().size());
+        assertTrue(repository.findOne("wood").isHandCollected());
+        assertFalse(iron.isHandCollected());
     }
 
     @Test
