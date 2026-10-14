@@ -60,6 +60,11 @@ public class FactoryService
         this.factoryRepository.saveFactory(factory);
     }
 
+    public void deleteFactory(Factory factory) throws IOException
+    {
+        this.factoryRepository.deleteFactory(factory);
+    }
+
     public Factory findFactory(UUID id)
     {
         return this.factoryRepository.findOne(id);

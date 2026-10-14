@@ -11,25 +11,11 @@ resources:
     uri: https://github.com/Antafes/SFManager
     branch: main
     private_key: ((private_key))
-- name: sfmanager-repo-dev
-  type: git
-  source:
-    uri: https://github.com/Antafes/SFManager
-    branch: dev
-    private_key: ((private_key))
 - name: sfmanager-repo-pr
   type: pull-request
   check_every: 10m
   source:
     repository: Antafes/SFManager
-    access_token: ((access_token))
-- name: sfmanager-pre-release
-  type: github-release
-  source:
-    owner: Antafes
-    repository: SFManager
-    pre_release: true
-    release: false
     access_token: ((access_token))
 - name: sfmanager-release
   type: github-release
@@ -83,38 +69,6 @@ jobs:
         path: sfmanager-repo-pr
         status: success
 
-- name: sfmanager-dev
-  plan:
-  - get: sfmanager-pre-release
-  - get: sfmanager-repo-dev
-    trigger: true
-  - task: build
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: maven
-          tag: 3-eclipse-temurin-25
-      inputs:
-      - name: sfmanager-pre-release
-      - name: sfmanager-repo-dev
-      outputs:
-      - name: dist
-      run:
-        path: ci/build-dev.sh
-        args: ["((maven_access_token))"]
-        dir: sfmanager-repo-dev
-      caches:
-        - path: maven
-  - put: sfmanager-pre-release
-    params:
-     name: dist/name
-     tag: dist/tag
-     commitish: dist/commit_sha
-     globs:
-      - dist/*.zip
-
 - name: sfmanager
   plan:
   - get: sfmanager-repo
@@ -163,7 +117,7 @@ jobs:
   plan:
   - get: dependency-scan-schedule
     trigger: true
-  - get: sfmanager-repo-dev
+  - get: sfmanager-repo
   - task: check-dependency-updates
     config:
       platform: linux
@@ -173,13 +127,13 @@ jobs:
           repository: maven
           tag: 3-eclipse-temurin-25
       inputs:
-      - name: sfmanager-repo-dev
+      - name: sfmanager-repo
       outputs:
       - name: target
       run:
         path: ci/check-dependency-updates.sh
         args: ["((maven_access_token))"]
-        dir: sfmanager-repo-dev
+        dir: sfmanager-repo
       caches:
         - path: maven
   - task: create-dependency-issue
@@ -191,12 +145,12 @@ jobs:
           repository: debian
           tag: stable-slim
       inputs:
-      - name: sfmanager-repo-dev
+      - name: sfmanager-repo
       - name: target
       run:
         path: sh
         args:
           - -c
           - apt-get update -qq && apt-get install -y -qq curl && ci/create-dependency-issue.sh "((github_access_token))"
-        dir: sfmanager-repo-dev
+        dir: sfmanager-repo
 

@@ -104,7 +104,7 @@
         <dependency>
             <groupId>antafes.sf</groupId>
             <artifactId>saveparser</artifactId>
-            <version>0.1</version>
+            <version>0.2</version>
         </dependency>
     </dependencies>
 
