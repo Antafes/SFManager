@@ -29,6 +29,8 @@ import antafes.sf.manager.gui.event.*;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.service.FactoryService;
+import antafes.sf.manager.service.ImportService;
+import antafes.sf.manager.service.dto.ImportResult;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
@@ -63,6 +65,8 @@ public class BaseWindow extends JFrame
     private FactoryService factoryService;
     @Autowired
     private ProductionService productionService;
+    @Autowired
+    private ImportService importService;
 
     private LanguageInterface language;
     private JTabbedPane panel;
@@ -75,6 +79,7 @@ public class BaseWindow extends JFrame
     private JMenuItem newProductionMenuItem;
     private JMenuItem newStorageMenuItem;
     private JMenuItem newFactoryMenuItem;
+    private JMenuItem importFactoryMenuItem;
     private JCheckBoxMenuItem useStorageMenuItem;
 
     public BaseWindow()
@@ -128,6 +133,7 @@ public class BaseWindow extends JFrame
         this.openFactoryMenuItem = new JMenuItem();
         this.newProductionMenuItem = new JMenuItem();
         this.newStorageMenuItem = new JMenuItem();
+        this.importFactoryMenuItem = new JMenuItem();
         this.optionsMenu = new JMenu();
         this.useStorageMenuItem = new JCheckBoxMenuItem();
         this.languageMenu = new JMenu();
@@ -136,6 +142,8 @@ public class BaseWindow extends JFrame
         this.fileMenu.add(this.openFactoryMenuItem);
         this.fileMenu.add(this.newProductionMenuItem);
         this.fileMenu.add(this.newStorageMenuItem);
+        this.fileMenu.addSeparator();
+        this.fileMenu.add(this.importFactoryMenuItem);
         this.fileMenu.addSeparator();
         this.fileMenu.add(this.closeMenuItem);
         menuBar.add(this.fileMenu);
@@ -171,6 +179,7 @@ public class BaseWindow extends JFrame
         this.newStorageMenuItem.addActionListener(e -> this.openNewStorageDialog());
         this.updateStorageMenuItem();
 
+        this.importFactoryMenuItem.addActionListener(e -> this.importFactory());
         this.useStorageMenuItem.setSelected(this.isStorageEnabled());
         this.useStorageMenuItem.addActionListener(e -> this.setUseStorage(this.useStorageMenuItem.isSelected()));
 
@@ -392,6 +401,99 @@ public class BaseWindow extends JFrame
         this.refreshResourceTabs();
     }
 
+    private void importFactory()
+    {
+        JFileChooser chooser = new JFileChooser(this.configuration.getLastImportDirectory());
+        chooser.setDialogTitle(this.language.translate("importFactoryMenu"));
+        chooser.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter(
+            this.language.translate("importSaveFileFilter"),
+            "sav"
+        ));
+
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        this.configuration.setLastImportDirectory(chooser.getCurrentDirectory());
+        this.configuration.saveProperties();
+        java.nio.file.Path path = chooser.getSelectedFile().toPath();
+        this.importFactoryMenuItem.setEnabled(false);
+        new SwingWorker<ImportResult, Void>()
+        {
+            @Override
+            protected ImportResult doInBackground() throws Exception
+            {
+                return BaseWindow.this.importService.readSave(path);
+            }
+
+            @Override
+            protected void done()
+            {
+                BaseWindow.this.importFactoryMenuItem.setEnabled(true);
+                try {
+                    BaseWindow.this.finishImport(this.get());
+                } catch (InterruptedException exception) {
+                    Thread.currentThread().interrupt();
+                } catch (java.util.concurrent.ExecutionException exception) {
+                    BaseWindow.this.showImportError(
+                        BaseWindow.this.language.translate("importParseError")
+                            + "\n" + exception.getCause().getMessage()
+                    );
+                }
+            }
+        }.execute();
+    }
+
+    private void finishImport(ImportResult result)
+    {
+        if (result.productions().isEmpty()) {
+            this.showImportError(
+                this.language.translate("importNothingFound") + "\n"
+                    + String.format(this.language.translate("importSkippedCount"), result.skippedMachines().size())
+            );
+            return;
+        }
+
+        String message = String.format(
+            this.language.translate("importSummary"),
+            result.productions().size(),
+            result.skippedMachines().size()
+        );
+        Object name = JOptionPane.showInputDialog(
+            this,
+            message,
+            this.language.translate("importFactoryMenu"),
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            null,
+            result.saveName()
+        );
+
+        if (name == null) {
+            return;
+        }
+
+        try {
+            this.importService.importFactory(result, name.toString().trim());
+            this.openFactoryMenuItem.setEnabled(true);
+        } catch (IllegalArgumentException exception) {
+            this.showImportError(this.language.translate("importInvalidName") + "\n" + exception.getMessage());
+        } catch (IOException | RuntimeException exception) {
+            Logger.getLogger(BaseWindow.class.getName()).log(Level.SEVERE, null, exception);
+            this.showImportError(this.language.translate("importFailed") + "\n" + exception.getMessage());
+        }
+    }
+
+    private void showImportError(String message)
+    {
+        JOptionPane.showMessageDialog(
+            this,
+            message,
+            this.language.translate("importFactoryMenu"),
+            JOptionPane.ERROR_MESSAGE
+        );
+    }
+
     private void updateStorageMenuItem()
     {
         this.newStorageMenuItem.setVisible(
@@ -446,6 +548,8 @@ public class BaseWindow extends JFrame
         this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
         this.newStorageMenuItem.setText(this.language.translate("newStorageMenu"));
         this.newStorageMenuItem.setMnemonic(this.language.translate("newStorageMnemonic").charAt(0));
+        this.importFactoryMenuItem.setText(this.language.translate("importFactoryMenu"));
+        this.importFactoryMenuItem.setMnemonic(this.language.translate("importFactoryMnemonic").charAt(0));
         this.optionsMenu.setText(this.language.translate("options"));
         this.optionsMenu.setMnemonic(this.language.translate("optionsMnemonic").charAt(0));
         this.useStorageMenuItem.setText(this.language.translate("useStorage"));

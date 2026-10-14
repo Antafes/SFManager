@@ -77,6 +77,11 @@ public class SFManager extends Application implements CommandLineRunner
 
     private void openBaseWindow()
     {
+        if (GraphicsEnvironment.isHeadless()) {
+            // We assume this is a test run, so we don't want to open the GUI.
+            return;
+        }
+
         SwingUtilities.invokeLater(() -> {
             this.warmUp();
             this.factoryService.restoreLastOpenedFactory();

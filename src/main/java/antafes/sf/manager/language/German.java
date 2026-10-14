@@ -45,6 +45,15 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("newStorage", "Neuer Lagereintrag");
         this.getTranslations().put("storageChoices", "Verfügbare Materialien");
         this.getTranslations().put("newStorageMnemonic", "L");
+        this.getTranslations().put("importFactoryMenu", "Fabrik importieren");
+        this.getTranslations().put("importFactoryMnemonic", "I");
+        this.getTranslations().put("importSaveFileFilter", "Satisfactory-Spielstände (*.sav)");
+        this.getTranslations().put("importParseError", "Der Spielstand konnte nicht gelesen werden.");
+        this.getTranslations().put("importNothingFound", "Der Spielstand enthält keine importierbaren Maschinen.");
+        this.getTranslations().put("importSkippedCount", "Übersprungene Maschinen: %d");
+        this.getTranslations().put("importSummary", "%d Produktionen werden importiert (%d Maschinen übersprungen). Fabrikname:");
+        this.getTranslations().put("importInvalidName", "Die Fabrik konnte nicht angelegt werden.");
+        this.getTranslations().put("importFailed", "Der Import ist fehlgeschlagen.");
         this.getTranslations().put("options", "Optionen");
         this.getTranslations().put("optionsMnemonic", "O");
         this.getTranslations().put("useStorage", "Lager verwenden");

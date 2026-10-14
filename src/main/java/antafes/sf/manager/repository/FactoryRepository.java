@@ -45,7 +45,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Repository
 public class FactoryRepository extends BaseRepository<Factory, UUID>
@@ -95,6 +97,24 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
                 failure.addSuppressed(cleanupFailure);
             }
             throw failure;
+        }
+    }
+
+    public void deleteFactory(Factory factory) throws IOException
+    {
+        if (factory == null || factory.getId() == null) {
+            throw new IllegalArgumentException("A factory is required.");
+        }
+        Path factoryDirectory = this.configuration.getSaveDirPath().toPath()
+            .resolve(FactoryName.toDirectoryName(factory.getName()));
+        this.entities.remove(factory.getId());
+        if (!Files.isDirectory(factoryDirectory)) {
+            return;
+        }
+        try (Stream<Path> paths = Files.walk(factoryDirectory)) {
+            for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                Files.deleteIfExists(path);
+            }
         }
     }
 

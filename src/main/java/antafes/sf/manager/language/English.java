@@ -45,6 +45,15 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("newStorage", "New Storage");
         this.getTranslations().put("storageChoices", "Available materials");
         this.getTranslations().put("newStorageMnemonic", "S");
+        this.getTranslations().put("importFactoryMenu", "Import factory");
+        this.getTranslations().put("importFactoryMnemonic", "I");
+        this.getTranslations().put("importSaveFileFilter", "Satisfactory save files (*.sav)");
+        this.getTranslations().put("importParseError", "The save file could not be read.");
+        this.getTranslations().put("importNothingFound", "The save contains no machines that can be imported.");
+        this.getTranslations().put("importSkippedCount", "Skipped machines: %d");
+        this.getTranslations().put("importSummary", "Importing %d productions (%d machines skipped). Factory name:");
+        this.getTranslations().put("importInvalidName", "The factory could not be created.");
+        this.getTranslations().put("importFailed", "The import failed.");
         this.getTranslations().put("options", "Options");
         this.getTranslations().put("optionsMnemonic", "O");
         this.getTranslations().put("useStorage", "Use storage");

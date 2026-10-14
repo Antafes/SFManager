@@ -57,6 +57,28 @@ public class Configuration extends BaseConfiguration
         return this.getProperties().getProperty("lastOpenedFactoryId");
     }
 
+    public File getLastImportDirectory()
+    {
+        String path = this.getProperties().getProperty("lastImportDirectory");
+
+        if (path == null) {
+            return null;
+        }
+
+        File directory = new File(path);
+
+        return directory.isDirectory() ? directory : null;
+    }
+
+    public void setLastImportDirectory(File directory)
+    {
+        if (directory == null) {
+            this.getProperties().remove("lastImportDirectory");
+        } else {
+            this.getProperties().setProperty("lastImportDirectory", directory.getAbsolutePath());
+        }
+    }
+
     @Override
     public void loadProperties()
     {
