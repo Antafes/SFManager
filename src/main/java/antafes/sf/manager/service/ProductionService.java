@@ -244,6 +244,58 @@ public class ProductionService
             .toList();
     }
 
+    public List<Building> getConsumerBuildingsWithProductions()
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        Map<String, Building> consumerBuildings = new LinkedHashMap<>();
+        for (Production production : this.getCurrentFactoryProductions()) {
+            Building building = production.getSelectedBuilding();
+            if (building == null) {
+                throw new IllegalStateException("A factory production has no selected building.");
+            }
+            if (building.getCategory() != null && building.getCategory().isConsumer()) {
+                if (building.getKey() == null) {
+                    throw new IllegalStateException("A consumer building has no key.");
+                }
+                consumerBuildings.putIfAbsent(building.getKey(), building);
+            }
+        }
+        return List.copyOf(consumerBuildings.values());
+    }
+
+    public List<ConsumerGroupEntry> getConsumerGroupEntries(Building filterBuilding)
+    {
+        if (this.factoryService.getCurrentFactory() == null) {
+            return List.of();
+        }
+
+        Map<String, List<Production>> grouped = new LinkedHashMap<>();
+        for (Production production : this.getCurrentFactoryProductions()) {
+            Building building = production.getSelectedBuilding();
+            if (building == null) {
+                throw new IllegalStateException("A factory production has no selected building.");
+            }
+            if (building.getCategory() == null || !building.getCategory().isConsumer()
+                || filterBuilding != null && !Objects.equals(filterBuilding.getKey(), building.getKey())) {
+                continue;
+            }
+            String group = production.getGroup() == null ? "" : production.getGroup();
+            grouped.computeIfAbsent(group + "\n" + building.getKey(), ignored -> new ArrayList<>()).add(production);
+        }
+
+        return grouped.values().stream()
+            .map(productions -> new ConsumerGroupEntry(
+                productions.getFirst().getGroup() == null ? "" : productions.getFirst().getGroup(),
+                productions.getFirst().getSelectedBuilding(),
+                productions.stream().map(Production::getId).toList(),
+                productions.stream().mapToDouble(this::calculateBuildingConsumption).sum()
+            ))
+            .toList();
+    }
+
     public List<Item> getRecipeItemsWithProductions()
     {
         if (this.factoryService.getCurrentFactory() == null) {

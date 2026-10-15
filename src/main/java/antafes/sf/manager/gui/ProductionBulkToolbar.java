@@ -90,8 +90,11 @@ public class ProductionBulkToolbar extends JPanel
         Set<UUID> ids = new LinkedHashSet<>();
         for (int viewRow : this.table.getSelectedRows()) {
             int modelRow = this.table.convertRowIndexToModel(viewRow);
-            if (this.table.getModel().getValueAt(modelRow, this.idColumn) instanceof UUID id) {
+            Object value = this.table.getModel().getValueAt(modelRow, this.idColumn);
+            if (value instanceof UUID id) {
                 ids.add(id);
+            } else if (value instanceof Collection<?> values) {
+                values.stream().filter(UUID.class::isInstance).map(UUID.class::cast).forEach(ids::add);
             }
         }
 

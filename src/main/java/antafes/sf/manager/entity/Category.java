@@ -37,4 +37,9 @@ public enum Category
     ORGANIZATION("organization");
 
     private final String name;
+
+    public boolean isConsumer()
+    {
+        return this == SPECIAL || this == LOGISTICS || this == TRANSPORTATION || this == ORGANIZATION;
+    }
 }
