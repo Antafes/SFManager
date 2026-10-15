@@ -113,7 +113,7 @@ public class StoragePanelTest extends BaseTest
             assertTrue(table.getValueAt(0, 2).toString().contains("Ingot Line"));
             assertTrue(table.getValueAt(0, 2).toString().contains("A1"));
             assertFalse(table.getValueAt(0, 2).toString().contains("#"));
-            assertTrue(table.getValueAt(0, 3) instanceof StorageItem);
+            assertInstanceOf(StorageItem.class, table.getValueAt(0, 3));
         }
     }
 }

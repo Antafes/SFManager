@@ -39,9 +39,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 public class RecipeRepository extends BaseRepository<Recipe, String>
@@ -83,13 +81,13 @@ public class RecipeRepository extends BaseRepository<Recipe, String>
     private List<Item> toEntityItems(List<RecipesData.ItemData> items)
     {
         if (items == null) {
-            return Collections.emptyList();
+            return List.of();
         }
 
         return items.stream()
             .map(item -> new Item()
                 .setResource(this.itemRepository.findOne(item.resource))
                 .setAmount(item.amount))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

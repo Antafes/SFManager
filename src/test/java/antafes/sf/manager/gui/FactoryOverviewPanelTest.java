@@ -171,8 +171,8 @@ public class FactoryOverviewPanelTest extends BaseTest
             .sorted(LocalizedItemOrder.comparator("English"))
             .toList();
 
-        assertTrue(LocalizedItemOrder.isRawResource(sortedItems.get(0)));
-        assertEquals("copper", sortedItems.get(0).getKey());
+        assertTrue(LocalizedItemOrder.isRawResource(sortedItems.getFirst()));
+        assertEquals("copper", sortedItems.getFirst().getKey());
         assertEquals("iron", sortedItems.get(1).getKey());
         assertFalse(LocalizedItemOrder.isRawResource(sortedItems.get(2)));
         assertEquals("iron_ingot", sortedItems.get(2).getKey());

@@ -40,8 +40,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class GeneratorProductionPanelTest extends BaseTest
 {
@@ -125,8 +124,8 @@ public class GeneratorProductionPanelTest extends BaseTest
             assertEquals("150%", table.getValueAt(0, 2));
             assertEquals("112.5 MW", table.getValueAt(0, 3));
             assertEquals("Coal (22.5), Water (67.5)", table.getValueAt(0, 4));
-            assertTrue(table.getValueAt(0, 5) instanceof java.util.UUID);
-            assertTrue(table.getValueAt(0, 6) instanceof java.util.UUID);
+            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 5));
+            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 6));
             assertTrue(table.getColumnModel().getColumn(5).getCellRenderer()
                 .getTableCellRendererComponent(table, table.getValueAt(0, 5), false, false, 0, 5) instanceof JButton);
 

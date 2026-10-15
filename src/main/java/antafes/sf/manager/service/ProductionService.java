@@ -502,7 +502,7 @@ public class ProductionService
 
     public Production saveProduction(Production production) throws IOException
     {
-        return this.saveProductions(production, 1).get(0);
+        return this.saveProductions(production, 1).getFirst();
     }
 
     public List<Production> saveProductions(Production production, int productionCount) throws IOException
@@ -813,7 +813,7 @@ public class ProductionService
                 }
                 this.validateProduction(production, currentFactory);
             }
-            this.productionRepository.updateProduction(currentFactory, productions.get(0));
+            this.productionRepository.updateProduction(currentFactory, productions.getFirst());
         } catch (IOException | RuntimeException failure) {
             productions.forEach(production -> {
                 Object[] original = originals.get(production.getId());

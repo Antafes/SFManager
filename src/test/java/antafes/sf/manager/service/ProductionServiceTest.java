@@ -520,7 +520,7 @@ public class ProductionServiceTest extends BaseTest
 
             assertEquals(List.of(extractor, smelter), deleted);
             assertEquals(1, events.get().size());
-            assertEquals(deleted, events.get().get(0).productions());
+            assertEquals(deleted, events.get().getFirst().productions());
             assertNotNull(this.productionRepository.findOne(pressurizer.getId()));
             assertNotNull(this.productionRepository.findOne(secondExtractor.getId()));
             assertTrue(factory.getProductions().contains(pressurizer.getId().toString()));
@@ -772,8 +772,8 @@ public class ProductionServiceTest extends BaseTest
                 new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore B")))
             );
 
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
-            assertEquals("Ore B", second.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
+            assertEquals("Ore B", second.getMaterialSources().getFirst().getGroup());
 
             assertThrows(
                 IllegalArgumentException.class,
@@ -782,7 +782,7 @@ public class ProductionServiceTest extends BaseTest
                     new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Missing")))
                 )
             );
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
 
             Production plate = this.productionService.saveProduction(new Production()
                 .setSelectedBuilding(this.findBuilding("constructor"))
@@ -802,7 +802,7 @@ public class ProductionServiceTest extends BaseTest
                     new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore A")))
                 )
             );
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
         }
     }
 

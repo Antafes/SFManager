@@ -104,7 +104,7 @@ public class ProductionBulkToolbar extends JPanel
         if (ids.isEmpty()) {
             return;
         }
-        boolean changed = ids.size() == 1 ? this.singleEditor.apply(ids.get(0)) : this.bulkEditor.apply(ids);
+        boolean changed = ids.size() == 1 ? this.singleEditor.apply(ids.getFirst()) : this.bulkEditor.apply(ids);
         if (changed) {
             this.onChanged.run();
         }
@@ -160,7 +160,7 @@ public class ProductionBulkToolbar extends JPanel
         scrollPane.setPreferredSize(new Dimension(360, Math.min(240, 24 + labels.size() * 18)));
         JPanel message = new JPanel(new BorderLayout(0, 8));
         message.add(
-            new JLabel(String.format(this.language.translate("confirmDeleteProductions"), labels.size())),
+            new JLabel(this.language.translate("confirmDeleteProductions").formatted(labels.size())),
             BorderLayout.NORTH
         );
         message.add(scrollPane, BorderLayout.CENTER);

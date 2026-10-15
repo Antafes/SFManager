@@ -160,8 +160,7 @@ public class BulkEditProductionPanel extends BasePanel
     private void initComponents()
     {
         this.setLayout(new GridBagLayout());
-        JLabel hint = new JLabel(String.format(
-            this.getLanguage().translate("editProductionsHint"),
+        JLabel hint = new JLabel(this.getLanguage().translate("editProductionsHint").formatted(
             this.productions.size()
         ));
         GridBagConstraints hintConstraints = new GridBagConstraints();
@@ -309,7 +308,7 @@ public class BulkEditProductionPanel extends BasePanel
                 this.createFocusTraversalPolicy();
             }
         );
-        Production first = this.productions.get(0);
+        Production first = this.productions.getFirst();
         for (antafes.sf.manager.entity.recipe.Item ingredient : first.getSelectedRecipe().getIngredients()) {
             antafes.sf.manager.entity.Item item = ingredient.getResource();
             if (item == null || item.getKey() == null) {
@@ -335,7 +334,7 @@ public class BulkEditProductionPanel extends BasePanel
 
     private List<String> commonMaterialSourceGroups(String itemKey)
     {
-        List<String> first = this.materialSourceGroups(this.productions.get(0), itemKey);
+        List<String> first = this.materialSourceGroups(this.productions.getFirst(), itemKey);
         boolean same = this.productions.stream()
             .allMatch(production -> Objects.equals(first, this.materialSourceGroups(production, itemKey)));
 
@@ -371,7 +370,7 @@ public class BulkEditProductionPanel extends BasePanel
 
     private String commonValue(Function<Production, String> getter)
     {
-        String first = getter.apply(this.productions.get(0));
+        String first = getter.apply(this.productions.getFirst());
         return this.productions.stream().allMatch(production -> first.equals(getter.apply(production))) ? first : "";
     }
 
