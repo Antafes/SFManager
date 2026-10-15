@@ -605,6 +605,9 @@ public class BaseWindow extends JFrame
     {
         this.configuration.setWindowLocation(this.getLocationOnScreen());
         this.configuration.setExtendedState(this.getExtendedState());
+        if ((this.getExtendedState() & MAXIMIZED_BOTH) == 0) {
+            this.configuration.setWindowSize(this.getSize());
+        }
         this.configuration.saveProperties();
         System.exit(0);
     }
@@ -641,6 +644,10 @@ public class BaseWindow extends JFrame
         }
 
         this.setLocation(this.configuration.getWindowLocation());
+        java.awt.Dimension windowSize = this.configuration.getWindowSize();
+        if (windowSize != null) {
+            this.setSize(windowSize);
+        }
         this.setExtendedState(this.configuration.getExtendedState());
     }
 }
