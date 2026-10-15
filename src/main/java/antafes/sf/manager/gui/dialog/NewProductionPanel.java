@@ -22,48 +22,28 @@
 
 package antafes.sf.manager.gui.dialog;
 
-import antafes.sf.manager.gui.BasePanel;
+import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.*;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.entity.recipe.Item;
 import antafes.sf.manager.gui.BasePanel;
-import antafes.sf.manager.Configuration;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.renderer.LocalizedNameRenderer;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.dto.MaterialSourceGroup;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.util.PowerCalculator;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.util.ProductionCalculator;
-import antafes.sf.manager.gui.BasePanel;
 import jakarta.annotation.PostConstruct;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.annotation.Autowired;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.context.annotation.Scope;
 
-import antafes.sf.manager.gui.BasePanel;
 import javax.swing.*;
-import antafes.sf.manager.gui.BasePanel;
 import java.awt.*;
-import antafes.sf.manager.gui.BasePanel;
 import java.io.IOException;
-import antafes.sf.manager.gui.BasePanel;
 import java.text.DecimalFormatSymbols;
-import antafes.sf.manager.gui.BasePanel;
 import java.text.NumberFormat;
-import antafes.sf.manager.gui.BasePanel;
 import java.text.ParsePosition;
-import antafes.sf.manager.gui.BasePanel;
 import java.util.*;
-import antafes.sf.manager.gui.BasePanel;
 import java.util.List;
 
 @org.springframework.stereotype.Component

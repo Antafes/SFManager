@@ -24,10 +24,10 @@ package antafes.sf.manager.gui;
 
 import antafes.sf.manager.BaseTest;
 import antafes.sf.manager.entity.*;
-import antafes.sf.manager.repository.*;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sf.manager.gui.editor.ProductionEditButtonEditor;
 import antafes.sf.manager.gui.editor.ProductionUpgradeButtonEditor;
+import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.dto.ResourceProductionEntry;

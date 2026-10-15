@@ -22,30 +22,19 @@
 
 package antafes.sf.manager.gui.dialog;
 
-import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.FactoryService;
-import antafes.sf.manager.gui.BasePanel;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
-import antafes.sf.manager.gui.BasePanel;
 import jakarta.annotation.PostConstruct;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.annotation.Autowired;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import antafes.sf.manager.gui.BasePanel;
 import org.springframework.context.annotation.Scope;
 
-import antafes.sf.manager.gui.BasePanel;
 import javax.swing.*;
-import antafes.sf.manager.gui.BasePanel;
 import java.awt.*;
-import antafes.sf.manager.gui.BasePanel;
 import java.io.IOException;
-import antafes.sf.manager.gui.BasePanel;
 import java.util.Objects;
-import antafes.sf.manager.gui.BasePanel;
 import java.util.Vector;
 
 @org.springframework.stereotype.Component

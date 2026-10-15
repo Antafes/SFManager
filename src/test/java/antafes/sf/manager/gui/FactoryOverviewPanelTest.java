@@ -22,11 +22,11 @@
 
 package antafes.sf.manager.gui;
 
+import antafes.sf.manager.BaseTest;
 import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.item.Production;
-import antafes.sf.manager.BaseTest;
-import antafes.sf.manager.repository.*;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
+import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
