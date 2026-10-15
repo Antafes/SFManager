@@ -319,6 +319,12 @@ public class BaseWindow extends JFrame
         FactoryOverviewPanel overviewPanel = this.applicationContext.getBean(FactoryOverviewPanel.class);
         overviewPanel.refresh();
         this.panel.addTab(this.language.translate("overview"), overviewPanel);
+        if (!this.productionService.getConsumerBuildingsWithProductions().isEmpty()) {
+            this.panel.addTab(
+                this.language.translate("consumers"),
+                this.applicationContext.getBean(ConsumerProductionPanel.class)
+            );
+        }
         if (this.isStorageEnabled()) {
             this.panel.addTab(
                 this.language.translate("storage"),

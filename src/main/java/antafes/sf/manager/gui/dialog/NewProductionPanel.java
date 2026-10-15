@@ -829,10 +829,6 @@ public class NewProductionPanel extends BasePanel
         );
         this.buildingSelect.setRenderer(buildingRenderer);
         this.productionService.getBuildings().stream()
-            .filter(building -> building.getCategory() != Category.SPECIAL
-                && building.getCategory() != Category.LOGISTICS
-                && building.getCategory() != Category.TRANSPORTATION
-                && building.getCategory() != Category.ORGANIZATION)
             .sorted(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
                 .thenComparing(Building::getKey))
             .forEach(this.buildingSelect::addItem);

@@ -99,9 +99,12 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("material", "Material");
         this.getTranslations().put("unused", "Unused");
         this.getTranslations().put("overview", "Overview");
+        this.getTranslations().put("consumers", "Consumers");
+        this.getTranslations().put("allBuildings", "All buildings");
         this.getTranslations().put("power", "Power");
         this.getTranslations().put("powerSource", "Power source");
         this.getTranslations().put("powerSources", "Production");
+        this.getTranslations().put("consumerGroups", "Consumers");
         this.getTranslations().put("totalPowerProduction", "Total production");
         this.getTranslations().put("totalPowerConsumption", "Total consumption");
         this.getTranslations().put("availablePower", "Available power");

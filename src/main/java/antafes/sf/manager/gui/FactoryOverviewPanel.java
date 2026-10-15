@@ -23,10 +23,14 @@
 package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
+import antafes.sf.manager.entity.Building;
+import antafes.sf.manager.entity.Category;
 import antafes.sf.manager.entity.Name;
+import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.ProductionService;
+import antafes.sf.manager.service.dto.ConsumerGroupEntry;
 import antafes.sf.manager.service.dto.FactoryOverviewData;
 import antafes.sf.manager.service.dto.FactoryOverviewMaterial;
 import antafes.sf.manager.service.dto.FactoryOverviewPowerSource;
@@ -42,7 +46,9 @@ import java.awt.*;
 import java.text.Collator;
 import java.text.NumberFormat;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -58,10 +64,13 @@ public class FactoryOverviewPanel extends JPanel
     private NumberFormat numberFormat;
     private DefaultTableModel materialTableModel;
     private DefaultTableModel powerSourceTableModel;
+    private DefaultTableModel consumerTableModel;
     @Getter
     private JTable materialTable;
     @Getter
     private JTable powerSourceTable;
+    @Getter
+    private JTable consumerTable;
     private JLabel totalPowerProductionLabel;
     private JLabel totalPowerConsumptionLabel;
     private JLabel availablePowerLabel;
@@ -124,6 +133,20 @@ public class FactoryOverviewPanel extends JPanel
             });
         }
 
+        this.consumerTableModel.setRowCount(0);
+        Map<String, Building> consumerBuildings = new LinkedHashMap<>();
+        Map<String, Double> consumerPower = new LinkedHashMap<>();
+        for (ConsumerGroupEntry entry : this.productionService.getConsumerGroupEntries(null)) {
+            consumerBuildings.putIfAbsent(entry.building().getKey(), entry.building());
+            consumerPower.merge(entry.building().getKey(), entry.powerConsumption(), Double::sum);
+        }
+        consumerBuildings.values().stream()
+            .sorted(LocalizedBuildingOrder.comparator(this.selectedLanguage))
+            .forEach(building -> this.consumerTableModel.addRow(new Object[] {
+                this.localizedName(building.getName()),
+                this.megawatts(consumerPower.get(building.getKey()))
+            }));
+
         this.totalPowerProductionLabel.setText(
             this.language.translate("totalPowerProduction") + ": " + this.megawatts(overview.totalPowerProduction())
         );
@@ -166,6 +189,19 @@ public class FactoryOverviewPanel extends JPanel
         };
         this.powerSourceTable = new JTable(this.powerSourceTableModel);
         TableStyle.apply(this.powerSourceTable);
+
+        this.consumerTableModel = new DefaultTableModel(new Object[] {
+            this.language.translate("building"),
+            this.language.translate("consumption")
+        }, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column)
+            {
+                return false;
+            }
+        };
+        this.consumerTable = new JTable(this.consumerTableModel);
+        TableStyle.apply(this.consumerTable);
     }
 
     private void createLayout()
@@ -189,9 +225,24 @@ public class FactoryOverviewPanel extends JPanel
 
         JPanel powerSourcesPanel = new JPanel(new BorderLayout());
         powerSourcesPanel.add(new JLabel(this.language.translate("powerSources")), BorderLayout.NORTH);
-        powerSourcesPanel.add(new JScrollPane(this.powerSourceTable), BorderLayout.CENTER);
+        JScrollPane powerSourceScrollPane = new JScrollPane(this.powerSourceTable);
+        long powerBuildingCount = this.productionService.getBuildings().stream()
+            .filter(building -> building.getCategory() == Category.POWER)
+            .count();
+        int tableHeight = this.powerSourceTable.getTableHeader().getPreferredSize().height
+            + (int) powerBuildingCount * this.powerSourceTable.getRowHeight() + 2;
+        powerSourceScrollPane.setPreferredSize(new Dimension(0, tableHeight));
+        powerSourcesPanel.add(powerSourceScrollPane, BorderLayout.CENTER);
+
+        JPanel consumersPanel = new JPanel(new BorderLayout());
+        consumersPanel.add(new JLabel(this.language.translate("consumerGroups")), BorderLayout.NORTH);
+        consumersPanel.add(new JScrollPane(this.consumerTable), BorderLayout.CENTER);
+
+        JPanel tablesPanel = new JPanel(new BorderLayout(0, 8));
+        tablesPanel.add(powerSourcesPanel, BorderLayout.NORTH);
+        tablesPanel.add(consumersPanel, BorderLayout.CENTER);
         powerPanel.add(summaryPanel, BorderLayout.NORTH);
-        powerPanel.add(powerSourcesPanel, BorderLayout.CENTER);
+        powerPanel.add(tablesPanel, BorderLayout.CENTER);
         this.add(powerPanel);
     }
 
