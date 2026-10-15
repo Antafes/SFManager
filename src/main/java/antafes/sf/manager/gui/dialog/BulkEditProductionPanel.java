@@ -30,7 +30,6 @@ import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.util.BulkOperationRunner;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.dto.BulkProductionEdit;
-import antafes.sf.manager.service.dto.MaterialSourceGroup;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -64,7 +63,7 @@ public class BulkEditProductionPanel extends BasePanel
     private final JCheckBox usedSomersloopsKeep = new JCheckBox();
     private final JCheckBox materialSourcesKeep = new JCheckBox();
     private final JPanel materialSourcesPanel = new JPanel(new GridBagLayout());
-    private final Map<String, JComboBox<MaterialSourceGroup>> materialSourceFields = new LinkedHashMap<>();
+    private MaterialSourceSelector materialSourceSelector;
     private final String selectedLanguage;
     private final JButton saveButton = new JButton();
     private final JButton cancelButton = new JButton();
@@ -145,9 +144,11 @@ public class BulkEditProductionPanel extends BasePanel
                 order.add(keep);
             }
         }
-        for (JComboBox<MaterialSourceGroup> select : this.materialSourceFields.values()) {
-            if (select.isEnabled()) {
-                order.add(select);
+        if (this.materialSourceSelector != null) {
+            for (Component component : this.materialSourceSelector.getFocusableComponents()) {
+                if (component.isEnabled()) {
+                    order.add(component);
+                }
             }
         }
         order.add(this.saveButton);
@@ -159,8 +160,7 @@ public class BulkEditProductionPanel extends BasePanel
     private void initComponents()
     {
         this.setLayout(new GridBagLayout());
-        JLabel hint = new JLabel(String.format(
-            this.getLanguage().translate("editProductionsHint"),
+        JLabel hint = new JLabel(this.getLanguage().translate("editProductionsHint").formatted(
             this.productions.size()
         ));
         GridBagConstraints hintConstraints = new GridBagConstraints();
@@ -254,7 +254,7 @@ public class BulkEditProductionPanel extends BasePanel
         boolean allowed = isMaterialSourceChangeAllowed(this.productions);
         if (allowed) {
             this.fillMaterialSourceFields();
-            if (this.materialSourceFields.isEmpty()) {
+            if (this.materialSourceSelector.isEmpty()) {
                 return;
             }
         }
@@ -278,9 +278,14 @@ public class BulkEditProductionPanel extends BasePanel
         this.add(this.materialSourcesKeep, constraints);
 
         this.materialSourcesKeep.setSelected(true);
-        this.materialSourceFields.values().forEach(select -> select.setEnabled(false));
+        if (this.materialSourceSelector != null) {
+            this.materialSourceSelector.setEnabled(false);
+        }
         this.materialSourcesKeep.addActionListener(event -> {
-            this.materialSourceFields.values().forEach(select -> select.setEnabled(!this.materialSourcesKeep.isSelected()));
+            if (this.materialSourceSelector != null) {
+                this.materialSourceSelector.setEnabled(!this.materialSourcesKeep.isSelected());
+            }
+            this.createFocusTraversalPolicy();
             this.updateSaveButton();
         });
         if (!allowed) {
@@ -293,8 +298,17 @@ public class BulkEditProductionPanel extends BasePanel
 
     private void fillMaterialSourceFields()
     {
-        Production first = this.productions.get(0);
-        int row = 0;
+        this.materialSourceSelector = new MaterialSourceSelector(
+            this.productionService,
+            this.getLanguage(),
+            this.clockSpeedFormat,
+            this.selectedLanguage,
+            () -> {
+                this.getParentDialog().pack();
+                this.createFocusTraversalPolicy();
+            }
+        );
+        Production first = this.productions.getFirst();
         for (antafes.sf.manager.entity.recipe.Item ingredient : first.getSelectedRecipe().getIngredients()) {
             antafes.sf.manager.entity.Item item = ingredient.getResource();
             if (item == null || item.getKey() == null) {
@@ -303,81 +317,42 @@ public class BulkEditProductionPanel extends BasePanel
             if (item.isHandCollected()) {
                 continue;
             }
-            JComboBox<MaterialSourceGroup> select = new JComboBox<>(
-                this.productionService.getMaterialSourceGroups(item).toArray(MaterialSourceGroup[]::new)
+            this.materialSourceSelector.addMaterial(
+                item,
+                false,
+                this.commonMaterialSourceGroups(item.getKey()),
+                this.productionIds
             );
-            select.setRenderer(this.materialSourceGroupRenderer());
-            String commonGroup = this.commonMaterialSourceGroup(item.getKey());
-            select.setSelectedIndex(-1);
-            for (int index = 0; commonGroup != null && index < select.getItemCount(); index++) {
-                if (commonGroup.equals(select.getItemAt(index).group())) {
-                    select.setSelectedIndex(index);
-                    break;
-                }
-            }
-            this.materialSourceFields.put(item.getKey(), select);
-
-            GridBagConstraints labelConstraints = new GridBagConstraints();
-            labelConstraints.gridx = 0;
-            labelConstraints.gridy = row;
-            labelConstraints.anchor = GridBagConstraints.LINE_START;
-            labelConstraints.insets = new Insets(3, 4, 3, 8);
-            this.materialSourcesPanel.add(
-                new JLabel(item.getName().getLocalizedName(this.selectedLanguage)),
-                labelConstraints
-            );
-            GridBagConstraints selectConstraints = new GridBagConstraints();
-            selectConstraints.gridx = 1;
-            selectConstraints.gridy = row++;
-            selectConstraints.weightx = 1;
-            selectConstraints.fill = GridBagConstraints.HORIZONTAL;
-            selectConstraints.insets = new Insets(3, 4, 3, 4);
-            this.materialSourcesPanel.add(select, selectConstraints);
+        }
+        if (!this.materialSourceSelector.isEmpty()) {
+            GridBagConstraints selectorConstraints = new GridBagConstraints();
+            selectorConstraints.weightx = 1;
+            selectorConstraints.fill = GridBagConstraints.HORIZONTAL;
+            this.materialSourcesPanel.add(this.materialSourceSelector, selectorConstraints);
         }
     }
 
-    private String commonMaterialSourceGroup(String itemKey)
+    private List<String> commonMaterialSourceGroups(String itemKey)
     {
-        String first = this.materialSourceGroup(this.productions.get(0), itemKey);
+        List<String> first = this.materialSourceGroups(this.productions.getFirst(), itemKey);
         boolean same = this.productions.stream()
-            .allMatch(production -> Objects.equals(first, this.materialSourceGroup(production, itemKey)));
+            .allMatch(production -> Objects.equals(first, this.materialSourceGroups(production, itemKey)));
 
-        return same ? first : null;
+        return same ? first : List.of();
     }
 
-    private String materialSourceGroup(Production production, String itemKey)
+    private List<String> materialSourceGroups(Production production, String itemKey)
     {
         if (production.getMaterialSources() == null) {
-            return null;
+            return List.of();
         }
 
         return production.getMaterialSources().stream()
             .filter(source -> itemKey.equals(source.getItemKey()))
             .map(ProductionMaterialSource::getGroup)
-            .findFirst()
-            .orElse(null);
+            .toList();
     }
 
-    private DefaultListCellRenderer materialSourceGroupRenderer()
-    {
-        return new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(
-                JList<?> list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-            ) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof MaterialSourceGroup sourceGroup) {
-                    this.setText(sourceGroup.group() + " ("
-                        + BulkEditProductionPanel.this.clockSpeedFormat.format(sourceGroup.production()) + " / min)");
-                }
-                return this;
-            }
-        };
-    }
 
     private void updateSaveButton()
     {
@@ -395,7 +370,7 @@ public class BulkEditProductionPanel extends BasePanel
 
     private String commonValue(Function<Production, String> getter)
     {
-        String first = getter.apply(this.productions.get(0));
+        String first = getter.apply(this.productions.getFirst());
         return this.productions.stream().allMatch(production -> first.equals(getter.apply(production))) ? first : "";
     }
 
@@ -449,17 +424,11 @@ public class BulkEditProductionPanel extends BasePanel
         }
 
         List<ProductionMaterialSource> materialSources = null;
-        if (!this.materialSourcesKeep.isSelected()) {
-            materialSources = new ArrayList<>();
-            for (Map.Entry<String, JComboBox<MaterialSourceGroup>> entry : this.materialSourceFields.entrySet()) {
-                MaterialSourceGroup sourceGroup = (MaterialSourceGroup) entry.getValue().getSelectedItem();
-                if (sourceGroup == null) {
-                    throw new IllegalArgumentException("Every recipe ingredient requires a material source group.");
-                }
-                materialSources.add(new ProductionMaterialSource()
-                    .setItemKey(entry.getKey())
-                    .setGroup(sourceGroup.group()));
+        if (!this.materialSourcesKeep.isSelected() && this.materialSourceSelector != null) {
+            if (!this.materialSourceSelector.isComplete()) {
+                throw new IllegalArgumentException("Every recipe ingredient requires a material source group.");
             }
+            materialSources = this.materialSourceSelector.getMaterialSources();
         }
 
         return new BulkProductionEdit(group, position, clockSpeed, usedSomersloops, materialSources);

@@ -119,8 +119,8 @@ public class RecipeProductionPanelTest extends BaseTest
                 .setUsedSomersloops(0));
 
             assertEquals(1, productionService.getRecipeItemsWithProductions().size());
-            Item ironIngotItem = ironIngot.getProducts().get(0).getResource();
-            assertEquals("iron_ingot", productionService.getRecipeItemsWithProductions().get(0).getKey());
+            Item ironIngotItem = ironIngot.getProducts().getFirst().getResource();
+            assertEquals("iron_ingot", productionService.getRecipeItemsWithProductions().getFirst().getKey());
             assertEquals(2, productionService.getRecipeProductions(ironIngotItem).size());
 
             RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, ironIngotItem);
@@ -153,8 +153,8 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals("Iron Ingot (60)", table.getValueAt(0, 6));
             assertEquals("0 / min", table.getValueAt(0, 7));
             assertEquals("16 MW", table.getValueAt(0, 8));
-            assertTrue(table.getValueAt(0, 9) instanceof java.util.UUID);
-            assertTrue(table.getValueAt(0, 10) instanceof java.util.UUID);
+            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 9));
+            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 10));
             assertEquals("Foundry", table.getValueAt(1, 0));
             assertEquals("Basic Iron Ingot", table.getValueAt(1, 1));
             assertNull(table.getValueAt(1, 2));
@@ -185,7 +185,7 @@ public class RecipeProductionPanelTest extends BaseTest
             .sorted(LocalizedItemOrder.alphabeticalComparator("English"))
             .toList();
 
-        assertEquals("aluminum", sorted.get(0).getKey());
+        assertEquals("aluminum", sorted.getFirst().getKey());
         assertEquals("zinc", sorted.get(1).getKey());
     }
 
@@ -216,7 +216,7 @@ public class RecipeProductionPanelTest extends BaseTest
                 .setSelectedRecipe(recipe)
                 .setClockSpeed(100.0)
                 .setUsedSomersloops(0));
-            Item outputItem = recipe.getProducts().get(0).getResource();
+            Item outputItem = recipe.getProducts().getFirst().getResource();
             RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, outputItem);
             JTable table = panel.getTable();
             AtomicInteger refreshCount = new AtomicInteger();

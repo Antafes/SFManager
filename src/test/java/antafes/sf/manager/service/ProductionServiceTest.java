@@ -520,7 +520,7 @@ public class ProductionServiceTest extends BaseTest
 
             assertEquals(List.of(extractor, smelter), deleted);
             assertEquals(1, events.get().size());
-            assertEquals(deleted, events.get().get(0).productions());
+            assertEquals(deleted, events.get().getFirst().productions());
             assertNotNull(this.productionRepository.findOne(pressurizer.getId()));
             assertNotNull(this.productionRepository.findOne(secondExtractor.getId()));
             assertTrue(factory.getProductions().contains(pressurizer.getId().toString()));
@@ -772,8 +772,8 @@ public class ProductionServiceTest extends BaseTest
                 new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore B")))
             );
 
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
-            assertEquals("Ore B", second.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
+            assertEquals("Ore B", second.getMaterialSources().getFirst().getGroup());
 
             assertThrows(
                 IllegalArgumentException.class,
@@ -782,7 +782,7 @@ public class ProductionServiceTest extends BaseTest
                     new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Missing")))
                 )
             );
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
 
             Production plate = this.productionService.saveProduction(new Production()
                 .setSelectedBuilding(this.findBuilding("constructor"))
@@ -802,7 +802,7 @@ public class ProductionServiceTest extends BaseTest
                     new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore A")))
                 )
             );
-            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", first.getMaterialSources().getFirst().getGroup());
         }
     }
 
@@ -1514,6 +1514,100 @@ public class ProductionServiceTest extends BaseTest
             assertEquals(75.0, this.overviewUsage(overview, "iron_ingot"));
             assertEquals(15.0, this.overviewUsage(overview, "coal"));
             assertEquals(45.0, this.overviewUsage(overview, "water"));
+        }
+    }
+
+    @Test
+    public void testAllocatesMultipleSourceGroupsAndReportsRemainingProduction() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Multiple Sources Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building miner = this.productionService.getBuildings().stream()
+                .filter(building -> "miner_1".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item iron = this.productionService.getResourceItems().stream()
+                .filter(item -> "iron".equals(item.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe ironIngot = this.productionService.getRecipesForBuilding("smelter").stream()
+                .filter(recipe -> "iron_ingot".equals(recipe.getKey()))
+                .findFirst()
+                .orElseThrow();
+
+            for (String group : List.of("Ore A", "Ore B")) {
+                this.productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner)
+                    .setSelectedItem(iron)
+                    .setGroup(group)
+                    .setPurity(Purity.NORMAL)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+            }
+            Production consumer = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(ironIngot)
+                .setGroup("Ingots")
+                .setClockSpeed(250.0)
+                .setUsedSomersloops(0)
+                .setMaterialSources(List.of(this.source("iron", "Ore A"), this.source("iron", "Ore B"))));
+
+            assertEquals(
+                List.of(60.0, 15.0),
+                this.productionService.getResourceProductions(iron).stream()
+                    .map(entry -> entry.usage())
+                    .toList()
+            );
+            assertEquals(
+                List.of("Ore B"),
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of()).stream()
+                    .map(group -> group.group())
+                    .toList()
+            );
+            assertEquals(
+                45.0,
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of()).getFirst()
+                    .production()
+            );
+            assertEquals(
+                List.of(60.0, 60.0),
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of(consumer.getId()))
+                    .stream()
+                    .map(group -> group.production())
+                    .toList()
+            );
+
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.editProduction(
+                consumer.getId(),
+                250.0,
+                "Ingots",
+                null,
+                0,
+                List.of(this.source("iron", "Ore A"), this.source("iron", "Ore A"))
+            ));
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.editProduction(
+                consumer.getId(),
+                250.0,
+                "Ingots",
+                null,
+                0,
+                List.of()
+            ));
         }
     }
 

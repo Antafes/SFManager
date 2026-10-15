@@ -450,8 +450,7 @@ public class BaseWindow extends JFrame
                     Thread.currentThread().interrupt();
                 } catch (java.util.concurrent.ExecutionException exception) {
                     if (exception.getCause() instanceof UnsupportedSaveVersionException unsupported) {
-                        BaseWindow.this.showImportError(String.format(
-                            BaseWindow.this.language.translate("importUnsupportedVersion"),
+                        BaseWindow.this.showImportError(BaseWindow.this.language.translate("importUnsupportedVersion").formatted(
                             unsupported.getSaveVersion()
                         ));
                         return;
@@ -488,13 +487,12 @@ public class BaseWindow extends JFrame
         if (result.productions().isEmpty()) {
             this.showImportError(
                 this.language.translate("importNothingFound") + "\n"
-                    + String.format(this.language.translate("importSkippedCount"), result.skippedMachines().size())
+                    + this.language.translate("importSkippedCount").formatted(result.skippedMachines().size())
             );
             return;
         }
 
-        String message = String.format(
-            this.language.translate("importSummary"),
+        String message = this.language.translate("importSummary").formatted(
             result.productions().size(),
             result.skippedMachines().size()
         );

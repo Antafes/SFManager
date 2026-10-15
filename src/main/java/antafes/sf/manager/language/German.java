@@ -82,6 +82,9 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("amount", "Anzahl");
         this.getTranslations().put("group", "Gruppe");
         this.getTranslations().put("materialSources", "Materialquellen");
+        this.getTranslations().put("materialSourceRemaining", "übrig");
+        this.getTranslations().put("addMaterialSource", "Weitere Quelle hinzufügen");
+        this.getTranslations().put("removeMaterialSource", "Diese Quelle entfernen");
         this.getTranslations().put("requiredFieldsHint", "* Pflichtfeld");
         this.getTranslations().put("position", "Position");
         this.getTranslations().put("purity", "Reinheit");

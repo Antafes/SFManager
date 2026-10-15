@@ -90,7 +90,7 @@ public class ResourceProductionPanelTest extends BaseTest
                 .setClockSpeed(150.0)
                 .setGroup("Well Group")
                 .setPressurizerId(pressurizer.getId())
-                .setUsedSomersloops(0), 2).get(0);
+                .setUsedSomersloops(0), 2).getFirst();
             productionService.saveProduction(new Production()
                 .setSelectedBuilding(wellExtractorBuilding)
                 .setSelectedItem(water)
@@ -122,7 +122,7 @@ public class ResourceProductionPanelTest extends BaseTest
             assertEquals(4, entries.size());
             assertEquals(1, productionService.getResourceProductions(iron).size());
             assertEquals(pressurizer, entries.get(1).pressurizer());
-            assertEquals(120, entries.get(0).baseAmount());
+            assertEquals(120, entries.getFirst().baseAmount());
             assertEquals(60, entries.get(1).baseAmount());
             assertEquals(60, entries.get(2).baseAmount());
             assertEquals(60, entries.get(3).baseAmount());
@@ -336,9 +336,9 @@ public class ResourceProductionPanelTest extends BaseTest
                     1,
                     8
                 );
-                assertTrue(firstRenderer instanceof JButton);
+                assertInstanceOf(JButton.class, firstRenderer);
                 assertTrue(firstRendererEnabled);
-                assertTrue(thirdRenderer instanceof JButton);
+                assertInstanceOf(JButton.class, thirdRenderer);
                 assertFalse(((JButton) thirdRenderer).isEnabled());
                 assertNotNull(((JButton) thirdRenderer).getDisabledIcon());
                 JButton firstEditor = (JButton) table.getCellEditor(0, 8).getTableCellEditorComponent(

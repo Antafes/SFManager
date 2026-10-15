@@ -201,7 +201,7 @@ public class SaveProductionMapper
         if (actor.position().size() < 2) {
             return null;
         }
-        return toMeters(actor.position().get(0)) + ", " + toMeters(actor.position().get(1));
+        return toMeters(actor.position().getFirst()) + ", " + toMeters(actor.position().get(1));
     }
 
     private static long toMeters(double centimeters)
