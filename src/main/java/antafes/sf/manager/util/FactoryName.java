@@ -22,13 +22,16 @@
 
 package antafes.sf.manager.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.text.Normalizer;
 import java.util.Locale;
 import java.util.Map;
 
+@UtilityClass
 public final class FactoryName
 {
-    private static final Map<Character, String> TRANSLITERATIONS = Map.ofEntries(
+    private final Map<Character, String> TRANSLITERATIONS = Map.ofEntries(
         Map.entry('ß', "ss"),
         Map.entry('æ', "ae"),
         Map.entry('œ', "oe"),
@@ -40,11 +43,7 @@ public final class FactoryName
         Map.entry('ı', "i")
     );
 
-    private FactoryName()
-    {
-    }
-
-    public static String toDirectoryName(String name)
+    public String toDirectoryName(String name)
     {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Factory name must not be blank.");

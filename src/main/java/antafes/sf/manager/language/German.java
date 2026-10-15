@@ -118,6 +118,23 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("productionUpgradeFailed", "Die Produktion konnte nicht aufgerüstet werden.");
         this.getTranslations().put("productionSavingFailed", "Die Produktion konnte nicht gespeichert werden.");
         this.getTranslations().put("productionEditingFailed", "Die Produktion konnte nicht aktualisiert werden.");
+        this.getTranslations().put("deleteSelected", "Ausgewählte löschen");
+        this.getTranslations().put("editSelected", "Ausgewählte bearbeiten");
+        this.getTranslations().put("deleteProductions", "Produktionen löschen");
+        this.getTranslations().put("confirmDeleteProductions", "Die folgenden %d Produktionen werden gelöscht:");
+        this.getTranslations().put("productionsDeletionFailed", "Die Produktionen konnten nicht gelöscht werden.");
+        this.getTranslations().put("deletingProductions", "Produktionen werden gelöscht...");
+        this.getTranslations().put("editProductions", "Produktionen bearbeiten");
+        this.getTranslations().put("editingProductions", "Produktionen werden aktualisiert...");
+        this.getTranslations().put("editProductionsHint", "Nur die Felder mit gesetztem Haken werden für alle %d ausgewählten Produktionen geändert.");
+        this.getTranslations().put("keepUnchanged", "Unverändert lassen");
+        this.getTranslations().put("differentBuildingsSomersloopsHint", "Die ausgewählten Produktionen verwenden unterschiedliche Gebäude.");
+        this.getTranslations().put("notOverclockableHint", "Nicht alle ausgewählten Gebäude können übertaktet werden.");
+        this.getTranslations().put("noSomersloopSlotsHint", "Nicht alle ausgewählten Gebäude haben Somersloop-Slots.");
+        this.getTranslations().put(
+            "differentRecipesMaterialSourcesHint",
+            "Materialquellen können nur geändert werden, wenn alle ausgewählten Produktionen dasselbe Rezept nutzen."
+        );
     }
 
     private void newFactory()

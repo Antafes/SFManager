@@ -35,6 +35,7 @@ import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
 import antafes.sf.manager.service.event.ProductionSavedEvent;
+import antafes.sf.manager.service.event.ProductionsSavedEvent;
 import antafes.sf.manager.service.event.StorageChangedEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -289,6 +290,12 @@ public class BaseWindow extends JFrame
 
     @EventListener
     private void onProductionSaved(ProductionSavedEvent event)
+    {
+        SwingUtilities.invokeLater(this::refreshResourceTabs);
+    }
+
+    @EventListener
+    private void onProductionsSaved(ProductionsSavedEvent event)
     {
         SwingUtilities.invokeLater(this::refreshResourceTabs);
     }
