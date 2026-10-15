@@ -82,6 +82,9 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("amount", "Amount");
         this.getTranslations().put("group", "Group");
         this.getTranslations().put("materialSources", "Material Sources");
+        this.getTranslations().put("materialSourceRemaining", "remaining");
+        this.getTranslations().put("addMaterialSource", "Add another source");
+        this.getTranslations().put("removeMaterialSource", "Remove this source");
         this.getTranslations().put("requiredFieldsHint", "* Required field");
         this.getTranslations().put("position", "Position");
         this.getTranslations().put("purity", "Purity");

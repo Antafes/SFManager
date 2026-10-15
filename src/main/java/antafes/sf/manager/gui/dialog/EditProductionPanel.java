@@ -28,7 +28,6 @@ import antafes.sf.manager.entity.recipe.Item;
 import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.MaterialSourceGroup;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -63,7 +62,7 @@ public class EditProductionPanel extends BasePanel
     private JTextField groupField;
     private JLabel materialSourcesLabel;
     private JPanel materialSourcesPanel;
-    private final Map<String, JComboBox<MaterialSourceGroup>> materialSourceFields = new LinkedHashMap<>();
+    private MaterialSourceSelector materialSourceSelector;
     private JLabel positionLabel;
     private JTextField positionField;
     private JLabel purityLabel;
@@ -136,7 +135,9 @@ public class EditProductionPanel extends BasePanel
             order.add(this.clockSpeedSlider);
             order.add(this.clockSpeedField);
         }
-        order.addAll(this.materialSourceFields.values());
+        if (this.materialSourceSelector != null) {
+            order.addAll(this.materialSourceSelector.getFocusableComponents());
+        }
         if (this.usedSomersloopsField.isEnabled()) {
             order.add(this.usedSomersloopsField);
         }
@@ -179,14 +180,7 @@ public class EditProductionPanel extends BasePanel
 
     private List<ProductionMaterialSource> getMaterialSources()
     {
-        return this.materialSourceFields.entrySet().stream()
-            .map(entry -> {
-                MaterialSourceGroup sourceGroup = (MaterialSourceGroup) entry.getValue().getSelectedItem();
-                return new ProductionMaterialSource()
-                    .setItemKey(entry.getKey())
-                    .setGroup(sourceGroup == null ? "" : sourceGroup.group());
-            })
-            .toList();
+        return this.materialSourceSelector == null ? List.of() : this.materialSourceSelector.getMaterialSources();
     }
 
     private String requiredFieldLabel(String key)
@@ -374,7 +368,7 @@ public class EditProductionPanel extends BasePanel
 
     private void updateMaterialSources()
     {
-        this.materialSourceFields.clear();
+        this.materialSourceSelector = null;
         this.materialSourcesPanel.removeAll();
         if (this.production.getSelectedRecipe() == null
             || this.production.getSelectedRecipe().getIngredients() == null
@@ -386,14 +380,16 @@ public class EditProductionPanel extends BasePanel
         if (existingMaterialSources == null) {
             existingMaterialSources = List.of();
         }
-        Map<String, String> selectedGroups = existingMaterialSources.stream()
-            .collect(java.util.stream.Collectors.toMap(
-                ProductionMaterialSource::getItemKey,
-                ProductionMaterialSource::getGroup,
-                (first, second) -> first,
-                LinkedHashMap::new
-            ));
-        int row = 0;
+        this.materialSourceSelector = new MaterialSourceSelector(
+            this.productionService,
+            this.getLanguage(),
+            this.clockSpeedFormat,
+            this.selectedLanguage,
+            () -> {
+                this.getParentDialog().pack();
+                this.createFocusTraversalPolicy();
+            }
+        );
         for (Item ingredient : this.production.getSelectedRecipe().getIngredients()) {
             antafes.sf.manager.entity.Item item = ingredient.getResource();
             if (item == null || item.getKey() == null) {
@@ -402,73 +398,22 @@ public class EditProductionPanel extends BasePanel
             if (item.isHandCollected()) {
                 continue;
             }
-            JLabel itemLabel = new JLabel(
-                item.getName().getLocalizedName(this.selectedLanguage) + " *"
-            );
-            JComboBox<MaterialSourceGroup> sourceGroupSelect = new JComboBox<>(
-                this.productionService.getMaterialSourceGroups(item).toArray(MaterialSourceGroup[]::new)
-            );
-            sourceGroupSelect.setRenderer(this.materialSourceGroupRenderer());
-            String selectedGroup = selectedGroups.get(item.getKey());
-            if (selectedGroup != null && this.productionService.getMaterialSourceGroups(item)
-                .stream().anyMatch(sourceGroup -> sourceGroup.group().equals(selectedGroup))) {
-                for (int index = 0; index < sourceGroupSelect.getItemCount(); index++) {
-                    if (selectedGroup.equals(sourceGroupSelect.getItemAt(index).group())) {
-                        sourceGroupSelect.setSelectedIndex(index);
-                        break;
-                    }
-                }
-            } else {
-                sourceGroupSelect.setSelectedIndex(-1);
-            }
-            this.materialSourceFields.put(item.getKey(), sourceGroupSelect);
-            this.addMaterialSourceRow(row++, itemLabel, sourceGroupSelect);
+            List<String> selectedGroups = existingMaterialSources.stream()
+                .filter(source -> item.getKey().equals(source.getItemKey()))
+                .map(ProductionMaterialSource::getGroup)
+                .filter(group -> group != null && !group.isBlank())
+                .toList();
+            this.materialSourceSelector.addMaterial(item, true, selectedGroups, Set.of(this.productionId));
         }
-        this.materialSourcesLabel.setVisible(row > 0);
-        this.materialSourcesPanel.setVisible(row > 0);
-    }
-
-    private void addMaterialSourceRow(
-        int row,
-        JLabel label,
-        JComboBox<MaterialSourceGroup> sourceGroupSelect
-    )
-    {
-        GridBagConstraints labelConstraints = new GridBagConstraints();
-        labelConstraints.gridx = 0;
-        labelConstraints.gridy = row;
-        labelConstraints.anchor = GridBagConstraints.LINE_START;
-        labelConstraints.insets = new Insets(3, 4, 3, 8);
-        this.materialSourcesPanel.add(label, labelConstraints);
-
-        GridBagConstraints selectConstraints = new GridBagConstraints();
-        selectConstraints.gridx = 1;
-        selectConstraints.gridy = row;
-        selectConstraints.weightx = 1;
-        selectConstraints.fill = GridBagConstraints.HORIZONTAL;
-        selectConstraints.insets = new Insets(3, 4, 3, 4);
-        this.materialSourcesPanel.add(sourceGroupSelect, selectConstraints);
-    }
-
-    private DefaultListCellRenderer materialSourceGroupRenderer()
-    {
-        return new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(
-                JList<?> list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-            ) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof MaterialSourceGroup sourceGroup) {
-                    this.setText(sourceGroup.group() + " ("
-                        + EditProductionPanel.this.clockSpeedFormat.format(sourceGroup.production()) + " / min)");
-                }
-                return this;
-            }
-        };
+        boolean visible = !this.materialSourceSelector.isEmpty();
+        if (visible) {
+            GridBagConstraints selectorConstraints = new GridBagConstraints();
+            selectorConstraints.weightx = 1;
+            selectorConstraints.fill = GridBagConstraints.HORIZONTAL;
+            this.materialSourcesPanel.add(this.materialSourceSelector, selectorConstraints);
+        }
+        this.materialSourcesLabel.setVisible(visible);
+        this.materialSourcesPanel.setVisible(visible);
     }
 
     private Double parseClockSpeed()

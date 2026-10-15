@@ -1518,6 +1518,100 @@ public class ProductionServiceTest extends BaseTest
     }
 
     @Test
+    public void testAllocatesMultipleSourceGroupsAndReportsRemainingProduction() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Multiple Sources Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            Building miner = this.productionService.getBuildings().stream()
+                .filter(building -> "miner_1".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Building smelter = this.productionService.getBuildings().stream()
+                .filter(building -> "smelter".equals(building.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Item iron = this.productionService.getResourceItems().stream()
+                .filter(item -> "iron".equals(item.getKey()))
+                .findFirst()
+                .orElseThrow();
+            Recipe ironIngot = this.productionService.getRecipesForBuilding("smelter").stream()
+                .filter(recipe -> "iron_ingot".equals(recipe.getKey()))
+                .findFirst()
+                .orElseThrow();
+
+            for (String group : List.of("Ore A", "Ore B")) {
+                this.productionService.saveProduction(new Production()
+                    .setSelectedBuilding(miner)
+                    .setSelectedItem(iron)
+                    .setGroup(group)
+                    .setPurity(Purity.NORMAL)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+            }
+            Production consumer = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(smelter)
+                .setSelectedRecipe(ironIngot)
+                .setGroup("Ingots")
+                .setClockSpeed(250.0)
+                .setUsedSomersloops(0)
+                .setMaterialSources(List.of(this.source("iron", "Ore A"), this.source("iron", "Ore B"))));
+
+            assertEquals(
+                List.of(60.0, 15.0),
+                this.productionService.getResourceProductions(iron).stream()
+                    .map(entry -> entry.usage())
+                    .toList()
+            );
+            assertEquals(
+                List.of("Ore B"),
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of()).stream()
+                    .map(group -> group.group())
+                    .toList()
+            );
+            assertEquals(
+                45.0,
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of()).getFirst()
+                    .production()
+            );
+            assertEquals(
+                List.of(60.0, 60.0),
+                this.productionService.getRemainingMaterialSourceGroups(iron, java.util.Set.of(consumer.getId()))
+                    .stream()
+                    .map(group -> group.production())
+                    .toList()
+            );
+
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.editProduction(
+                consumer.getId(),
+                250.0,
+                "Ingots",
+                null,
+                0,
+                List.of(this.source("iron", "Ore A"), this.source("iron", "Ore A"))
+            ));
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.editProduction(
+                consumer.getId(),
+                250.0,
+                "Ingots",
+                null,
+                0,
+                List.of()
+            ));
+        }
+    }
+
+    @Test
     public void testHandCollectedIngredientsNeedNoMaterialSource() throws IOException
     {
         try (AnnotationConfigApplicationContext context = this.createContext(

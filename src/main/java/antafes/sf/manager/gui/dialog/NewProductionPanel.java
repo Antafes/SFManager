@@ -29,7 +29,6 @@ import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.renderer.LocalizedNameRenderer;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.MaterialSourceGroup;
 import antafes.sf.manager.util.PowerCalculator;
 import antafes.sf.manager.util.ProductionCalculator;
 import jakarta.annotation.PostConstruct;
@@ -70,7 +69,7 @@ public class NewProductionPanel extends BasePanel
     private JComboBox<String> groupField;
     private JLabel materialSourcesLabel;
     private JPanel materialSourcesPanel;
-    private final Map<String, JComboBox<MaterialSourceGroup>> materialSourceFields = new LinkedHashMap<>();
+    private MaterialSourceSelector materialSourceSelector;
     private JLabel positionLabel;
     private JTextField positionField;
     private JLabel puritySelectLabel;
@@ -155,7 +154,9 @@ public class NewProductionPanel extends BasePanel
         order.add(this.itemSelect);
         order.add(this.amountField);
         order.add(this.groupField);
-        order.addAll(this.materialSourceFields.values());
+        if (this.materialSourceSelector != null) {
+            order.addAll(this.materialSourceSelector.getFocusableComponents());
+        }
         order.add(this.positionField);
         order.add(this.puritySelect);
         order.add(this.clockSpeedSlider);
@@ -201,14 +202,7 @@ public class NewProductionPanel extends BasePanel
 
     private List<ProductionMaterialSource> getMaterialSources()
     {
-        return this.materialSourceFields.entrySet().stream()
-            .map(entry -> {
-                MaterialSourceGroup sourceGroup = (MaterialSourceGroup) entry.getValue().getSelectedItem();
-                return new ProductionMaterialSource()
-                    .setItemKey(entry.getKey())
-                    .setGroup(sourceGroup == null ? "" : sourceGroup.group());
-            })
-            .toList();
+        return this.materialSourceSelector == null ? List.of() : this.materialSourceSelector.getMaterialSources();
     }
 
     private String requiredFieldLabel(String key)
@@ -364,7 +358,7 @@ public class NewProductionPanel extends BasePanel
 
     private void updateMaterialSources()
     {
-        this.materialSourceFields.clear();
+        this.materialSourceSelector = null;
         this.materialSourcesPanel.removeAll();
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
         boolean visible = selectedRecipe != null
@@ -379,7 +373,16 @@ public class NewProductionPanel extends BasePanel
             return;
         }
 
-        int row = 0;
+        this.materialSourceSelector = new MaterialSourceSelector(
+            this.productionService,
+            this.getLanguage(),
+            this.numberFormat,
+            this.selectedLanguage,
+            () -> {
+                this.resizeDialogToContent();
+                this.createFocusTraversalPolicy();
+            }
+        );
         for (Item ingredient : selectedRecipe.getIngredients()) {
             antafes.sf.manager.entity.Item item = ingredient.getResource();
             if (item == null || item.getKey() == null) {
@@ -388,63 +391,15 @@ public class NewProductionPanel extends BasePanel
             if (item.isHandCollected()) {
                 continue;
             }
-            JLabel itemLabel = new JLabel(
-                item.getName().getLocalizedName(this.selectedLanguage) + " *"
-            );
-            JComboBox<MaterialSourceGroup> sourceGroupSelect = new JComboBox<>(
-                this.productionService.getMaterialSourceGroups(item).toArray(MaterialSourceGroup[]::new)
-            );
-            sourceGroupSelect.setRenderer(this.materialSourceGroupRenderer());
-            sourceGroupSelect.setSelectedIndex(-1);
-            this.materialSourceFields.put(item.getKey(), sourceGroupSelect);
-            this.addMaterialSourceRow(row++, itemLabel, sourceGroupSelect);
+            this.materialSourceSelector.addMaterial(item, true, List.of(), Set.of());
         }
+        GridBagConstraints selectorConstraints = new GridBagConstraints();
+        selectorConstraints.weightx = 1;
+        selectorConstraints.fill = GridBagConstraints.HORIZONTAL;
+        this.materialSourcesPanel.add(this.materialSourceSelector, selectorConstraints);
         this.materialSourcesPanel.revalidate();
         this.materialSourcesPanel.repaint();
         this.resizeDialogToContent();
-    }
-
-    private void addMaterialSourceRow(
-        int row,
-        JLabel label,
-        JComboBox<MaterialSourceGroup> sourceGroupSelect
-    )
-    {
-        GridBagConstraints labelConstraints = new GridBagConstraints();
-        labelConstraints.gridx = 0;
-        labelConstraints.gridy = row;
-        labelConstraints.anchor = GridBagConstraints.LINE_START;
-        labelConstraints.insets = new Insets(3, 4, 3, 8);
-        this.materialSourcesPanel.add(label, labelConstraints);
-
-        GridBagConstraints selectConstraints = new GridBagConstraints();
-        selectConstraints.gridx = 1;
-        selectConstraints.gridy = row;
-        selectConstraints.weightx = 1;
-        selectConstraints.fill = GridBagConstraints.HORIZONTAL;
-        selectConstraints.insets = new Insets(3, 4, 3, 4);
-        this.materialSourcesPanel.add(sourceGroupSelect, selectConstraints);
-    }
-
-    private DefaultListCellRenderer materialSourceGroupRenderer()
-    {
-        return new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(
-                JList<?> list,
-                Object value,
-                int index,
-                boolean isSelected,
-                boolean cellHasFocus
-            ) {
-                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                if (value instanceof MaterialSourceGroup sourceGroup) {
-                    this.setText(sourceGroup.group() + " ("
-                        + NewProductionPanel.this.numberFormat.format(sourceGroup.production()) + " / min)");
-                }
-                return this;
-            }
-        };
     }
 
     private void restoreSelectedPressurizer()

@@ -320,6 +320,27 @@ public class ProductionService
 
     public List<MaterialSourceGroup> getMaterialSourceGroups(Item item)
     {
+        return this.getMaterialSourceGroups(item, Set.of(), false);
+    }
+
+    /**
+     * Returns the groups producing the item with the production that is not yet consumed by other productions.
+     * The given productions are ignored as consumers, so their own allocation counts as free.
+     */
+    public List<MaterialSourceGroup> getRemainingMaterialSourceGroups(
+        Item item,
+        Collection<UUID> excludedConsumerIds
+    )
+    {
+        return this.getMaterialSourceGroups(item, excludedConsumerIds, true);
+    }
+
+    private List<MaterialSourceGroup> getMaterialSourceGroups(
+        Item item,
+        Collection<UUID> excludedConsumerIds,
+        boolean remainingOnly
+    )
+    {
         if (item == null || item.getKey() == null) {
             throw new IllegalArgumentException("A material item is required.");
         }
@@ -328,17 +349,23 @@ public class ProductionService
         Map<UUID, Production> productionsById = productions.stream()
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
+        Map<MaterialOutput, Double> usage = remainingOnly
+            ? this.getMaterialUsageWithStorage(productions, productionsById, excludedConsumerIds)
+            : Map.of();
         return productions.stream()
             .filter(production -> this.producesMaterial(production, item.getKey()))
             .filter(production -> production.getGroup() != null && !production.getGroup().isBlank())
             .collect(Collectors.groupingBy(
                 Production::getGroup,
                 () -> new TreeMap<>(NaturalOrder.COMPARATOR),
-                Collectors.summingDouble(production ->
+                Collectors.summingDouble(production -> Math.max(
+                    0,
                     this.getMaterialSourceProduction(production, item, productionsById)
-                )
+                        - usage.getOrDefault(new MaterialOutput(production.getId(), item.getKey()), 0.0)
+                ))
             ))
             .entrySet().stream()
+            .filter(entry -> !remainingOnly || entry.getValue() > 0.000001)
             .map(entry -> new MaterialSourceGroup(entry.getKey(), entry.getValue()))
             .toList();
     }
@@ -984,6 +1011,15 @@ public class ProductionService
         Map<UUID, Production> productionsById
     )
     {
+        return this.getMaterialUsageByOutput(productions, productionsById, Set.of());
+    }
+
+    private Map<MaterialOutput, Double> getMaterialUsageByOutput(
+        List<Production> productions,
+        Map<UUID, Production> productionsById,
+        Collection<UUID> excludedConsumerIds
+    )
+    {
         Map<MaterialOutput, Double> remainingOutputs = new HashMap<>();
         for (Production production : productions) {
             if (production.getId() == null || production.getGroup() == null || production.getGroup().isBlank()) {
@@ -1018,7 +1054,8 @@ public class ProductionService
         for (Production production : productions) {
             Recipe recipe = production.getSelectedRecipe();
             Building building = production.getSelectedBuilding();
-            if (recipe == null || building == null || recipe.getIngredients() == null) {
+            if (recipe == null || building == null || recipe.getIngredients() == null
+                || (production.getId() != null && excludedConsumerIds.contains(production.getId()))) {
                 continue;
             }
             for (antafes.sf.manager.entity.recipe.Item ingredient : recipe.getIngredients()) {
@@ -1026,30 +1063,29 @@ public class ProductionService
                 if (item == null || item.getKey() == null || ingredient.getAmount() == null) {
                     throw new IllegalStateException("A recipe ingredient is incomplete.");
                 }
-                String sourceGroup = this.getMaterialSourceGroup(production, item.getKey());
-                if (sourceGroup == null || sourceGroup.isBlank()) {
-                    continue;
-                }
+                List<String> sourceGroups = this.getMaterialSourceGroupNames(production, item.getKey());
                 double remainingDemand = ProductionCalculator.calculateProduction(
                     ingredient.getAmount(),
                     this.getClockSpeed(production),
                     production.getUsedSomersloops(),
                     building.getSomersloopSlots()
                 );
-                for (Production source : productions) {
-                    if (remainingDemand <= 0 || !sourceGroup.equals(source.getGroup())
-                        || !this.producesMaterial(source, item.getKey())) {
-                        continue;
+                for (String sourceGroup : sourceGroups) {
+                    for (Production source : productions) {
+                        if (remainingDemand <= 0 || !sourceGroup.equals(source.getGroup())
+                            || !this.producesMaterial(source, item.getKey())) {
+                            continue;
+                        }
+                        MaterialOutput output = new MaterialOutput(source.getId(), item.getKey());
+                        double available = remainingOutputs.getOrDefault(output, 0.0);
+                        double allocated = Math.min(remainingDemand, available);
+                        if (allocated <= 0) {
+                            continue;
+                        }
+                        usage.merge(output, allocated, Double::sum);
+                        remainingOutputs.put(output, available - allocated);
+                        remainingDemand -= allocated;
                     }
-                    MaterialOutput output = new MaterialOutput(source.getId(), item.getKey());
-                    double available = remainingOutputs.getOrDefault(output, 0.0);
-                    double allocated = Math.min(remainingDemand, available);
-                    if (allocated <= 0) {
-                        continue;
-                    }
-                    usage.merge(output, allocated, Double::sum);
-                    remainingOutputs.put(output, available - allocated);
-                    remainingDemand -= allocated;
                 }
             }
         }
@@ -1131,14 +1167,20 @@ public class ProductionService
 
     private String getMaterialSourceGroup(Production production, String itemKey)
     {
+        List<String> groups = this.getMaterialSourceGroupNames(production, itemKey);
+        return groups.isEmpty() ? null : String.join(", ", groups);
+    }
+
+    private List<String> getMaterialSourceGroupNames(Production production, String itemKey)
+    {
         if (production.getMaterialSources() == null) {
-            return null;
+            return List.of();
         }
         return production.getMaterialSources().stream()
             .filter(materialSource -> itemKey.equals(materialSource.getItemKey()))
             .map(ProductionMaterialSource::getGroup)
-            .findFirst()
-            .orElse(null);
+            .filter(group -> group != null && !group.isBlank())
+            .toList();
     }
 
     private boolean producesMaterial(Production production, String itemKey)
@@ -1188,15 +1230,11 @@ public class ProductionService
                 ingredients.put(item.getKey(), item);
             }
         }
-        if (materialSources == null || materialSources.size() != ingredients.size()) {
-            throw new IllegalArgumentException("Every recipe ingredient requires a material source group.");
-        }
-
-        Set<String> sourceItemKeys = new HashSet<>();
+        Set<String> coveredItemKeys = new HashSet<>();
+        Set<String> sourcePairs = new HashSet<>();
         for (ProductionMaterialSource materialSource : materialSources) {
-            if (materialSource == null || materialSource.getItemKey() == null
-                || !sourceItemKeys.add(materialSource.getItemKey())) {
-                throw new IllegalArgumentException("Every recipe ingredient requires one material source group.");
+            if (materialSource == null || materialSource.getItemKey() == null) {
+                throw new IllegalArgumentException("Every material source requires a recipe ingredient.");
             }
             Item ingredient = ingredients.get(materialSource.getItemKey());
             String group = this.normalizeOptionalText(materialSource.getGroup());
@@ -1207,7 +1245,17 @@ public class ProductionService
                     "The selected material source group does not produce " + materialSource.getItemKey() + "."
                 );
             }
+            if (!sourcePairs.add(materialSource.getItemKey() + "\n" + group)) {
+                throw new IllegalArgumentException(
+                    "The material source group " + group + " is selected more than once for "
+                        + materialSource.getItemKey() + "."
+                );
+            }
+            coveredItemKeys.add(materialSource.getItemKey());
             materialSource.setGroup(group);
+        }
+        if (!coveredItemKeys.equals(ingredients.keySet())) {
+            throw new IllegalArgumentException("Every recipe ingredient requires a material source group.");
         }
     }
 
@@ -1290,7 +1338,18 @@ public class ProductionService
         Map<UUID, Production> productionsById
     )
     {
-        Map<MaterialOutput, Double> usage = new HashMap<>(this.getMaterialUsageByOutput(productions, productionsById));
+        return this.getMaterialUsageWithStorage(productions, productionsById, Set.of());
+    }
+
+    private Map<MaterialOutput, Double> getMaterialUsageWithStorage(
+        List<Production> productions,
+        Map<UUID, Production> productionsById,
+        Collection<UUID> excludedConsumerIds
+    )
+    {
+        Map<MaterialOutput, Double> usage = new HashMap<>(
+            this.getMaterialUsageByOutput(productions, productionsById, excludedConsumerIds)
+        );
         StorageService storageService = this.storageServiceProvider.getIfAvailable();
         if (storageService == null) {
             return usage;
