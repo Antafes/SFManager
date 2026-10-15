@@ -20,32 +20,56 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.Configuration;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.entity.Production;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.entity.ProductionMaterialSource;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.util.BulkOperationRunner;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.ProductionService;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.dto.BulkProductionEdit;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.dto.MaterialSourceGroup;
+import antafes.sf.manager.gui.BasePanel;
 import jakarta.annotation.PostConstruct;
+import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.annotation.Autowired;
+import antafes.sf.manager.gui.BasePanel;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import antafes.sf.manager.gui.BasePanel;
 import org.springframework.context.annotation.Scope;
 
+import antafes.sf.manager.gui.BasePanel;
 import javax.swing.*;
+import antafes.sf.manager.gui.BasePanel;
 import java.awt.*;
+import antafes.sf.manager.gui.BasePanel;
 import java.text.NumberFormat;
+import antafes.sf.manager.gui.BasePanel;
 import java.text.ParsePosition;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.ArrayList;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.List;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.LinkedHashMap;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.Locale;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.Map;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.Objects;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.UUID;
+import antafes.sf.manager.gui.BasePanel;
 import java.util.function.Function;
 
 @org.springframework.stereotype.Component

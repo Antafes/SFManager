@@ -20,14 +20,12 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
-import antafes.sf.manager.SFManager;
 import antafes.sf.manager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -36,60 +34,35 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class BulkEditProductionDialog extends JDialog
+public class NewFactoryDialog extends JDialog
 {
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
     private Configuration configuration;
-    private final List<UUID> productionIds;
     private LanguageInterface language;
-    @Getter
-    private boolean saved;
 
-    public BulkEditProductionDialog(Frame owner, boolean modal, List<UUID> productionIds)
+    public NewFactoryDialog(Frame owner, boolean modal)
     {
         super(owner, modal);
-        this.productionIds = List.copyOf(productionIds);
-    }
-
-    public void setSaved()
-    {
-        this.saved = true;
     }
 
     @PostConstruct
     private void initializeDialog()
     {
+        this.language = this.configuration.getLanguageObject();
         this.setResizable(false);
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        this.language = this.configuration.getLanguageObject();
-        this.initializeLookAndFeel();
         this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
-        this.add(this.applicationContext.getBean(
-            BulkEditProductionPanel.class,
-            this,
-            this.configuration,
-            this.productionIds
-        ));
-        this.setTitle(this.language.translate("editProductions"));
-        this.pack();
-    }
 
-    private void initializeLookAndFeel()
-    {
-        try {
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                 | UnsupportedLookAndFeelException exception) {
-            Logger.getLogger(SFManager.class.getName()).log(Level.SEVERE, null, exception);
-        }
+        NewFactoryPanel panel = this.applicationContext.getBean(
+            NewFactoryPanel.class, this, this.configuration
+        );
+        this.add(panel);
+        this.setTitle(this.language.translate("newFactory"));
+        this.pack();
     }
 }

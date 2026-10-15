@@ -20,7 +20,7 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
