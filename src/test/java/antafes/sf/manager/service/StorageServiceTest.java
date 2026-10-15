@@ -104,6 +104,8 @@ public class StorageServiceTest extends BaseTest
                 .orElseThrow();
             assertEquals(30, overviewMaterial.usage(), 0.0001);
             assertEquals(0, overviewMaterial.production() - overviewMaterial.usage(), 0.0001);
+            Item storedItem = recipe.getProducts().getFirst().getResource();
+            assertEquals(30, productionService.getRecipeProductions(storedItem).getFirst().usage(), 0.0001);
             assertTrue(storageService.getAvailableChoices().isEmpty());
             assertThrows(
                 IllegalArgumentException.class,
