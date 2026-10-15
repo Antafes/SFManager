@@ -178,7 +178,7 @@ public class ProductionService
         Map<UUID, Production> productionsById = factoryProductions.stream()
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
-        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageByOutput(
+        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageWithStorage(
             factoryProductions,
             productionsById
         );
@@ -288,7 +288,7 @@ public class ProductionService
         Map<UUID, Production> productionsById = productions.stream()
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
-        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageByOutput(
+        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageWithStorage(
             productions,
             productionsById
         );
@@ -1283,6 +1283,26 @@ public class ProductionService
                 storageItem -> storageItem.rate(),
                 Double::sum
             ));
+    }
+
+    private Map<MaterialOutput, Double> getMaterialUsageWithStorage(
+        List<Production> productions,
+        Map<UUID, Production> productionsById
+    )
+    {
+        Map<MaterialOutput, Double> usage = new HashMap<>(this.getMaterialUsageByOutput(productions, productionsById));
+        StorageService storageService = this.storageServiceProvider.getIfAvailable();
+        if (storageService == null) {
+            return usage;
+        }
+        storageService.getStoredItems().stream()
+            .flatMap(storageItem -> storageItem.sources().stream())
+            .forEach(choice -> usage.merge(
+                new MaterialOutput(choice.production().getId(), choice.item().getKey()),
+                choice.rate(),
+                Double::sum
+            ));
+        return usage;
     }
 
     private ResourceProductionEntry toResourceProductionEntry(
