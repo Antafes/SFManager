@@ -20,7 +20,7 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.util;
 
 import lombok.Setter;
 import lombok.experimental.UtilityClass;

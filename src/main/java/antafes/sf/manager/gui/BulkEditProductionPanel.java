@@ -26,6 +26,7 @@ import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.entity.ProductionMaterialSource;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
+import antafes.sf.manager.gui.util.BulkOperationRunner;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.dto.BulkProductionEdit;
 import antafes.sf.manager.service.dto.MaterialSourceGroup;

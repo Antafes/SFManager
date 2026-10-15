@@ -22,6 +22,7 @@
 
 package antafes.sf.manager.gui;
 
+import antafes.sf.manager.gui.util.BulkOperationRunner;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.util.ProductionLabelFormatter;
 import antafes.utilities.language.LanguageInterface;
