@@ -70,6 +70,30 @@ public class Configuration extends BaseConfiguration
         return directory.isDirectory() ? directory : null;
     }
 
+    public Dimension getWindowSize()
+    {
+        String width = this.getProperties().getProperty("windowWidth");
+        String height = this.getProperties().getProperty("windowHeight");
+        if (width == null || height == null) {
+            return null;
+        }
+
+        try {
+            int parsedWidth = Integer.parseInt(width);
+            int parsedHeight = Integer.parseInt(height);
+
+            return parsedWidth > 0 && parsedHeight > 0 ? new Dimension(parsedWidth, parsedHeight) : null;
+        } catch (NumberFormatException exception) {
+            return null;
+        }
+    }
+
+    public void setWindowSize(Dimension size)
+    {
+        this.getProperties().setProperty("windowWidth", String.valueOf(size.width));
+        this.getProperties().setProperty("windowHeight", String.valueOf(size.height));
+    }
+
     public void setLastImportDirectory(File directory)
     {
         if (directory == null) {

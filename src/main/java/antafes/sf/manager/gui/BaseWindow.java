@@ -24,18 +24,19 @@ package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
+import antafes.sf.manager.gui.dialog.NewFactoryDialog;
+import antafes.sf.manager.gui.dialog.NewProductionDialog;
+import antafes.sf.manager.gui.dialog.NewStorageDialog;
+import antafes.sf.manager.gui.dialog.OpenFactoryDialog;
 import antafes.sf.manager.gui.event.*;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ImportService;
-import antafes.sf.manager.service.dto.ImportResult;
-import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.event.FactorySelectedEvent;
-import antafes.sf.manager.service.event.ProductionDeletedEvent;
-import antafes.sf.manager.service.event.ProductionSavedEvent;
-import antafes.sf.manager.service.event.StorageChangedEvent;
+import antafes.sf.manager.service.dto.ImportResult;
+import antafes.sf.manager.service.event.*;
+import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -289,6 +290,12 @@ public class BaseWindow extends JFrame
 
     @EventListener
     private void onProductionSaved(ProductionSavedEvent event)
+    {
+        SwingUtilities.invokeLater(this::refreshResourceTabs);
+    }
+
+    @EventListener
+    private void onProductionsSaved(ProductionsSavedEvent event)
     {
         SwingUtilities.invokeLater(this::refreshResourceTabs);
     }
@@ -598,6 +605,9 @@ public class BaseWindow extends JFrame
     {
         this.configuration.setWindowLocation(this.getLocationOnScreen());
         this.configuration.setExtendedState(this.getExtendedState());
+        if ((this.getExtendedState() & MAXIMIZED_BOTH) == 0) {
+            this.configuration.setWindowSize(this.getSize());
+        }
         this.configuration.saveProperties();
         System.exit(0);
     }
@@ -634,6 +644,10 @@ public class BaseWindow extends JFrame
         }
 
         this.setLocation(this.configuration.getWindowLocation());
+        java.awt.Dimension windowSize = this.configuration.getWindowSize();
+        if (windowSize != null) {
+            this.setSize(windowSize);
+        }
         this.setExtendedState(this.configuration.getExtendedState());
     }
 }

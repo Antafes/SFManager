@@ -27,11 +27,13 @@ import antafes.sf.manager.entity.*;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.repository.xml.productions.ProductionData;
 import antafes.sf.manager.repository.xml.productions.ProductionsData;
+import antafes.sf.manager.service.dto.BulkProductionEdit;
 import antafes.sf.manager.service.dto.FactoryOverviewData;
 import antafes.sf.manager.service.dto.FactoryOverviewMaterial;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
 import antafes.sf.manager.service.event.ProductionSavedEvent;
+import antafes.sf.manager.service.event.ProductionsSavedEvent;
 import jakarta.xml.bind.JAXBContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -478,6 +480,368 @@ public class ProductionServiceTest extends BaseTest
             assertNotNull(this.productionRepository.findOne(production.getId()));
             assertTrue(ownerFactory.getProductions().contains(production.getId().toString()));
         }
+    }
+
+    @Test
+    public void testBulkDeleteKeepsPressurizerWhenOnlyItsExtractorsAreSelected() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Delete Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Building pressurizerBuilding = this.findBuilding("well_pressurizer");
+            Production pressurizer = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(pressurizerBuilding)
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            Production extractor = this.saveExtractor(pressurizer);
+            Production secondExtractor = this.saveExtractor(pressurizer);
+            Production smelter = this.saveSmelter("Iron", "1, 2");
+            AtomicReference<List<ProductionDeletedEvent>> events = new AtomicReference<>(new java.util.ArrayList<>());
+            context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
+                if (event instanceof PayloadApplicationEvent<?> payload
+                    && payload.getPayload() instanceof ProductionDeletedEvent deletedEvent) {
+                    events.get().add(deletedEvent);
+                }
+            });
+
+            List<Production> deleted = this.productionService.deleteProductions(
+                List.of(extractor.getId(), smelter.getId(), extractor.getId())
+            );
+
+            assertEquals(List.of(extractor, smelter), deleted);
+            assertEquals(1, events.get().size());
+            assertEquals(deleted, events.get().get(0).productions());
+            assertNotNull(this.productionRepository.findOne(pressurizer.getId()));
+            assertNotNull(this.productionRepository.findOne(secondExtractor.getId()));
+            assertTrue(factory.getProductions().contains(pressurizer.getId().toString()));
+            assertFalse(factory.getProductions().contains(extractor.getId().toString()));
+            assertFalse(factory.getProductions().contains(smelter.getId().toString()));
+        }
+    }
+
+    @Test
+    public void testBulkDeleteIncludesExtractorsOfSelectedPressurizerOnce() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Delete Cascade Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Production pressurizer = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(this.findBuilding("well_pressurizer"))
+                .setPurity(Purity.NORMAL)
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            Production extractor = this.saveExtractor(pressurizer);
+            Production smelter = this.saveSmelter("Iron", null);
+
+            List<Production> affected = this.productionService.getProductionsAffectedByDeletion(
+                List.of(pressurizer.getId(), extractor.getId(), smelter.getId())
+            );
+            List<Production> deleted = this.productionService.deleteProductions(
+                List.of(pressurizer.getId(), extractor.getId(), smelter.getId())
+            );
+
+            assertEquals(List.of(pressurizer, extractor, smelter), affected);
+            assertEquals(affected, deleted);
+            assertTrue(factory.getProductions().isEmpty());
+            assertTrue(this.productionRepository.findAll().isEmpty());
+        }
+    }
+
+    @Test
+    public void testBulkDeleteRejectsProductionOfAnotherFactoryWithoutDeletingAnything() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory ownerFactory = this.factoryService.createFactory("Bulk Owner Factory");
+            context.publishEvent(new FactorySelectedEvent(ownerFactory));
+            Production foreign = this.saveSmelter("Foreign", null);
+            Factory otherFactory = this.factoryService.createFactory("Bulk Other Factory");
+            context.publishEvent(new FactorySelectedEvent(otherFactory));
+            Production own = this.saveSmelter("Own", null);
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.deleteProductions(List.of(own.getId(), foreign.getId()))
+            );
+            assertThrows(IllegalArgumentException.class, () -> this.productionService.deleteProductions(List.of()));
+            assertNotNull(this.productionRepository.findOne(own.getId()));
+            assertTrue(otherFactory.getProductions().contains(own.getId().toString()));
+        }
+    }
+
+    @Test
+    public void testBulkEditChangesOnlyTheGivenFieldsAndPublishesOneEvent() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Edit Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Production first = this.saveSmelter("Iron", "1, 2");
+            Production second = this.saveSmelter("Copper", "3, 4");
+            List<ProductionsSavedEvent> events = new java.util.ArrayList<>();
+            context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
+                if (event instanceof PayloadApplicationEvent<?> payload
+                    && payload.getPayload() instanceof ProductionsSavedEvent savedEvent) {
+                    events.add(savedEvent);
+                }
+            });
+
+            this.productionService.editProductions(
+                List.of(first.getId(), second.getId()),
+                new BulkProductionEdit(" Shared ", "", 150.0, 1)
+            );
+
+            assertEquals("Shared", first.getGroup());
+            assertEquals("Shared", second.getGroup());
+            assertNull(first.getPosition());
+            assertNull(second.getPosition());
+            assertEquals(150.0, first.getClockSpeed(), 0.0001);
+            assertEquals(1, second.getUsedSomersloops());
+            assertEquals(1, events.size());
+
+            this.productionService.editProductions(
+                List.of(first.getId(), second.getId()),
+                new BulkProductionEdit(null, "9, 9", null, null)
+            );
+
+            assertEquals("Shared", first.getGroup());
+            assertEquals("9, 9", second.getPosition());
+            assertEquals(150.0, second.getClockSpeed(), 0.0001);
+            assertEquals(1, first.getUsedSomersloops());
+            assertEquals(2, events.size());
+        }
+    }
+
+    @Test
+    public void testBulkEditBlocksSomersloopChangesForDifferentBuildings() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Edit Mixed Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Production smelter = this.saveSmelter("Iron", null);
+            Building constructor = this.findBuilding("constructor");
+            Production constructorProduction = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(constructor)
+                .setSelectedRecipe(this.productionService.getRecipesForBuilding("constructor").stream()
+                    .filter(candidate -> "iron_plate".equals(candidate.getKey()))
+                    .findFirst()
+                    .orElseThrow())
+                .setGroup("Plates")
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            List<java.util.UUID> ids = List.of(smelter.getId(), constructorProduction.getId());
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(ids, new BulkProductionEdit("Changed", null, null, 1))
+            );
+            assertEquals("Iron", smelter.getGroup());
+            assertEquals("Plates", constructorProduction.getGroup());
+            assertEquals(0, smelter.getUsedSomersloops());
+
+            this.productionService.editProductions(ids, new BulkProductionEdit("Changed", null, 120.0, null));
+
+            assertEquals("Changed", smelter.getGroup());
+            assertEquals(120.0, constructorProduction.getClockSpeed(), 0.0001);
+        }
+    }
+
+    @Test
+    public void testBulkEditRestoresAllProductionsWhenValidationFails() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Edit Rollback Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Production first = this.saveSmelter("Iron", "1");
+            Production second = this.saveSmelter("Copper", "2");
+            List<java.util.UUID> ids = List.of(first.getId(), second.getId());
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(ids, new BulkProductionEdit("Changed", null, 251.0, null))
+            );
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(ids, new BulkProductionEdit("Changed", null, null, 99))
+            );
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(ids, new BulkProductionEdit(" ", null, null, null))
+            );
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(ids, new BulkProductionEdit(null, null, null, null))
+            );
+
+            assertEquals("Iron", first.getGroup());
+            assertEquals("Copper", second.getGroup());
+            assertEquals(100.0, first.getClockSpeed(), 0.0001);
+            assertEquals(0, second.getUsedSomersloops());
+        }
+    }
+
+    @Test
+    public void testBulkEditChangesMaterialSourcesOnlyForTheSameRecipe() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = this.factoryService.createFactory("Bulk Edit Sources Factory");
+            context.publishEvent(new FactorySelectedEvent(factory));
+            Item iron = this.productionService.getResourceItems().stream()
+                .filter(item -> "iron".equals(item.getKey()))
+                .findFirst()
+                .orElseThrow();
+            for (String group : List.of("Ore A", "Ore B")) {
+                this.productionService.saveProduction(new Production()
+                    .setSelectedBuilding(this.findBuilding("miner_1"))
+                    .setSelectedItem(iron)
+                    .setGroup(group)
+                    .setPurity(Purity.NORMAL)
+                    .setClockSpeed(100.0)
+                    .setUsedSomersloops(0));
+            }
+            Production first = this.saveSmelter("Iron 1", null);
+            Production second = this.saveSmelter("Iron 2", null);
+            first.setMaterialSources(List.of(this.source("iron", "Ore A")));
+            second.setMaterialSources(List.of(this.source("iron", "Ore A")));
+            List<java.util.UUID> ids = List.of(first.getId(), second.getId());
+
+            this.productionService.editProductions(
+                ids,
+                new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore B")))
+            );
+
+            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+            assertEquals("Ore B", second.getMaterialSources().get(0).getGroup());
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(
+                    ids,
+                    new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Missing")))
+                )
+            );
+            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+
+            Production plate = this.productionService.saveProduction(new Production()
+                .setSelectedBuilding(this.findBuilding("constructor"))
+                .setSelectedRecipe(this.productionService.getRecipesForBuilding("constructor").stream()
+                    .filter(candidate -> "iron_plate".equals(candidate.getKey()))
+                    .findFirst()
+                    .orElseThrow())
+                .setGroup("Plates")
+                .setClockSpeed(100.0)
+                .setUsedSomersloops(0));
+            List<java.util.UUID> mixedIds = List.of(first.getId(), plate.getId());
+
+            assertThrows(
+                IllegalArgumentException.class,
+                () -> this.productionService.editProductions(
+                    mixedIds,
+                    new BulkProductionEdit(null, null, null, null, List.of(this.source("iron", "Ore A")))
+                )
+            );
+            assertEquals("Ore B", first.getMaterialSources().get(0).getGroup());
+        }
+    }
+
+    private Building findBuilding(String key)
+    {
+        return this.productionService.getBuildings().stream()
+            .filter(building -> key.equals(building.getKey()))
+            .findFirst()
+            .orElseThrow();
+    }
+
+    private Production saveSmelter(String group, String position) throws IOException
+    {
+        Building smelter = this.findBuilding("smelter");
+        return this.productionService.saveProduction(new Production()
+            .setSelectedBuilding(smelter)
+            .setSelectedRecipe(this.productionService.getRecipesForBuilding(smelter.getKey()).stream()
+                .filter(candidate -> "iron_ingot".equals(candidate.getKey()))
+                .findFirst()
+                .orElseThrow())
+            .setGroup(group)
+            .setPosition(position)
+            .setClockSpeed(100.0)
+            .setUsedSomersloops(0));
+    }
+
+    private Production saveExtractor(Production pressurizer) throws IOException
+    {
+        Item water = this.productionService.getResourceItems().stream()
+            .filter(item -> "water".equals(item.getKey()))
+            .findFirst()
+            .orElseThrow();
+        return this.productionService.saveProduction(new Production()
+            .setSelectedBuilding(this.findBuilding("well_extractor"))
+            .setSelectedItem(water)
+            .setPurity(Purity.NORMAL)
+            .setPressurizerId(pressurizer.getId())
+            .setClockSpeed(100.0)
+            .setUsedSomersloops(0));
     }
 
     @Test

@@ -20,9 +20,10 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.service.FactoryService;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
 import jakarta.annotation.PostConstruct;

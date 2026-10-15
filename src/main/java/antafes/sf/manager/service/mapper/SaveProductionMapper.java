@@ -31,24 +31,14 @@ import antafes.sf.manager.repository.ItemRepository;
 import antafes.sf.manager.repository.RecipeRepository;
 import antafes.sf.manager.service.dto.ImportResult;
 import antafes.sf.manager.service.dto.SkippedMachine;
-import antafes.sf.saveparser.dto.ActorHeader;
-import antafes.sf.saveparser.dto.ObjectReference;
-import antafes.sf.saveparser.dto.ParsedSave;
-import antafes.sf.saveparser.dto.SaveLevel;
-import antafes.sf.saveparser.dto.SaveObject;
-import antafes.sf.saveparser.dto.SaveObjectHeader;
-import antafes.sf.saveparser.dto.SaveProperty;
+import antafes.sf.saveparser.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Converts the machines of a parsed save into productions using the data-driven mapping

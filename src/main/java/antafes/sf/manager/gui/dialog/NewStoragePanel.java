@@ -20,11 +20,12 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.entity.Storage;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.StorageService;
 import antafes.sf.manager.service.dto.StorageProductionChoice;

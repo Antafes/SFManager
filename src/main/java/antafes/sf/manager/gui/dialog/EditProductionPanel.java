@@ -20,11 +20,12 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
+import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.recipe.Item;
-import antafes.sf.manager.Configuration;
+import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.dto.MaterialSourceGroup;

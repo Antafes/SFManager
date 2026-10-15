@@ -30,6 +30,7 @@ import antafes.sf.manager.repository.RecipeRepository;
 import antafes.sf.manager.service.dto.*;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
 import antafes.sf.manager.service.event.ProductionSavedEvent;
+import antafes.sf.manager.service.event.ProductionsSavedEvent;
 import antafes.sf.manager.util.NaturalOrder;
 import antafes.sf.manager.util.PowerCalculator;
 import antafes.sf.manager.util.ProductionCalculator;
@@ -551,27 +552,27 @@ public class ProductionService
         if (productionId == null) {
             throw new IllegalArgumentException("A production ID is required.");
         }
-        Factory currentFactory = this.factoryService.getCurrentFactory();
-        if (currentFactory == null) {
-            throw new IllegalStateException("Open a factory before deleting a production.");
-        }
-        List<String> factoryProductionIds = currentFactory.getProductions();
-        if (factoryProductionIds == null || !factoryProductionIds.contains(productionId.toString())) {
-            throw new IllegalArgumentException("The production does not belong to the active factory.");
-        }
 
-        Production production = this.productionRepository.findOne(productionId);
-        if (production == null) {
-            throw new IllegalStateException("The production assigned to the active factory could not be loaded.");
-        }
-        List<Production> productionsToDelete = new ArrayList<>();
-        productionsToDelete.add(production);
-        if (production.getSelectedBuilding() != null
-            && "well_pressurizer".equals(production.getSelectedBuilding().getKey())) {
-            this.getCurrentFactoryProductions().stream()
-                .filter(candidate -> productionId.equals(candidate.getPressurizerId()))
-                .forEach(productionsToDelete::add);
-        }
+        return this.deleteProductions(List.of(productionId));
+    }
+
+    /**
+     * Returns the productions a deletion of the given productions removes. Selected pressurizers bring their well
+     * extractors along; a pressurizer is never removed unless it is selected itself.
+     */
+    public List<Production> getProductionsAffectedByDeletion(Collection<UUID> productionIds)
+    {
+        return this.resolveProductionsToDelete(this.getCurrentFactoryForDeletion(), productionIds);
+    }
+
+    public List<Production> deleteProductions(Collection<UUID> selectedProductionIds) throws IOException
+    {
+        Factory currentFactory = this.getCurrentFactoryForDeletion();
+        List<String> factoryProductionIds = currentFactory.getProductions();
+        List<Production> productionsToDelete = this.resolveProductionsToDelete(
+            currentFactory,
+            selectedProductionIds
+        );
         List<String> productionIds = productionsToDelete.stream()
             .map(candidate -> candidate.getId().toString())
             .toList();
@@ -610,6 +611,49 @@ public class ProductionService
 
         this.eventPublisher.publishEvent(new ProductionDeletedEvent(productionsToDelete));
         return List.copyOf(productionsToDelete);
+    }
+
+    private Factory getCurrentFactoryForDeletion()
+    {
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        if (currentFactory == null) {
+            throw new IllegalStateException("Open a factory before deleting a production.");
+        }
+
+        return currentFactory;
+    }
+
+    private List<Production> resolveProductionsToDelete(Factory currentFactory, Collection<UUID> selectedIds)
+    {
+        if (selectedIds == null || selectedIds.isEmpty() || selectedIds.stream().anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("A production ID is required.");
+        }
+        List<String> factoryProductionIds = currentFactory.getProductions();
+        Map<UUID, Production> productionsToDelete = new LinkedHashMap<>();
+        for (UUID productionId : new LinkedHashSet<>(selectedIds)) {
+            if (factoryProductionIds == null || !factoryProductionIds.contains(productionId.toString())) {
+                throw new IllegalArgumentException("The production does not belong to the active factory.");
+            }
+            Production production = this.productionRepository.findOne(productionId);
+            if (production == null) {
+                throw new IllegalStateException(
+                    "The production assigned to the active factory could not be loaded."
+                );
+            }
+            productionsToDelete.put(productionId, production);
+        }
+        List<UUID> selectedPressurizerIds = productionsToDelete.values().stream()
+            .filter(production -> production.getSelectedBuilding() != null
+                && "well_pressurizer".equals(production.getSelectedBuilding().getKey()))
+            .map(Production::getId)
+            .toList();
+        if (!selectedPressurizerIds.isEmpty()) {
+            this.getCurrentFactoryProductions().stream()
+                .filter(candidate -> selectedPressurizerIds.contains(candidate.getPressurizerId()))
+                .forEach(candidate -> productionsToDelete.putIfAbsent(candidate.getId(), candidate));
+        }
+
+        return List.copyOf(productionsToDelete.values());
     }
 
     public Production editProduction(
@@ -672,6 +716,103 @@ public class ProductionService
         }
         this.eventPublisher.publishEvent(new ProductionSavedEvent(production));
         return production;
+    }
+
+    public List<Production> getProductionsForEditing(Collection<UUID> productionIds)
+    {
+        return this.loadCurrentFactoryProductions(productionIds);
+    }
+
+    /**
+     * Applies the same changes to several productions with the same restrictions as {@link #editProduction}.
+     * Used Somersloops can only be changed if all productions use the same building. Either all productions are
+     * updated or none, and the UI is notified once after everything has been saved.
+     */
+    public List<Production> editProductions(Collection<UUID> productionIds, BulkProductionEdit edit)
+        throws IOException
+    {
+        if (edit == null || edit.isEmpty()) {
+            throw new IllegalArgumentException("At least one change is required.");
+        }
+        if (edit.group() != null && edit.group().isBlank()) {
+            throw new IllegalArgumentException("A production group is required.");
+        }
+        List<Production> productions = this.loadCurrentFactoryProductions(productionIds);
+        if (edit.usedSomersloops() != null
+            && productions.stream().map(production -> production.getSelectedBuilding().getKey()).distinct().count() > 1) {
+            throw new IllegalArgumentException(
+                "Used Somersloops cannot be changed for productions of different buildings."
+            );
+        }
+        if (edit.materialSources() != null && !this.haveSameRecipe(productions)) {
+            throw new IllegalArgumentException(
+                "Material sources cannot be changed for productions with different recipes."
+            );
+        }
+        if (edit.clockSpeed() != null) {
+            for (Production production : productions) {
+                if (!production.getSelectedBuilding().isOverclockable()
+                    && Double.compare(edit.clockSpeed(), production.getClockSpeed()) != 0) {
+                    throw new IllegalArgumentException("The selected building cannot be overclocked.");
+                }
+            }
+        }
+
+        Map<UUID, Object[]> originals = new HashMap<>();
+        productions.forEach(production -> originals.put(production.getId(), new Object[] {
+            production.getClockSpeed(),
+            production.getGroup(),
+            production.getPosition(),
+            production.getUsedSomersloops(),
+            this.copyMaterialSources(production.getMaterialSources())
+        }));
+        Factory currentFactory = this.factoryService.getCurrentFactory();
+        try {
+            for (Production production : productions) {
+                if (edit.clockSpeed() != null) {
+                    production.setClockSpeed(edit.clockSpeed());
+                }
+                if (edit.group() != null) {
+                    production.setGroup(this.normalizeOptionalText(edit.group()));
+                }
+                if (edit.position() != null) {
+                    production.setPosition(this.normalizeOptionalText(edit.position()));
+                }
+                if (edit.usedSomersloops() != null) {
+                    production.setUsedSomersloops(edit.usedSomersloops());
+                }
+                if (edit.materialSources() != null) {
+                    production.setMaterialSources(this.copyMaterialSources(edit.materialSources()));
+                }
+                this.validateProduction(production, currentFactory);
+            }
+            this.productionRepository.updateProduction(currentFactory, productions.get(0));
+        } catch (IOException | RuntimeException failure) {
+            productions.forEach(production -> {
+                Object[] original = originals.get(production.getId());
+                production
+                    .setClockSpeed((Double) original[0])
+                    .setGroup((String) original[1])
+                    .setPosition((String) original[2])
+                    .setUsedSomersloops((Integer) original[3])
+                    .setMaterialSources(this.castMaterialSources(original[4]));
+            });
+            throw failure;
+        }
+        this.eventPublisher.publishEvent(new ProductionsSavedEvent(productions));
+
+        return productions;
+    }
+
+    private List<Production> loadCurrentFactoryProductions(Collection<UUID> productionIds)
+    {
+        if (productionIds == null || productionIds.isEmpty()) {
+            throw new IllegalArgumentException("A production ID is required.");
+        }
+
+        return new LinkedHashSet<>(productionIds).stream()
+            .map(this::getCurrentFactoryProduction)
+            .toList();
     }
 
     public Production upgradeMiner(UUID productionId, String targetBuildingKey) throws IOException
@@ -960,6 +1101,18 @@ public class ProductionService
             .setPressurizerId(production.getPressurizerId())
             .setClockSpeed(production.getClockSpeed())
             .setUsedSomersloops(production.getUsedSomersloops());
+    }
+
+    private boolean haveSameRecipe(List<Production> productions)
+    {
+        return productions.stream().allMatch(production -> production.getSelectedRecipe() != null)
+            && productions.stream().map(production -> production.getSelectedRecipe().getKey()).distinct().count() == 1;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<ProductionMaterialSource> castMaterialSources(Object materialSources)
+    {
+        return (List<ProductionMaterialSource>) materialSources;
     }
 
     private List<ProductionMaterialSource> copyMaterialSources(

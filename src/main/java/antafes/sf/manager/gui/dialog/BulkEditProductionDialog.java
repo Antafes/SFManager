@@ -20,7 +20,7 @@
  * @license https://www.gnu.org/licenses/lgpl.html LGPLv3
  */
 
-package antafes.sf.manager.gui;
+package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.SFManager;
@@ -36,27 +36,28 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class EditProductionDialog extends JDialog
+public class BulkEditProductionDialog extends JDialog
 {
     @Autowired
     private ApplicationContext applicationContext;
     @Autowired
     private Configuration configuration;
-    private final UUID productionId;
+    private final List<UUID> productionIds;
     private LanguageInterface language;
     @Getter
     private boolean saved;
 
-    public EditProductionDialog(Frame owner, boolean modal, UUID productionId)
+    public BulkEditProductionDialog(Frame owner, boolean modal, List<UUID> productionIds)
     {
         super(owner, modal);
-        this.productionId = productionId;
+        this.productionIds = List.copyOf(productionIds);
     }
 
     public void setSaved()
@@ -71,8 +72,14 @@ public class EditProductionDialog extends JDialog
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         this.language = this.configuration.getLanguageObject();
         this.initializeLookAndFeel();
-        this.initComponents();
-        this.setTitle(this.language.translate("editProduction"));
+        this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
+        this.add(this.applicationContext.getBean(
+            BulkEditProductionPanel.class,
+            this,
+            this.configuration,
+            this.productionIds
+        ));
+        this.setTitle(this.language.translate("editProductions"));
         this.pack();
     }
 
@@ -84,16 +91,5 @@ public class EditProductionDialog extends JDialog
                  | UnsupportedLookAndFeelException exception) {
             Logger.getLogger(SFManager.class.getName()).log(Level.SEVERE, null, exception);
         }
-    }
-
-    private void initComponents()
-    {
-        this.applicationContext.publishEvent(new RegisterEscapeCloseOperationEvent(this));
-        this.add(this.applicationContext.getBean(
-            EditProductionPanel.class,
-            this,
-            this.configuration,
-            this.productionId
-        ));
     }
 }

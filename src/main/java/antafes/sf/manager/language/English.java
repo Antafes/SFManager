@@ -118,6 +118,23 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("productionUpgradeFailed", "Could not upgrade the production.");
         this.getTranslations().put("productionSavingFailed", "Could not save the production.");
         this.getTranslations().put("productionEditingFailed", "Could not update the production.");
+        this.getTranslations().put("deleteSelected", "Delete selected");
+        this.getTranslations().put("editSelected", "Edit selected");
+        this.getTranslations().put("deleteProductions", "Delete productions");
+        this.getTranslations().put("confirmDeleteProductions", "The following %d productions will be deleted:");
+        this.getTranslations().put("productionsDeletionFailed", "Could not delete the productions.");
+        this.getTranslations().put("deletingProductions", "Deleting productions...");
+        this.getTranslations().put("editProductions", "Edit productions");
+        this.getTranslations().put("editingProductions", "Updating productions...");
+        this.getTranslations().put("editProductionsHint", "Only the fields with a checked box are changed for all %d selected productions.");
+        this.getTranslations().put("keepUnchanged", "Keep unchanged");
+        this.getTranslations().put("differentBuildingsSomersloopsHint", "The selected productions use different buildings.");
+        this.getTranslations().put("notOverclockableHint", "Not all selected buildings can be overclocked.");
+        this.getTranslations().put("noSomersloopSlotsHint", "Not all selected buildings have Somersloop slots.");
+        this.getTranslations().put(
+            "differentRecipesMaterialSourcesHint",
+            "Material sources can only be changed if all selected productions use the same recipe."
+        );
     }
 
     private void newFactory()

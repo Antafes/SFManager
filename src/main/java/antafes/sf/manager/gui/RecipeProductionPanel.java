@@ -25,6 +25,8 @@ package antafes.sf.manager.gui;
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Item;
 import antafes.sf.manager.entity.Name;
+import antafes.sf.manager.gui.dialog.BulkEditProductionDialog;
+import antafes.sf.manager.gui.dialog.EditProductionDialog;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sf.manager.gui.editor.ProductionEditButtonEditor;
 import antafes.sf.manager.gui.renderer.TableStyle;
@@ -65,6 +67,8 @@ public class RecipeProductionPanel extends JPanel
     private DefaultTableModel tableModel;
     @Getter
     private JTable table;
+    @Getter
+    private ProductionBulkToolbar toolbar;
 
     public RecipeProductionPanel(Item item)
     {
@@ -103,6 +107,17 @@ public class RecipeProductionPanel extends JPanel
         this.installEditButton();
         this.installDeleteButton();
         this.setLayout(new BorderLayout());
+        this.toolbar = new ProductionBulkToolbar(
+            this.table,
+            9,
+            this.productionService,
+            this.language,
+            this.selectedLanguage,
+            this::openEditDialog,
+            this::openBulkEditDialog,
+            this::refresh
+        );
+        this.add(this.toolbar, BorderLayout.NORTH);
         this.add(new JScrollPane(this.table), BorderLayout.CENTER);
         this.refresh();
     }
@@ -168,6 +183,23 @@ public class RecipeProductionPanel extends JPanel
             frame,
             true,
             productionId
+        );
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+        return dialog.isSaved();
+    }
+
+    private boolean openBulkEditDialog(List<java.util.UUID> productionIds)
+    {
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (!(window instanceof Frame frame)) {
+            throw new IllegalStateException("The production panel has no frame owner.");
+        }
+        BulkEditProductionDialog dialog = this.applicationContext.getBean(
+            BulkEditProductionDialog.class,
+            frame,
+            true,
+            productionIds
         );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
