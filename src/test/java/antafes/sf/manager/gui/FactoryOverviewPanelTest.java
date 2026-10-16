@@ -29,6 +29,7 @@ import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ProductionService;
+import antafes.sf.manager.service.dto.PowerStatus;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -144,6 +145,8 @@ public class FactoryOverviewPanelTest extends BaseTest
             assertEquals("75 MW", powerSourceTable.getValueAt(0, 1));
             assertEquals("Fuel-Powered Generator", powerSourceTable.getValueAt(1, 0));
             assertEquals("500 MW", powerSourceTable.getValueAt(1, 1));
+            assertEquals("575 MW", panel.getTotalPowerProductionLabel().getText());
+            assertEquals(PowerStatus.GREEN, panel.getPowerSignalLight().getStatus());
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Overview Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));

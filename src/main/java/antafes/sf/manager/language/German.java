@@ -117,6 +117,9 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("totalPowerProduction", "Gesamterzeugung");
         this.getTranslations().put("totalPowerConsumption", "Gesamtverbrauch");
         this.getTranslations().put("availablePower", "Verfügbare Energie");
+        this.getTranslations().put("powerStatusRed", "Rot: keine Energie mehr verfügbar");
+        this.getTranslations().put("powerStatusYellow", "Gelb: verbleibende Energie höchstens 5 % der Gesamterzeugung");
+        this.getTranslations().put("powerStatusGreen", "Grün: mehr als 5 % der Gesamterzeugung verbleiben");
         this.getTranslations().put("generatedPower", "Erzeugte Energie");
         this.getTranslations().put("consumption", "Verbrauch");
         this.getTranslations().put("usedMaterials", "Verwendete Materialien");
