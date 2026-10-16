@@ -29,6 +29,7 @@ import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ProductionService;
+import antafes.sf.manager.service.dto.PowerStatus;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -72,12 +73,13 @@ public class FactoryOverviewPanelTest extends BaseTest
             JTable materialTable = panel.getMaterialTable();
             JTable powerSourceTable = panel.getPowerSourceTable();
 
-            assertEquals(5, materialTable.getColumnCount());
+            assertEquals(6, materialTable.getColumnCount());
             assertEquals("Material", materialTable.getColumnName(0));
             assertEquals("Production", materialTable.getColumnName(1));
             assertEquals("Usage", materialTable.getColumnName(2));
             assertEquals("Unused", materialTable.getColumnName(3));
             assertEquals("Consumption", materialTable.getColumnName(4));
+            assertEquals("Status", materialTable.getColumnName(5));
             assertEquals(0, materialTable.getRowCount());
 
             Factory factory = context.getBean(FactoryService.class).createFactory("Overview Panel Factory");
@@ -136,12 +138,15 @@ public class FactoryOverviewPanelTest extends BaseTest
             assertEquals("0 / min", materialTable.getValueAt(0, 2));
             assertEquals("120 / min", materialTable.getValueAt(0, 3));
             assertEquals("10 MW", materialTable.getValueAt(0, 4));
+            assertEquals(antafes.sf.manager.service.dto.MaterialStatus.GREEN, materialTable.getValueAt(0, 5));
             assertEquals("Iron Ingot", materialTable.getValueAt(1, 0));
             assertEquals(2, powerSourceTable.getRowCount());
             assertEquals("Coal-Powered Generator", powerSourceTable.getValueAt(0, 0));
             assertEquals("75 MW", powerSourceTable.getValueAt(0, 1));
             assertEquals("Fuel-Powered Generator", powerSourceTable.getValueAt(1, 0));
             assertEquals("500 MW", powerSourceTable.getValueAt(1, 1));
+            assertEquals("575 MW", panel.getTotalPowerProductionLabel().getText());
+            assertEquals(PowerStatus.GREEN, panel.getPowerSignalLight().getStatus());
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Overview Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));

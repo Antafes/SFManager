@@ -101,6 +101,12 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("usage", "Usage");
         this.getTranslations().put("material", "Material");
         this.getTranslations().put("unused", "Unused");
+        this.getTranslations().put("status", "Status");
+        this.getTranslations().put("materialStatusRed", "Red: usage exceeds production");
+        this.getTranslations().put("materialStatusOrange", "Orange: usage equals production");
+        this.getTranslations().put("materialStatusYellow", "Yellow: unused is at most 5 % of the production");
+        this.getTranslations().put("materialStatusGreen", "Green: more than 5 % of the production is unused");
+        this.getTranslations().put("materialStatusGrey", "Grey: no production and no usage");
         this.getTranslations().put("overview", "Overview");
         this.getTranslations().put("consumers", "Consumers");
         this.getTranslations().put("allBuildings", "All buildings");
@@ -111,6 +117,9 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("totalPowerProduction", "Total production");
         this.getTranslations().put("totalPowerConsumption", "Total consumption");
         this.getTranslations().put("availablePower", "Available power");
+        this.getTranslations().put("powerStatusRed", "Red: no remaining power");
+        this.getTranslations().put("powerStatusYellow", "Yellow: remaining power is at most 5 % of the total production");
+        this.getTranslations().put("powerStatusGreen", "Green: more than 5 % of the total production remains");
         this.getTranslations().put("generatedPower", "Generated power");
         this.getTranslations().put("consumption", "Consumption");
         this.getTranslations().put("usedMaterials", "Used Materials");

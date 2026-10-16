@@ -26,14 +26,14 @@ import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Building;
 import antafes.sf.manager.entity.Category;
 import antafes.sf.manager.entity.Name;
+import antafes.sf.manager.gui.element.PowerSignalLight;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
+import antafes.sf.manager.gui.renderer.MaterialStatusRenderer;
 import antafes.sf.manager.gui.renderer.TableStyle;
+import antafes.sf.manager.gui.util.PersistentToolTip;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.ConsumerGroupEntry;
-import antafes.sf.manager.service.dto.FactoryOverviewData;
-import antafes.sf.manager.service.dto.FactoryOverviewMaterial;
-import antafes.sf.manager.service.dto.FactoryOverviewPowerSource;
+import antafes.sf.manager.service.dto.*;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -71,9 +71,13 @@ public class FactoryOverviewPanel extends JPanel
     private JTable powerSourceTable;
     @Getter
     private JTable consumerTable;
+    @Getter
     private JLabel totalPowerProductionLabel;
     private JLabel totalPowerConsumptionLabel;
+    @Getter
     private JLabel availablePowerLabel;
+    @Getter
+    private PowerSignalLight powerSignalLight;
 
     public FactoryOverviewPanel()
     {
@@ -107,7 +111,8 @@ public class FactoryOverviewPanel extends JPanel
                 this.perMinute(material.production()),
                 this.perMinute(material.usage()),
                 this.perMinute(material.production() - material.usage()),
-                this.megawatts(material.powerConsumption())
+                this.megawatts(material.powerConsumption()),
+                MaterialStatus.of(material.production(), material.usage())
             });
         }
 
@@ -147,15 +152,11 @@ public class FactoryOverviewPanel extends JPanel
                 this.megawatts(consumerPower.get(building.getKey()))
             }));
 
-        this.totalPowerProductionLabel.setText(
-            this.language.translate("totalPowerProduction") + ": " + this.megawatts(overview.totalPowerProduction())
-        );
-        this.totalPowerConsumptionLabel.setText(
-            this.language.translate("totalPowerConsumption") + ": " + this.megawatts(overview.totalPowerConsumption())
-        );
-        this.availablePowerLabel.setText(
-            this.language.translate("availablePower") + ": " + this.megawatts(overview.availablePower())
-        );
+        this.totalPowerProductionLabel.setText(this.megawatts(overview.totalPowerProduction()));
+        this.totalPowerConsumptionLabel.setText(this.megawatts(overview.totalPowerConsumption()));
+        this.availablePowerLabel.setText(this.megawatts(overview.availablePower()));
+        this.powerSignalLight.setStatus(PowerStatus.of(overview.totalPowerProduction(), overview.availablePower()));
+        this.powerSignalLight.setToolTipText(this.powerTooltip(this.powerSignalLight.getStatus()));
     }
 
     private void createTables()
@@ -165,7 +166,8 @@ public class FactoryOverviewPanel extends JPanel
             this.language.translate("production"),
             this.language.translate("usage"),
             this.language.translate("unused"),
-            this.language.translate("consumption")
+            this.language.translate("consumption"),
+            this.language.translate("status")
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column)
@@ -176,6 +178,11 @@ public class FactoryOverviewPanel extends JPanel
         this.materialTable = new JTable(this.materialTableModel);
         TableStyle.apply(this.materialTable);
         this.materialTable.setAutoCreateRowSorter(true);
+        this.materialTable.getColumnModel().getColumn(5).setCellRenderer(
+            new MaterialStatusRenderer(this.language)
+        );
+        this.materialTable.getColumnModel().getColumn(5).setMaxWidth(70);
+        PersistentToolTip.apply(this.materialTable);
 
         this.powerSourceTableModel = new DefaultTableModel(new Object[] {
             this.language.translate("powerSource"),
@@ -210,18 +217,26 @@ public class FactoryOverviewPanel extends JPanel
         this.add(new JScrollPane(this.materialTable));
 
         JPanel powerPanel = new JPanel(new BorderLayout(0, 8));
-        JPanel summaryPanel = new JPanel(new GridLayout(4, 2, 8, 4));
-        summaryPanel.add(new JLabel(this.language.translate("power")));
-        summaryPanel.add(new JLabel());
-        summaryPanel.add(new JLabel(this.language.translate("totalPowerProduction")));
+        JPanel summaryPanel = new JPanel(new BorderLayout(8, 4));
+        summaryPanel.add(new JLabel(this.language.translate("power")), BorderLayout.NORTH);
+        JPanel valuesPanel = new JPanel(new GridBagLayout());
         this.totalPowerProductionLabel = new JLabel();
-        summaryPanel.add(this.totalPowerProductionLabel);
-        summaryPanel.add(new JLabel(this.language.translate("totalPowerConsumption")));
+        this.addPowerRow(valuesPanel, 0, "totalPowerProduction", this.totalPowerProductionLabel);
         this.totalPowerConsumptionLabel = new JLabel();
-        summaryPanel.add(this.totalPowerConsumptionLabel);
-        summaryPanel.add(new JLabel(this.language.translate("availablePower")));
+        this.addPowerRow(valuesPanel, 1, "totalPowerConsumption", this.totalPowerConsumptionLabel);
         this.availablePowerLabel = new JLabel();
-        summaryPanel.add(this.availablePowerLabel);
+        this.addPowerRow(valuesPanel, 2, "availablePower", this.availablePowerLabel);
+        JPanel contentPanel = new JPanel(new GridLayout(1, 2, 8, 0));
+        contentPanel.add(valuesPanel);
+        this.powerSignalLight = new PowerSignalLight();
+        JPanel lightPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints lightConstraints = new GridBagConstraints();
+        lightConstraints.weightx = 1;
+        lightConstraints.weighty = 1;
+        lightConstraints.anchor = GridBagConstraints.WEST;
+        lightPanel.add(this.powerSignalLight, lightConstraints);
+        contentPanel.add(lightPanel);
+        summaryPanel.add(contentPanel, BorderLayout.CENTER);
 
         JPanel powerSourcesPanel = new JPanel(new BorderLayout());
         powerSourcesPanel.add(new JLabel(this.language.translate("powerSources")), BorderLayout.NORTH);
@@ -246,9 +261,37 @@ public class FactoryOverviewPanel extends JPanel
         this.add(powerPanel);
     }
 
+    private void addPowerRow(JPanel panel, int row, String captionKey, JLabel valueLabel)
+    {
+        GridBagConstraints captionConstraints = new GridBagConstraints();
+        captionConstraints.gridx = 0;
+        captionConstraints.gridy = row;
+        captionConstraints.weighty = 1;
+        captionConstraints.anchor = GridBagConstraints.WEST;
+        captionConstraints.insets = new Insets(0, 0, 0, 8);
+        panel.add(new JLabel(this.language.translate(captionKey) + ":"), captionConstraints);
+
+        GridBagConstraints valueConstraints = new GridBagConstraints();
+        valueConstraints.gridx = 1;
+        valueConstraints.gridy = row;
+        valueConstraints.weightx = 1;
+        valueConstraints.weighty = 1;
+        valueConstraints.anchor = GridBagConstraints.WEST;
+        panel.add(valueLabel, valueConstraints);
+    }
+
     private String localizedName(Name name)
     {
         return name == null ? "" : name.getLocalizedName(this.selectedLanguage);
+    }
+
+    private String powerTooltip(PowerStatus status)
+    {
+        return "<html><b>" + this.language.translate(status.getTranslationKey()) + "</b><hr>"
+            + this.language.translate("powerStatusRed") + "<br>"
+            + this.language.translate("powerStatusYellow") + "<br>"
+            + this.language.translate("powerStatusGreen")
+            + "</html>";
     }
 
     private String perMinute(double amount)
