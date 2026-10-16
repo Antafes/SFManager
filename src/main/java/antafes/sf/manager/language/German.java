@@ -76,6 +76,7 @@ public class German extends antafes.utilities.language.German
     {
         this.getTranslations().put("newProduction", "Neue Produktionen erstellen");
         this.getTranslations().put("building", "Gebäude");
+        this.getTranslations().put("productionBuildings", "Produktionsgebäude");
         this.getTranslations().put("pressurizer", "Quellenkompressor");
         this.getTranslations().put("recipe", "Rezept");
         this.getTranslations().put("item", "Gegenstand");
