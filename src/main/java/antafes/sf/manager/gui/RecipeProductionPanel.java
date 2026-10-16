@@ -29,9 +29,10 @@ import antafes.sf.manager.gui.dialog.BulkEditProductionDialog;
 import antafes.sf.manager.gui.dialog.EditProductionDialog;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sf.manager.gui.editor.ProductionEditButtonEditor;
+import antafes.sf.manager.gui.element.ExpandableMaterialsTable;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.RecipeProductionEntry;
+import antafes.sf.manager.service.dto.MaterialAllocation;
 import antafes.sf.manager.service.dto.RecipeProductionMaterial;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -46,7 +47,6 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -66,7 +66,7 @@ public class RecipeProductionPanel extends JPanel
     private NumberFormat numberFormat;
     private DefaultTableModel tableModel;
     @Getter
-    private JTable table;
+    private ExpandableMaterialsTable table;
     @Getter
     private ProductionBulkToolbar toolbar;
 
@@ -84,13 +84,12 @@ public class RecipeProductionPanel extends JPanel
             "German".equals(this.selectedLanguage) ? "de" : "en"
         ));
         this.tableModel = new DefaultTableModel(new Object[] {
+            "",
             this.language.translate("building"),
             this.language.translate("recipe"),
             this.language.translate("group"),
-            this.language.translate("usedMaterials"),
             this.language.translate("clockSpeed"),
             this.language.translate("somersloops"),
-            this.language.translate("producedMaterials"),
             this.language.translate("usage"),
             this.language.translate("consumption"),
             "",
@@ -99,17 +98,23 @@ public class RecipeProductionPanel extends JPanel
             @Override
             public boolean isCellEditable(int row, int column)
             {
-                return column == 9 || column == 10;
+                return column == 8 || column == 9;
             }
         };
-        this.table = new JTable(this.tableModel);
+        this.table = new ExpandableMaterialsTable(
+            this.tableModel,
+            this.language.translate("usedMaterials"),
+            this.language.translate("producedMaterials"),
+            this.language.translate("expand"),
+            this.language.translate("collapse")
+        );
         TableStyle.apply(this.table);
         this.installEditButton();
         this.installDeleteButton();
         this.setLayout(new BorderLayout());
         this.toolbar = new ProductionBulkToolbar(
             this.table,
-            9,
+            8,
             this.productionService,
             this.language,
             this.selectedLanguage,
@@ -124,28 +129,30 @@ public class RecipeProductionPanel extends JPanel
 
     public void refresh()
     {
-        this.tableModel.setRowCount(0);
-        List<RecipeProductionEntry> entries = this.productionService.getRecipeProductions(this.item);
-        for (RecipeProductionEntry entry : entries) {
-            this.tableModel.addRow(new Object[] {
-                this.localizedName(entry.production().getSelectedBuilding().getName()),
-                this.localizedName(entry.recipe().getName()),
-                entry.production().getGroup(),
-                this.materials(entry.usedMaterials()),
-                this.percentage(entry.production().getClockSpeed()),
-                entry.production().getUsedSomersloops(),
-                this.materials(entry.producedMaterials()),
-                this.perMinute(entry.usage()),
-                this.consumption(entry.powerConsumption()),
+        List<ExpandableMaterialsTable.Entry> rows = this.productionService.getRecipeProductions(this.item).stream()
+            .map(entry -> new ExpandableMaterialsTable.Entry(
                 entry.production().getId(),
-                entry.production().getId()
-            });
-        }
+                new Object[] {
+                    this.localizedName(entry.production().getSelectedBuilding().getName()),
+                    this.localizedName(entry.recipe().getName()),
+                    entry.production().getGroup(),
+                    this.percentage(entry.production().getClockSpeed()),
+                    entry.production().getUsedSomersloops(),
+                    this.perMinute(entry.usage()),
+                    this.consumption(entry.powerConsumption()),
+                    entry.production().getId(),
+                    entry.production().getId()
+                },
+                this.tiles(entry.usedMaterials()),
+                this.tiles(entry.producedMaterials())
+            ))
+            .toList();
+        this.table.setEntries(rows);
     }
 
     private void installDeleteButton()
     {
-        var actionColumn = this.table.getColumnModel().getColumn(10);
+        var actionColumn = this.table.getColumnModel().getColumn(9);
         actionColumn.setPreferredWidth(40);
         actionColumn.setMaxWidth(50);
         ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
@@ -160,7 +167,7 @@ public class RecipeProductionPanel extends JPanel
 
     private void installEditButton()
     {
-        var actionColumn = this.table.getColumnModel().getColumn(9);
+        var actionColumn = this.table.getColumnModel().getColumn(8);
         actionColumn.setPreferredWidth(40);
         actionColumn.setMaxWidth(50);
         ProductionEditButtonEditor editButton = new ProductionEditButtonEditor(
@@ -206,18 +213,31 @@ public class RecipeProductionPanel extends JPanel
         return dialog.isSaved();
     }
 
-    private String materials(List<RecipeProductionMaterial> materials)
+    private List<ExpandableMaterialsTable.MaterialTile> tiles(List<RecipeProductionMaterial> materials)
     {
         return materials.stream()
-            .map(material -> this.localizedName(material.item().getName())
-                + " (" + this.numberFormat.format(material.amount()) + ")"
-                + this.materialSource(material.sourceGroup()))
-            .collect(Collectors.joining(", "));
+            .map(material -> new ExpandableMaterialsTable.MaterialTile(
+                material.item(),
+                this.localizedName(material.item().getName()),
+                this.numberFormat.format(material.amount()),
+                material.sourceGroup(),
+                material.usedBy().stream().map(this::usageLabel).toList()
+            ))
+            .toList();
     }
 
-    private String materialSource(String sourceGroup)
+    private String usageLabel(MaterialAllocation allocation)
     {
-        return sourceGroup == null || sourceGroup.isBlank() ? "" : " [" + sourceGroup + "]";
+        String amount = this.numberFormat.format(allocation.amount());
+        if (allocation.isStorage()) {
+            return this.language.translate("storage") + ": " + amount;
+        }
+        var consumer = allocation.consumer();
+        String group = consumer.getGroup() == null || consumer.getGroup().isBlank()
+            ? ""
+            : " [" + consumer.getGroup() + "]";
+
+        return this.localizedName(consumer.getSelectedBuilding().getName()) + group + ": " + amount;
     }
 
     private String localizedName(Name name)

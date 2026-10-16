@@ -29,9 +29,9 @@ import antafes.sf.manager.gui.dialog.BulkEditProductionDialog;
 import antafes.sf.manager.gui.dialog.EditProductionDialog;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
 import antafes.sf.manager.gui.editor.ProductionEditButtonEditor;
+import antafes.sf.manager.gui.element.ExpandableMaterialsTable;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.GeneratorProductionEntry;
 import antafes.sf.manager.service.dto.GeneratorProductionIngredient;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -46,7 +46,6 @@ import java.awt.*;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Component
 @Scope("prototype")
@@ -66,7 +65,7 @@ public class GeneratorProductionPanel extends JPanel
     private NumberFormat numberFormat;
     private DefaultTableModel tableModel;
     @Getter
-    private JTable table;
+    private ExpandableMaterialsTable table;
     @Getter
     private ProductionBulkToolbar toolbar;
 
@@ -84,11 +83,11 @@ public class GeneratorProductionPanel extends JPanel
             "German".equals(this.selectedLanguage) ? "de" : "en"
         ));
         this.tableModel = new DefaultTableModel(new Object[] {
+            "",
             this.language.translate("position"),
             this.language.translate("group"),
             this.language.translate("clockSpeed"),
             this.language.translate("production"),
-            this.language.translate("usedMaterials"),
             "",
             ""
         }, 0) {
@@ -98,7 +97,13 @@ public class GeneratorProductionPanel extends JPanel
                 return column == 5 || column == 6;
             }
         };
-        this.table = new JTable(this.tableModel);
+        this.table = new ExpandableMaterialsTable(
+            this.tableModel,
+            this.language.translate("usedMaterials"),
+            this.language.translate("producedMaterials"),
+            this.language.translate("expand"),
+            this.language.translate("collapse")
+        );
         TableStyle.apply(this.table);
         this.installEditButton();
         this.installDeleteButton();
@@ -120,19 +125,23 @@ public class GeneratorProductionPanel extends JPanel
 
     public void refresh()
     {
-        this.tableModel.setRowCount(0);
-        List<GeneratorProductionEntry> entries = this.productionService.getGeneratorProductions(this.building);
-        for (GeneratorProductionEntry entry : entries) {
-            this.tableModel.addRow(new Object[] {
-                entry.production().getPosition(),
-                entry.production().getGroup(),
-                this.percentage(entry.production().getClockSpeed()),
-                this.megawatts(entry.powerProduction()),
-                this.usedMaterials(entry.usedMaterials()),
+        List<ExpandableMaterialsTable.Entry> rows = this.productionService.getGeneratorProductions(this.building)
+            .stream()
+            .map(entry -> new ExpandableMaterialsTable.Entry(
                 entry.production().getId(),
-                entry.production().getId()
-            });
-        }
+                new Object[] {
+                    entry.production().getPosition(),
+                    entry.production().getGroup(),
+                    this.percentage(entry.production().getClockSpeed()),
+                    this.megawatts(entry.powerProduction()),
+                    entry.production().getId(),
+                    entry.production().getId()
+                },
+                this.tiles(entry.usedMaterials()),
+                List.of()
+            ))
+            .toList();
+        this.table.setEntries(rows);
     }
 
     private void installDeleteButton()
@@ -198,18 +207,16 @@ public class GeneratorProductionPanel extends JPanel
         return dialog.isSaved();
     }
 
-    private String usedMaterials(List<GeneratorProductionIngredient> ingredients)
+    private List<ExpandableMaterialsTable.MaterialTile> tiles(List<GeneratorProductionIngredient> ingredients)
     {
         return ingredients.stream()
-            .map(ingredient -> this.localizedName(ingredient.item().getName())
-                + " (" + this.format(ingredient.amount()) + ")"
-                + this.materialSource(ingredient.sourceGroup()))
-            .collect(Collectors.joining(", "));
-    }
-
-    private String materialSource(String sourceGroup)
-    {
-        return sourceGroup == null || sourceGroup.isBlank() ? "" : " [" + sourceGroup + "]";
+            .map(ingredient -> new ExpandableMaterialsTable.MaterialTile(
+                ingredient.item(),
+                this.localizedName(ingredient.item().getName()),
+                this.format(ingredient.amount()),
+                ingredient.sourceGroup()
+            ))
+            .toList();
     }
 
     private String localizedName(Name name)

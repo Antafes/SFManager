@@ -26,6 +26,7 @@ import antafes.sf.manager.BaseTest;
 import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.item.Production;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sf.manager.gui.element.ExpandableMaterialsTable;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
@@ -124,43 +125,67 @@ public class RecipeProductionPanelTest extends BaseTest
             assertEquals(2, productionService.getRecipeProductions(ironIngotItem).size());
 
             RecipeProductionPanel panel = context.getBean(RecipeProductionPanel.class, ironIngotItem);
-            JTable table = panel.getTable();
+            ExpandableMaterialsTable table = panel.getTable();
             assertEquals(2, table.getRowCount());
-            assertEquals(11, table.getColumnCount());
-            assertEquals("Building", table.getColumnName(0));
-            assertEquals("Recipe", table.getColumnName(1));
-            assertEquals("Group", table.getColumnName(2));
-            assertEquals("Used Materials", table.getColumnName(3));
+            assertEquals(10, table.getColumnCount());
+            assertEquals("", table.getColumnName(0));
+            assertEquals("Building", table.getColumnName(1));
+            assertEquals("Recipe", table.getColumnName(2));
+            assertEquals("Group", table.getColumnName(3));
             assertEquals("Clock speed", table.getColumnName(4));
             assertEquals("Somersloops", table.getColumnName(5));
-            assertEquals("Produced Materials", table.getColumnName(6));
-            assertEquals("Usage", table.getColumnName(7));
-            assertEquals("Consumption", table.getColumnName(8));
+            assertEquals("Usage", table.getColumnName(6));
+            assertEquals("Consumption", table.getColumnName(7));
+            assertEquals("", table.getColumnName(8));
             assertEquals("", table.getColumnName(9));
-            assertEquals("", table.getColumnName(10));
+            assertEquals(40, table.getColumnModel().getColumn(8).getPreferredWidth());
             assertEquals(40, table.getColumnModel().getColumn(9).getPreferredWidth());
-            assertEquals(40, table.getColumnModel().getColumn(10).getPreferredWidth());
+            assertFalse(table.isCellEditable(0, 6));
             assertFalse(table.isCellEditable(0, 7));
-            assertFalse(table.isCellEditable(0, 8));
+            assertTrue(table.isCellEditable(0, 8));
             assertTrue(table.isCellEditable(0, 9));
-            assertTrue(table.isCellEditable(0, 10));
-            assertEquals("Smelter", table.getValueAt(0, 0));
-            assertEquals("Iron Ingot", table.getValueAt(0, 1));
-            assertEquals("Smelting", table.getValueAt(0, 2));
-            assertEquals("Iron Ore (60)", table.getValueAt(0, 3));
+            assertEquals(ExpandableMaterialsTable.COLLAPSED_SYMBOL, table.getValueAt(0, 0));
+            assertEquals("Smelter", table.getValueAt(0, 1));
+            assertEquals("Iron Ingot", table.getValueAt(0, 2));
+            assertEquals("Smelting", table.getValueAt(0, 3));
             assertEquals("100%", table.getValueAt(0, 4));
             assertEquals(1, table.getValueAt(0, 5));
-            assertEquals("Iron Ingot (60)", table.getValueAt(0, 6));
-            assertEquals("0 / min", table.getValueAt(0, 7));
-            assertEquals("16 MW", table.getValueAt(0, 8));
+            assertEquals("0 / min", table.getValueAt(0, 6));
+            assertEquals("16 MW", table.getValueAt(0, 7));
+            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 8));
             assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 9));
-            assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 10));
-            assertEquals("Foundry", table.getValueAt(1, 0));
-            assertEquals("Basic Iron Ingot", table.getValueAt(1, 1));
-            assertNull(table.getValueAt(1, 2));
-            assertEquals("Iron Ore (50), Limestone (80)", table.getValueAt(1, 3));
-            assertEquals("Iron Ingot (100)", table.getValueAt(1, 6));
-            assertEquals("64 MW", table.getValueAt(1, 8));
+            assertEquals("Foundry", table.getValueAt(1, 1));
+            assertEquals("Basic Iron Ingot", table.getValueAt(1, 2));
+            assertNull(table.getValueAt(1, 3));
+            assertEquals("64 MW", table.getValueAt(1, 7));
+
+            java.util.UUID foundryId = (java.util.UUID) table.getValueAt(1, 8);
+            table.toggle(foundryId);
+            assertEquals(3, table.getRowCount());
+            assertTrue(table.isExpanded(foundryId));
+            assertEquals(ExpandableMaterialsTable.EXPANDED_SYMBOL, table.getValueAt(1, 0));
+            assertTrue(table.isDetailRow(2));
+            var detail = (ExpandableMaterialsTable.MaterialsDetail) table.getValueAt(2, 0);
+            assertEquals(
+                List.of("Iron Ore", "Limestone"),
+                detail.used().stream().map(ExpandableMaterialsTable.MaterialTile::name).toList()
+            );
+            assertEquals(
+                List.of("50", "80"),
+                detail.used().stream().map(ExpandableMaterialsTable.MaterialTile::amount).toList()
+            );
+            assertEquals(
+                List.of("Iron Ingot"),
+                detail.produced().stream().map(ExpandableMaterialsTable.MaterialTile::name).toList()
+            );
+            assertEquals("100", detail.produced().getFirst().amount());
+            assertTrue(table.getRowHeight(2) > table.getRowHeight(1));
+
+            panel.refresh();
+            assertEquals(3, table.getRowCount());
+            assertTrue(table.isExpanded(foundryId));
+            table.toggle(foundryId);
+            assertEquals(2, table.getRowCount());
 
             Factory emptyFactory = context.getBean(FactoryService.class).createFactory("Empty Recipe Factory");
             context.publishEvent(new FactorySelectedEvent(emptyFactory));

@@ -340,7 +340,7 @@ public class ProductionService
         Map<UUID, Production> productionsById = productions.stream()
             .filter(production -> production.getId() != null)
             .collect(Collectors.toMap(Production::getId, Function.identity()));
-        Map<MaterialOutput, Double> materialUsage = this.getMaterialUsageWithStorage(
+        Map<MaterialOutput, List<MaterialAllocation>> allocations = this.getMaterialAllocationsWithStorage(
             productions,
             productionsById
         );
@@ -355,7 +355,11 @@ public class ProductionService
                         && item.getKey().equals(product.getResource().getKey())))
             .map(production -> this.toRecipeProductionEntry(
                 production,
-                materialUsage.getOrDefault(new MaterialOutput(production.getId(), item.getKey()), 0.0)
+                allocations.getOrDefault(new MaterialOutput(production.getId(), item.getKey()), List.of())
+                    .stream()
+                    .mapToDouble(MaterialAllocation::amount)
+                    .sum(),
+                allocations
             ))
             .toList();
     }
@@ -1029,7 +1033,11 @@ public class ProductionService
         );
     }
 
-    private RecipeProductionEntry toRecipeProductionEntry(Production production, double usage)
+    private RecipeProductionEntry toRecipeProductionEntry(
+        Production production,
+        double usage,
+        Map<MaterialOutput, List<MaterialAllocation>> allocations
+    )
     {
         Building building = production.getSelectedBuilding();
         Recipe recipe = production.getSelectedRecipe();
@@ -1047,7 +1055,17 @@ public class ProductionService
             production.getUsedSomersloops(),
             building.getSomersloopSlots(),
             null
-        );
+        ).stream()
+            .map(material -> new RecipeProductionMaterial(
+                material.item(),
+                material.amount(),
+                material.sourceGroup(),
+                allocations.getOrDefault(
+                    new MaterialOutput(production.getId(), material.item().getKey()),
+                    List.of()
+                )
+            ))
+            .toList();
         return new RecipeProductionEntry(
             production,
             recipe,
@@ -1067,6 +1085,42 @@ public class ProductionService
     }
 
     private Map<MaterialOutput, Double> getMaterialUsageByOutput(
+        List<Production> productions,
+        Map<UUID, Production> productionsById,
+        Collection<UUID> excludedConsumerIds
+    )
+    {
+        Map<MaterialOutput, Double> usage = new HashMap<>();
+        this.getMaterialAllocationsByOutput(productions, productionsById, excludedConsumerIds)
+            .forEach((output, allocations) -> usage.put(
+                output,
+                allocations.stream().mapToDouble(MaterialAllocation::amount).sum()
+            ));
+        return usage;
+    }
+
+    private Map<MaterialOutput, List<MaterialAllocation>> getMaterialAllocationsWithStorage(
+        List<Production> productions,
+        Map<UUID, Production> productionsById
+    )
+    {
+        Map<MaterialOutput, List<MaterialAllocation>> allocations = new HashMap<>();
+        this.getMaterialAllocationsByOutput(productions, productionsById, Set.of())
+            .forEach((output, list) -> allocations.put(output, new ArrayList<>(list)));
+        StorageService storageService = this.storageServiceProvider.getIfAvailable();
+        if (storageService == null) {
+            return allocations;
+        }
+        storageService.getStoredItems().stream()
+            .flatMap(storageItem -> storageItem.sources().stream())
+            .forEach(choice -> allocations.computeIfAbsent(
+                new MaterialOutput(choice.production().getId(), choice.item().getKey()),
+                ignored -> new ArrayList<>()
+            ).add(new MaterialAllocation(null, choice.rate())));
+        return allocations;
+    }
+
+    private Map<MaterialOutput, List<MaterialAllocation>> getMaterialAllocationsByOutput(
         List<Production> productions,
         Map<UUID, Production> productionsById,
         Collection<UUID> excludedConsumerIds
@@ -1102,7 +1156,7 @@ public class ProductionService
             }
         }
 
-        Map<MaterialOutput, Double> usage = new HashMap<>();
+        Map<MaterialOutput, List<MaterialAllocation>> usage = new HashMap<>();
         for (Production production : productions) {
             Recipe recipe = production.getSelectedRecipe();
             Building building = production.getSelectedBuilding();
@@ -1134,7 +1188,8 @@ public class ProductionService
                         if (allocated <= 0) {
                             continue;
                         }
-                        usage.merge(output, allocated, Double::sum);
+                        usage.computeIfAbsent(output, ignored -> new ArrayList<>())
+                            .add(new MaterialAllocation(production, allocated));
                         remainingOutputs.put(output, available - allocated);
                         remainingDemand -= allocated;
                     }

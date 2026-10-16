@@ -13,3 +13,6 @@ out/
 
 .m2/settings.xml
 ci/variables.yml
+
+# plans must stay visible to the assistant
+!/resources/plans/
