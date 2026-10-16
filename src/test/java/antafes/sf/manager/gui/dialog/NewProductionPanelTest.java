@@ -23,6 +23,7 @@
 package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.BaseTest;
+import antafes.sf.manager.entity.Building;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.entity.Recipe;
@@ -89,6 +90,11 @@ public class NewProductionPanelTest extends BaseTest
             NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
             JComboBox<Recipe> recipeSelect = this.field(panel, "recipeSelect");
             JComboBox<String> groupField = this.field(panel, "groupField");
+            assertTrue(recipeSelect.getSelectedItem() != null);
+            assertEquals(
+                this.firstProductName((Recipe) recipeSelect.getSelectedItem()),
+                groupField.getEditor().getItem()
+            );
 
             List<Recipe> recipes = new ArrayList<>();
             for (int i = 0; i < recipeSelect.getItemCount(); i++) {
@@ -122,6 +128,31 @@ public class NewProductionPanelTest extends BaseTest
             groupField.getEditor().setItem("zzz");
             SwingUtilities.invokeAndWait(() -> { });
             assertEquals(0, groupField.getItemCount());
+            groupField.getEditor().setItem("");
+            SwingUtilities.invokeAndWait(() -> { });
+            JComboBox<Building> buildingSelect = this.field(panel, "buildingSelect");
+            for (int i = 0; i < buildingSelect.getItemCount(); i++) {
+                if ("nuclear_power_plant".equals(buildingSelect.getItemAt(i).getKey())) {
+                    buildingSelect.setSelectedIndex(i);
+                }
+            }
+            Recipe fuelRecipe = (Recipe) recipeSelect.getSelectedItem();
+            assertTrue(fuelRecipe.getProducts() == null || fuelRecipe.getProducts().isEmpty());
+            assertEquals(
+                buildingSelect.getItemAt(buildingSelect.getSelectedIndex()).getName().getLocalizedName("English"),
+                groupField.getEditor().getItem()
+            );
+
+            for (int i = 0; i < buildingSelect.getItemCount(); i++) {
+                if ("sink".equals(buildingSelect.getItemAt(i).getKey())) {
+                    buildingSelect.setSelectedIndex(i);
+                }
+            }
+            assertEquals(0, recipeSelect.getItemCount());
+            assertEquals(
+                buildingSelect.getItemAt(buildingSelect.getSelectedIndex()).getName().getLocalizedName("English"),
+                groupField.getEditor().getItem()
+            );
             dialog.dispose();
         }
     }

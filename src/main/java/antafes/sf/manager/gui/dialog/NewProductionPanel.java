@@ -354,6 +354,7 @@ public class NewProductionPanel extends BasePanel
             this.recipeSelectLabel.setVisible(hasRecipes);
             this.recipeSelectLabel.setText(this.requiredFieldLabel("recipe"));
         }
+        this.prefillGroup();
         this.updateMaterialSources();
         this.updateSummaries();
         this.createFocusTraversalPolicy();
@@ -405,14 +406,10 @@ public class NewProductionPanel extends BasePanel
         this.resizeDialogToContent();
     }
 
-    private void prefillGroupFromRecipe()
+    private void prefillGroup()
     {
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
-        if (selectedRecipe == null
-            || selectedRecipe.getProducts() == null
-            || selectedRecipe.getProducts().isEmpty()
-            || selectedRecipe.getProducts().getFirst().getResource() == null
-            || selectedRecipe.getProducts().getFirst().getResource().getName() == null) {
+        if (selectedRecipe == null && this.itemSelect.getItemCount() > 0) {
             return;
         }
 
@@ -422,12 +419,20 @@ public class NewProductionPanel extends BasePanel
             return;
         }
 
-        String name = selectedRecipe.getProducts().getFirst().getResource().getName()
-            .getLocalizedName(this.selectedLanguage);
-        if (this.groupField.getEditor().getEditorComponent() instanceof javax.swing.text.JTextComponent editor) {
-            this.applyGroupFilter(editor, name, false);
+        Name name = selectedRecipe == null || selectedRecipe.getProducts() == null
+            || selectedRecipe.getProducts().isEmpty()
+            || selectedRecipe.getProducts().getFirst().getResource() == null
+            ? this.selectedBuildingName()
+            : selectedRecipe.getProducts().getFirst().getResource().getName();
+        if (name == null) {
+            return;
         }
-        this.lastPrefilledGroup = name;
+
+        String group = name.getLocalizedName(this.selectedLanguage);
+        if (this.groupField.getEditor().getEditorComponent() instanceof javax.swing.text.JTextComponent editor) {
+            this.applyGroupFilter(editor, group, false);
+        }
+        this.lastPrefilledGroup = group;
     }
 
     private void installGroupFilter()
@@ -497,6 +502,13 @@ public class NewProductionPanel extends BasePanel
         } finally {
             this.updatingGroupFilter = false;
         }
+    }
+
+    private Name selectedBuildingName()
+    {
+        Building building = (Building) this.buildingSelect.getSelectedItem();
+
+        return building == null ? null : building.getName();
     }
 
     private void restoreSelectedPressurizer()
@@ -1096,7 +1108,7 @@ public class NewProductionPanel extends BasePanel
 
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
         this.recipeSelect.addActionListener(event -> {
-            this.prefillGroupFromRecipe();
+            this.prefillGroup();
             this.updateMaterialSources();
             this.updateSummaries();
             this.createFocusTraversalPolicy();
