@@ -23,6 +23,7 @@
 package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
+import antafes.sf.manager.entity.Item;
 import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.entity.Storage;
 import antafes.sf.manager.gui.BasePanel;
@@ -39,10 +40,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Vector;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
@@ -53,7 +53,12 @@ public class NewStoragePanel extends BasePanel
 
     private final String selectedLanguage;
     private final NumberFormat numberFormat;
+    private final Set<StorageProductionChoice> selectedChoices = Collections.newSetFromMap(new IdentityHashMap<>());
+    private List<StorageProductionChoice> allChoices;
+    private boolean updatingList = false;
     private DefaultListModel<StorageProductionChoice> choicesModel;
+    private JLabel filterLabel;
+    private JComboBox<Item> filterComboBox;
     private JLabel choicesLabel;
     private JList<StorageProductionChoice> choicesList;
     private JButton okButton;
@@ -78,7 +83,18 @@ public class NewStoragePanel extends BasePanel
     protected void init()
     {
         this.choicesModel = new DefaultListModel<>();
-        this.storageService.getAvailableChoices().forEach(this.choicesModel::addElement);
+        this.allChoices = this.storageService.getAvailableChoices();
+        this.filterLabel = new JLabel();
+        this.filterComboBox = new JComboBox<>(this.createFilterModel());
+        this.filterComboBox.setRenderer((list, item, index, selected, focused) -> {
+            JLabel label = new JLabel(
+                item == null ? this.getLanguage().translate("storageFilterAll") : this.localizedName(item.getName())
+            );
+            label.setOpaque(true);
+            label.setBackground(selected ? list.getSelectionBackground() : list.getBackground());
+            label.setForeground(selected ? list.getSelectionForeground() : list.getForeground());
+            return label;
+        });
         this.choicesLabel = new JLabel();
         this.choicesList = new JList<>(this.choicesModel);
         this.choicesList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -100,7 +116,13 @@ public class NewStoragePanel extends BasePanel
 
         this.setLayout(new BorderLayout(8, 8));
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        this.add(this.choicesLabel, BorderLayout.NORTH);
+        JPanel topPanel = new JPanel(new BorderLayout(4, 4));
+        JPanel filterPanel = new JPanel(new BorderLayout(4, 0));
+        filterPanel.add(this.filterLabel, BorderLayout.WEST);
+        filterPanel.add(this.filterComboBox, BorderLayout.CENTER);
+        topPanel.add(filterPanel, BorderLayout.NORTH);
+        topPanel.add(this.choicesLabel, BorderLayout.SOUTH);
+        this.add(topPanel, BorderLayout.NORTH);
         JScrollPane scrollPane = new JScrollPane(this.choicesList);
         scrollPane.setPreferredSize(new java.awt.Dimension(520, 220));
         this.add(scrollPane, BorderLayout.CENTER);
@@ -109,6 +131,15 @@ public class NewStoragePanel extends BasePanel
         buttonPanel.add(this.cancelButton);
         this.add(buttonPanel, BorderLayout.SOUTH);
 
+        this.choicesList.addListSelectionListener(event -> {
+            if (this.updatingList || event.getValueIsAdjusting()) {
+                return;
+            }
+            this.choicesModel.elements().asIterator().forEachRemaining(this.selectedChoices::remove);
+            this.selectedChoices.addAll(this.choicesList.getSelectedValuesList());
+        });
+        this.filterComboBox.addActionListener(event -> this.applyFilter());
+        this.applyFilter();
         this.okButton.addActionListener(event -> this.addStorageEntries());
         this.cancelButton.addActionListener(event -> this.getParentDialog().dispose());
         this.getParentDialog().getRootPane().setDefaultButton(this.okButton);
@@ -119,6 +150,7 @@ public class NewStoragePanel extends BasePanel
     @Override
     protected void setFieldTexts()
     {
+        this.filterLabel.setText(this.getLanguage().translate("storageFilterItem"));
         this.choicesLabel.setText(this.getLanguage().translate("storageChoices"));
         this.okButton.setText(this.getLanguage().translate("ok"));
         this.cancelButton.setText(this.getLanguage().translate("cancel"));
@@ -128,6 +160,7 @@ public class NewStoragePanel extends BasePanel
     protected void createFocusTraversalPolicy()
     {
         Vector<Component> order = new Vector<>();
+        order.add(this.filterComboBox);
         order.add(this.choicesList);
         order.add(this.okButton);
         order.add(this.cancelButton);
@@ -138,7 +171,7 @@ public class NewStoragePanel extends BasePanel
     private void addStorageEntries()
     {
         try {
-            List<Storage.Entry> entries = this.choicesList.getSelectedValuesList().stream()
+            List<Storage.Entry> entries = this.selectedChoices.stream()
                 .map(choice -> new Storage.Entry()
                     .setProductionId(choice.production().getId())
                     .setItemKey(choice.item().getKey()))
@@ -156,6 +189,48 @@ public class NewStoragePanel extends BasePanel
                 this.getLanguage().translate("newStorage"),
                 JOptionPane.ERROR_MESSAGE
             );
+        }
+    }
+
+    static List<StorageProductionChoice> filterChoices(List<StorageProductionChoice> choices, Item item)
+    {
+        if (item == null) {
+            return choices;
+        }
+
+        return choices.stream()
+            .filter(choice -> Objects.equals(choice.item().getKey(), item.getKey()))
+            .toList();
+    }
+
+    private ComboBoxModel<Item> createFilterModel()
+    {
+        DefaultComboBoxModel<Item> model = new DefaultComboBoxModel<>();
+        model.addElement(null);
+        this.allChoices.stream()
+            .map(StorageProductionChoice::item)
+            .collect(Collectors.toMap(Item::getKey, item -> item, (first, second) -> first, LinkedHashMap::new))
+            .values().stream()
+            .sorted(Comparator.comparing(item -> this.localizedName(item.getName()), String.CASE_INSENSITIVE_ORDER))
+            .forEach(model::addElement);
+
+        return model;
+    }
+
+    private void applyFilter()
+    {
+        this.updatingList = true;
+        try {
+            this.choicesModel.clear();
+            filterChoices(this.allChoices, (Item) this.filterComboBox.getSelectedItem())
+                .forEach(this.choicesModel::addElement);
+            for (int index = 0; index < this.choicesModel.size(); index++) {
+                if (this.selectedChoices.contains(this.choicesModel.get(index))) {
+                    this.choicesList.addSelectionInterval(index, index);
+                }
+            }
+        } finally {
+            this.updatingList = false;
         }
     }
 
