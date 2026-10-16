@@ -83,7 +83,7 @@ public class RepositoryLoadingTest extends BaseTest
         Item iron = repository.findOne("iron");
         assertNotNull(iron);
         assertEquals("Iron Ore", iron.getName().getEnglish());
-        assertEquals("images/items/iron_ore.webp", iron.getIcon());
+        assertEquals("images/items/iron_ore.png", iron.getIcon());
         assertEquals(3, iron.getProductions().size());
         assertSame(this.context.getBean(BuildingRepository.class).findOne("miner_1"),
             iron.getProductions().getFirst().getBuilding());

@@ -111,6 +111,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("generatedPower", "Erzeugte Energie");
         this.getTranslations().put("consumption", "Verbrauch");
         this.getTranslations().put("usedMaterials", "Verwendete Materialien");
+        this.getTranslations().put("expand", "Aufklappen");
+        this.getTranslations().put("collapse", "Zuklappen");
         this.getTranslations().put("somersloops", "Somersloops");
         this.getTranslations().put("producedMaterials", "Produzierte Materialien");
         this.getTranslations().put("delete", "Löschen");

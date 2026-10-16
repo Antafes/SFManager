@@ -28,6 +28,7 @@ import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.gui.editor.ProductionDeleteButtonEditor;
+import antafes.sf.manager.gui.element.ExpandableMaterialsTable;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
@@ -110,37 +111,56 @@ public class GeneratorProductionPanelTest extends BaseTest
             JTable table = panel.getTable();
             assertEquals(1, table.getRowCount());
             assertEquals(7, table.getColumnCount());
-            assertEquals("Position", table.getColumnName(0));
-            assertEquals("Group", table.getColumnName(1));
-            assertEquals("Clock speed", table.getColumnName(2));
-            assertEquals("Production", table.getColumnName(3));
-            assertEquals("Used Materials", table.getColumnName(4));
+            assertEquals("", table.getColumnName(0));
+            assertEquals("Position", table.getColumnName(1));
+            assertEquals("Group", table.getColumnName(2));
+            assertEquals("Clock speed", table.getColumnName(3));
+            assertEquals("Production", table.getColumnName(4));
             assertEquals("", table.getColumnName(5));
             assertEquals("", table.getColumnName(6));
             assertEquals(40, table.getColumnModel().getColumn(5).getPreferredWidth());
             assertEquals(40, table.getColumnModel().getColumn(6).getPreferredWidth());
-            assertEquals("C1", table.getValueAt(0, 0));
-            assertEquals("Coal Group", table.getValueAt(0, 1));
-            assertEquals("150%", table.getValueAt(0, 2));
-            assertEquals("112.5 MW", table.getValueAt(0, 3));
-            assertEquals("Coal (22.5), Water (67.5)", table.getValueAt(0, 4));
+            assertEquals(ExpandableMaterialsTable.COLLAPSED_SYMBOL, table.getValueAt(0, 0));
+            assertEquals("C1", table.getValueAt(0, 1));
+            assertEquals("Coal Group", table.getValueAt(0, 2));
+            assertEquals("150%", table.getValueAt(0, 3));
+            assertEquals("112.5 MW", table.getValueAt(0, 4));
             assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 5));
             assertInstanceOf(java.util.UUID.class, table.getValueAt(0, 6));
             assertTrue(table.getColumnModel().getColumn(5).getCellRenderer()
                 .getTableCellRendererComponent(table, table.getValueAt(0, 5), false, false, 0, 5) instanceof JButton);
 
+            java.util.UUID coalId = (java.util.UUID) table.getValueAt(0, 5);
+            ExpandableMaterialsTable expandable = panel.getTable();
+            expandable.toggle(coalId);
+            assertEquals(2, expandable.getRowCount());
+            assertEquals(ExpandableMaterialsTable.EXPANDED_SYMBOL, expandable.getValueAt(0, 0));
+            assertTrue(expandable.isDetailRow(1));
+            var detail = (ExpandableMaterialsTable.MaterialsDetail) expandable.getValueAt(1, 0);
+            assertEquals(
+                List.of("Coal", "Water"),
+                detail.used().stream().map(ExpandableMaterialsTable.MaterialTile::name).toList()
+            );
+            assertEquals(
+                List.of("22.5", "67.5"),
+                detail.used().stream().map(ExpandableMaterialsTable.MaterialTile::amount).toList()
+            );
+            assertTrue(detail.produced().isEmpty());
+            assertTrue(expandable.getRowHeight(1) > expandable.getRowHeight(0));
+            assertFalse(expandable.editCellAt(1, 5));
+            expandable.toggle(coalId);
+            assertEquals(1, expandable.getRowCount());
+
             GeneratorProductionPanel fuelPanel = context.getBean(GeneratorProductionPanel.class, fuelGenerator);
-            assertEquals("F1", fuelPanel.getTable().getValueAt(0, 0));
-            assertEquals("312.5 MW", fuelPanel.getTable().getValueAt(0, 3));
-            assertEquals("Fuel (25)", fuelPanel.getTable().getValueAt(0, 4));
+            assertEquals("F1", fuelPanel.getTable().getValueAt(0, 1));
+            assertEquals("312.5 MW", fuelPanel.getTable().getValueAt(0, 4));
 
             GeneratorProductionPanel geothermalPanel = context.getBean(
                 GeneratorProductionPanel.class,
                 geothermalGenerator
             );
             assertEquals(1, geothermalPanel.getTable().getRowCount());
-            assertEquals("200 MW", geothermalPanel.getTable().getValueAt(0, 3));
-            assertEquals("", geothermalPanel.getTable().getValueAt(0, 4));
+            assertEquals("200 MW", geothermalPanel.getTable().getValueAt(0, 4));
 
             ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
                 productionService,
