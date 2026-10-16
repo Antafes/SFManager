@@ -32,6 +32,7 @@ import antafes.sf.manager.gui.editor.ProductionEditButtonEditor;
 import antafes.sf.manager.gui.element.ExpandableMaterialsTable;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.ProductionService;
+import antafes.sf.manager.service.dto.MaterialAllocation;
 import antafes.sf.manager.service.dto.RecipeProductionMaterial;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
@@ -219,9 +220,24 @@ public class RecipeProductionPanel extends JPanel
                 material.item(),
                 this.localizedName(material.item().getName()),
                 this.numberFormat.format(material.amount()),
-                material.sourceGroup()
+                material.sourceGroup(),
+                material.usedBy().stream().map(this::usageLabel).toList()
             ))
             .toList();
+    }
+
+    private String usageLabel(MaterialAllocation allocation)
+    {
+        String amount = this.numberFormat.format(allocation.amount());
+        if (allocation.isStorage()) {
+            return this.language.translate("storage") + ": " + amount;
+        }
+        var consumer = allocation.consumer();
+        String group = consumer.getGroup() == null || consumer.getGroup().isBlank()
+            ? ""
+            : " [" + consumer.getGroup() + "]";
+
+        return this.localizedName(consumer.getSelectedBuilding().getName()) + group + ": " + amount;
     }
 
     private String localizedName(Name name)

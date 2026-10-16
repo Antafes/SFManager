@@ -24,6 +24,17 @@ package antafes.sf.manager.service.dto;
 
 import antafes.sf.manager.entity.Item;
 
-public record RecipeProductionMaterial(Item item, double amount, String sourceGroup)
+import java.util.List;
+
+public record RecipeProductionMaterial(Item item, double amount, String sourceGroup, List<MaterialAllocation> usedBy)
 {
+    public RecipeProductionMaterial
+    {
+        usedBy = List.copyOf(usedBy);
+    }
+
+    public RecipeProductionMaterial(Item item, double amount, String sourceGroup)
+    {
+        this(item, amount, sourceGroup, List.of());
+    }
 }

@@ -1188,14 +1188,14 @@
         </i:name>
         <i:icon>images/items/gas_nobelisk.png</i:icon>
     </i:item>
-    <i:item key="hatcher_remains">
+    <i:item key="hatcher_remains" handCollected="true">
         <i:name>
             <i:english>Hatcher Remains</i:english>
             <i:german>Krabbenbrüter Überreste</i:german>
         </i:name>
         <i:icon>images/items/hatcher_remains.png</i:icon>
     </i:item>
-    <i:item key="hog_remains">
+    <i:item key="hog_remains" handCollected="true">
         <i:name>
             <i:english>Hog Remains</i:english>
             <i:german>Keiler Überreste</i:german>
@@ -1230,21 +1230,21 @@
         </i:name>
         <i:icon>images/items/nuke_nobelisk.png</i:icon>
     </i:item>
-    <i:item key="blue_power_slug">
+    <i:item key="blue_power_slug" handCollected="true">
         <i:name>
             <i:english>Blue Power Slug</i:english>
             <i:german>Blaue Elektroschnecke</i:german>
         </i:name>
         <i:icon>images/items/blue_power_slug.png</i:icon>
     </i:item>
-    <i:item key="yellow_power_slug">
+    <i:item key="yellow_power_slug" handCollected="true">
         <i:name>
             <i:english>Yellow Power Slug</i:english>
             <i:german>Gelbe Elektroschnecke</i:german>
         </i:name>
         <i:icon>images/items/yellow_power_slug.png</i:icon>
     </i:item>
-    <i:item key="purple_power_slug">
+    <i:item key="purple_power_slug" handCollected="true">
         <i:name>
             <i:english>Purple Power Slug</i:english>
             <i:german>Violette Elektroschnecke</i:german>
@@ -1265,14 +1265,14 @@
         </i:name>
         <i:icon>images/items/shatter_rebar.png</i:icon>
     </i:item>
-    <i:item key="spitter_remains">
+    <i:item key="spitter_remains" handCollected="true">
         <i:name>
             <i:english>Spitter Remains</i:english>
             <i:german>Spucker-Überreste</i:german>
         </i:name>
         <i:icon>images/items/spitter_remains.png</i:icon>
     </i:item>
-    <i:item key="stinger_remains">
+    <i:item key="stinger_remains" handCollected="true">
         <i:name>
             <i:english>Stinger Remains</i:english>
             <i:german>Stecher Überreste</i:german>

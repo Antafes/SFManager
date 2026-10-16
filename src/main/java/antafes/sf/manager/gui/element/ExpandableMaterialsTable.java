@@ -46,8 +46,17 @@ public class ExpandableMaterialsTable extends JTable
     public static final String EXPANDED_SYMBOL = "▼";
     private static final int EXPANDER_COLUMN_WIDTH = 28;
 
-    public record MaterialTile(Item item, String name, String amount, String source)
+    public record MaterialTile(Item item, String name, String amount, String source, List<String> usedBy)
     {
+        public MaterialTile
+        {
+            usedBy = List.copyOf(usedBy);
+        }
+
+        public MaterialTile(Item item, String name, String amount, String source)
+        {
+            this(item, name, amount, source, List.of());
+        }
     }
 
     public record MaterialsDetail(List<MaterialTile> used, List<MaterialTile> produced)
@@ -340,6 +349,12 @@ public class ExpandableMaterialsTable extends JTable
             source.setForeground(Color.GRAY);
             panel.add(this.centered(source));
             tooltip += " [" + tile.source() + "]";
+        }
+        for (String target : tile.usedBy()) {
+            JLabel targetLabel = new JLabel("→ " + target);
+            targetLabel.setFont(targetLabel.getFont().deriveFont(targetLabel.getFont().getSize2D() - 2));
+            panel.add(this.centered(targetLabel));
+            tooltip += " → " + target;
         }
         panel.setToolTipText(tooltip);
 
