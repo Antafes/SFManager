@@ -101,6 +101,11 @@ public class NewProductionPanelTest extends BaseTest
 
             recipeSelect.setSelectedItem(recipes.get(0));
             assertEquals(this.firstProductName(recipes.get(0)), groupField.getEditor().getItem());
+            for (int i = 0; i < groupField.getItemCount(); i++) {
+                assertTrue(groupField.getItemAt(i).toLowerCase()
+                    .contains(this.firstProductName(recipes.get(0)).toLowerCase()));
+            }
+            assertEquals(0, groupField.getItemCount());
 
             recipeSelect.setSelectedItem(recipes.get(1));
             assertEquals(this.firstProductName(recipes.get(1)), groupField.getEditor().getItem());
@@ -108,6 +113,15 @@ public class NewProductionPanelTest extends BaseTest
             groupField.getEditor().setItem("Custom");
             recipeSelect.setSelectedItem(recipes.get(0));
             assertEquals("Custom", groupField.getEditor().getItem());
+
+            groupField.getEditor().setItem("aa");
+            SwingUtilities.invokeAndWait(() -> { });
+            assertEquals(1, groupField.getItemCount());
+            assertEquals("Aaa", groupField.getItemAt(0));
+            assertEquals("aa", groupField.getEditor().getItem());
+            groupField.getEditor().setItem("zzz");
+            SwingUtilities.invokeAndWait(() -> { });
+            assertEquals(0, groupField.getItemCount());
             dialog.dispose();
         }
     }

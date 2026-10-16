@@ -54,6 +54,8 @@ public class NewProductionPanel extends BasePanel
     private final NumberFormat clockSpeedFormat;
     private double clockSpeed = 100;
     private String lastPrefilledGroup;
+    private List<String> groupItems = List.of();
+    private boolean updatingGroupFilter;
     private LocalizedNameRenderer<Recipe> recipeRenderer;
     private LocalizedNameRenderer<antafes.sf.manager.entity.Item> itemRenderer;
     private JLabel buildingSelectLabel;
@@ -422,8 +424,79 @@ public class NewProductionPanel extends BasePanel
 
         String name = selectedRecipe.getProducts().getFirst().getResource().getName()
             .getLocalizedName(this.selectedLanguage);
-        this.groupField.setSelectedItem(name);
+        if (this.groupField.getEditor().getEditorComponent() instanceof javax.swing.text.JTextComponent editor) {
+            this.applyGroupFilter(editor, name, false);
+        }
         this.lastPrefilledGroup = name;
+    }
+
+    private void installGroupFilter()
+    {
+        if (!(this.groupField.getEditor().getEditorComponent() instanceof javax.swing.text.JTextComponent editor)) {
+            return;
+        }
+
+        editor.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.scheduleGroupFilter(editor);
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.scheduleGroupFilter(editor);
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent event)
+            {
+                NewProductionPanel.this.scheduleGroupFilter(editor);
+            }
+        });
+    }
+
+    private void scheduleGroupFilter(javax.swing.text.JTextComponent editor)
+    {
+        if (this.updatingGroupFilter) {
+            return;
+        }
+
+        SwingUtilities.invokeLater(() -> this.filterGroups(editor));
+    }
+
+    private void filterGroups(javax.swing.text.JTextComponent editor)
+    {
+        String text = editor.getText();
+        if (this.updatingGroupFilter || Objects.equals(text, this.groupField.getSelectedItem())) {
+            return;
+        }
+
+        this.applyGroupFilter(editor, text, true);
+    }
+
+    private void applyGroupFilter(javax.swing.text.JTextComponent editor, String text, boolean showPopup)
+    {
+        String needle = text.trim().toLowerCase();
+        List<String> matches = this.groupItems.stream()
+            .filter(group -> group.toLowerCase().contains(needle))
+            .toList();
+        int caret = Math.min(editor.getCaretPosition(), text.length());
+        this.updatingGroupFilter = true;
+        try {
+            this.groupField.setModel(new DefaultComboBoxModel<>(matches.toArray(String[]::new)));
+            this.groupField.setSelectedItem(null);
+            editor.setText(text);
+            editor.setCaretPosition(Math.min(caret, text.length()));
+            if (showPopup && !matches.isEmpty() && editor.isFocusOwner()) {
+                this.groupField.showPopup();
+            } else {
+                this.groupField.hidePopup();
+            }
+        } finally {
+            this.updatingGroupFilter = false;
+        }
     }
 
     private void restoreSelectedPressurizer()
@@ -900,9 +973,11 @@ public class NewProductionPanel extends BasePanel
         this.amountField = new JTextField();
         this.amountField.setText("1");
         this.groupLabel = new JLabel();
-        this.groupField = new JComboBox<>(this.productionService.getProductionGroups().toArray(String[]::new));
+        this.groupItems = List.copyOf(this.productionService.getProductionGroups());
+        this.groupField = new JComboBox<>(this.groupItems.toArray(String[]::new));
         this.groupField.setEditable(true);
         this.groupField.setSelectedIndex(-1);
+        this.installGroupFilter();
         this.materialSourcesLabel = new JLabel();
         this.materialSourcesPanel = new JPanel(new GridBagLayout());
         this.materialSourcesLabel.setVisible(false);
