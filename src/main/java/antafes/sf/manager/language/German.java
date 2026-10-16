@@ -101,6 +101,12 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("usage", "Verwendung");
         this.getTranslations().put("material", "Material");
         this.getTranslations().put("unused", "Ungenutzt");
+        this.getTranslations().put("status", "Status");
+        this.getTranslations().put("materialStatusRed", "Rot: Verwendung übersteigt die Produktion");
+        this.getTranslations().put("materialStatusOrange", "Orange: Verwendung entspricht der Produktion");
+        this.getTranslations().put("materialStatusYellow", "Gelb: Ungenutzt höchstens 5 % der Produktion");
+        this.getTranslations().put("materialStatusGreen", "Grün: mehr als 5 % der Produktion ungenutzt");
+        this.getTranslations().put("materialStatusGrey", "Grau: keine Produktion und keine Verwendung");
         this.getTranslations().put("overview", "Übersicht");
         this.getTranslations().put("consumers", "Verbraucher");
         this.getTranslations().put("allBuildings", "Alle Gebäude");

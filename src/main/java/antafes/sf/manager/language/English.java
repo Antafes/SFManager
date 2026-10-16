@@ -101,6 +101,12 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("usage", "Usage");
         this.getTranslations().put("material", "Material");
         this.getTranslations().put("unused", "Unused");
+        this.getTranslations().put("status", "Status");
+        this.getTranslations().put("materialStatusRed", "Red: usage exceeds production");
+        this.getTranslations().put("materialStatusOrange", "Orange: usage equals production");
+        this.getTranslations().put("materialStatusYellow", "Yellow: unused is at most 5 % of the production");
+        this.getTranslations().put("materialStatusGreen", "Green: more than 5 % of the production is unused");
+        this.getTranslations().put("materialStatusGrey", "Grey: no production and no usage");
         this.getTranslations().put("overview", "Overview");
         this.getTranslations().put("consumers", "Consumers");
         this.getTranslations().put("allBuildings", "All buildings");

@@ -28,12 +28,11 @@ import antafes.sf.manager.entity.Category;
 import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
+import antafes.sf.manager.gui.renderer.MaterialStatusRenderer;
 import antafes.sf.manager.gui.renderer.TableStyle;
+import antafes.sf.manager.gui.util.PersistentToolTip;
 import antafes.sf.manager.service.ProductionService;
-import antafes.sf.manager.service.dto.ConsumerGroupEntry;
-import antafes.sf.manager.service.dto.FactoryOverviewData;
-import antafes.sf.manager.service.dto.FactoryOverviewMaterial;
-import antafes.sf.manager.service.dto.FactoryOverviewPowerSource;
+import antafes.sf.manager.service.dto.*;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -107,7 +106,8 @@ public class FactoryOverviewPanel extends JPanel
                 this.perMinute(material.production()),
                 this.perMinute(material.usage()),
                 this.perMinute(material.production() - material.usage()),
-                this.megawatts(material.powerConsumption())
+                this.megawatts(material.powerConsumption()),
+                MaterialStatus.of(material.production(), material.usage())
             });
         }
 
@@ -165,7 +165,8 @@ public class FactoryOverviewPanel extends JPanel
             this.language.translate("production"),
             this.language.translate("usage"),
             this.language.translate("unused"),
-            this.language.translate("consumption")
+            this.language.translate("consumption"),
+            this.language.translate("status")
         }, 0) {
             @Override
             public boolean isCellEditable(int row, int column)
@@ -176,6 +177,11 @@ public class FactoryOverviewPanel extends JPanel
         this.materialTable = new JTable(this.materialTableModel);
         TableStyle.apply(this.materialTable);
         this.materialTable.setAutoCreateRowSorter(true);
+        this.materialTable.getColumnModel().getColumn(5).setCellRenderer(
+            new MaterialStatusRenderer(this.language)
+        );
+        this.materialTable.getColumnModel().getColumn(5).setMaxWidth(70);
+        PersistentToolTip.apply(this.materialTable);
 
         this.powerSourceTableModel = new DefaultTableModel(new Object[] {
             this.language.translate("powerSource"),
