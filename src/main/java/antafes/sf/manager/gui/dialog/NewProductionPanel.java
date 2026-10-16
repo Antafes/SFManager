@@ -53,6 +53,7 @@ public class NewProductionPanel extends BasePanel
     private final NumberFormat numberFormat;
     private final NumberFormat clockSpeedFormat;
     private double clockSpeed = 100;
+    private String lastPrefilledGroup;
     private LocalizedNameRenderer<Recipe> recipeRenderer;
     private LocalizedNameRenderer<antafes.sf.manager.entity.Item> itemRenderer;
     private JLabel buildingSelectLabel;
@@ -400,6 +401,29 @@ public class NewProductionPanel extends BasePanel
         this.materialSourcesPanel.revalidate();
         this.materialSourcesPanel.repaint();
         this.resizeDialogToContent();
+    }
+
+    private void prefillGroupFromRecipe()
+    {
+        Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
+        if (selectedRecipe == null
+            || selectedRecipe.getProducts() == null
+            || selectedRecipe.getProducts().isEmpty()
+            || selectedRecipe.getProducts().getFirst().getResource() == null
+            || selectedRecipe.getProducts().getFirst().getResource().getName() == null) {
+            return;
+        }
+
+        Object currentValue = this.groupField.getEditor().getItem();
+        String current = currentValue == null ? "" : currentValue.toString().trim();
+        if (!current.isEmpty() && !current.equals(this.lastPrefilledGroup)) {
+            return;
+        }
+
+        String name = selectedRecipe.getProducts().getFirst().getResource().getName()
+            .getLocalizedName(this.selectedLanguage);
+        this.groupField.setSelectedItem(name);
+        this.lastPrefilledGroup = name;
     }
 
     private void restoreSelectedPressurizer()
@@ -878,6 +902,7 @@ public class NewProductionPanel extends BasePanel
         this.groupLabel = new JLabel();
         this.groupField = new JComboBox<>(this.productionService.getProductionGroups().toArray(String[]::new));
         this.groupField.setEditable(true);
+        this.groupField.setSelectedIndex(-1);
         this.materialSourcesLabel = new JLabel();
         this.materialSourcesPanel = new JPanel(new GridBagLayout());
         this.materialSourcesLabel.setVisible(false);
@@ -996,6 +1021,7 @@ public class NewProductionPanel extends BasePanel
 
         this.buildingSelect.addActionListener(event -> this.updateRecipes());
         this.recipeSelect.addActionListener(event -> {
+            this.prefillGroupFromRecipe();
             this.updateMaterialSources();
             this.updateSummaries();
             this.createFocusTraversalPolicy();
