@@ -90,6 +90,9 @@ public class NewProductionPanelTest extends BaseTest
             NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
             JComboBox<Recipe> recipeSelect = this.field(panel, "recipeSelect");
             JComboBox<String> groupField = this.field(panel, "groupField");
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            assertEquals(buildingSelect.getItemAt(1), buildingSelect.getSelectedItem());
+            this.selectBuilding(buildingSelect, "assembler");
             assertTrue(recipeSelect.getSelectedItem() != null);
             assertEquals(
                 this.firstProductName((Recipe) recipeSelect.getSelectedItem()),
@@ -130,31 +133,88 @@ public class NewProductionPanelTest extends BaseTest
             assertEquals(0, groupField.getItemCount());
             groupField.getEditor().setItem("");
             SwingUtilities.invokeAndWait(() -> { });
-            JComboBox<Building> buildingSelect = this.field(panel, "buildingSelect");
-            for (int i = 0; i < buildingSelect.getItemCount(); i++) {
-                if ("nuclear_power_plant".equals(buildingSelect.getItemAt(i).getKey())) {
-                    buildingSelect.setSelectedIndex(i);
-                }
-            }
+            this.selectBuilding(buildingSelect, "nuclear_power_plant");
             Recipe fuelRecipe = (Recipe) recipeSelect.getSelectedItem();
             assertTrue(fuelRecipe.getProducts() == null || fuelRecipe.getProducts().isEmpty());
             assertEquals(
-                buildingSelect.getItemAt(buildingSelect.getSelectedIndex()).getName().getLocalizedName("English"),
+                ((Building) buildingSelect.getSelectedItem()).getName().getLocalizedName("English"),
                 groupField.getEditor().getItem()
             );
 
-            for (int i = 0; i < buildingSelect.getItemCount(); i++) {
-                if ("sink".equals(buildingSelect.getItemAt(i).getKey())) {
-                    buildingSelect.setSelectedIndex(i);
-                }
-            }
+            this.selectBuilding(buildingSelect, "sink");
             assertEquals(0, recipeSelect.getItemCount());
             assertEquals(
-                buildingSelect.getItemAt(buildingSelect.getSelectedIndex()).getName().getLocalizedName("English"),
+                ((Building) buildingSelect.getSelectedItem()).getName().getLocalizedName("English"),
                 groupField.getEditor().getItem()
             );
             dialog.dispose();
         }
+    }
+
+    @Test
+    public void testBuildingSelectIsGroupedFilterableAndDeclinesUnknownValues() throws Exception
+    {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            NewProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Buildings");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            JDialog dialog = new JDialog();
+            NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            assertTrue(buildingSelect.isEditable());
+            assertEquals("Production buildings", buildingSelect.getItemAt(0));
+            int consumersIndex = -1;
+            for (int i = 0; i < buildingSelect.getItemCount(); i++) {
+                Object item = buildingSelect.getItemAt(i);
+                if (item instanceof String header && "Consumers".equals(header)) {
+                    consumersIndex = i;
+                } else if (item instanceof Building building) {
+                    assertEquals(consumersIndex >= 0, building.getCategory().isConsumer());
+                }
+            }
+            assertTrue(consumersIndex > 0);
+
+            Building selected = (Building) buildingSelect.getSelectedItem();
+            buildingSelect.setSelectedItem("Production buildings");
+            assertEquals(selected, buildingSelect.getSelectedItem());
+
+            JTextField editor = (JTextField) buildingSelect.getEditor().getEditorComponent();
+            editor.setText("sink");
+            assertEquals(2, buildingSelect.getItemCount());
+            assertEquals("Consumers", buildingSelect.getItemAt(0));
+            assertEquals(selected, buildingSelect.getSelectedItem());
+
+            editor.setText("no such building");
+            assertEquals(0, buildingSelect.getItemCount());
+            assertEquals(selected, buildingSelect.getEditor().getItem());
+
+            editor.setText("awesome sink");
+            assertEquals("sink", ((Building) buildingSelect.getEditor().getItem()).getKey());
+            dialog.dispose();
+        }
+    }
+
+    private void selectBuilding(JComboBox<Object> buildingSelect, String key)
+    {
+        for (int i = 0; i < buildingSelect.getItemCount(); i++) {
+            if (buildingSelect.getItemAt(i) instanceof Building building && key.equals(building.getKey())) {
+                buildingSelect.setSelectedItem(building);
+                return;
+            }
+        }
+        throw new IllegalStateException("Building not found: " + key);
     }
 
     private String firstProductName(Recipe recipe)

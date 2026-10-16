@@ -26,6 +26,7 @@ import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.recipe.Item;
 import antafes.sf.manager.gui.BasePanel;
+import antafes.sf.manager.gui.element.GroupedBuildingSelect;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.renderer.LocalizedNameRenderer;
 import antafes.sf.manager.service.ProductionService;
@@ -56,10 +57,11 @@ public class NewProductionPanel extends BasePanel
     private String lastPrefilledGroup;
     private List<String> groupItems = List.of();
     private boolean updatingGroupFilter;
+    private Building updatedBuilding;
     private LocalizedNameRenderer<Recipe> recipeRenderer;
     private LocalizedNameRenderer<antafes.sf.manager.entity.Item> itemRenderer;
     private JLabel buildingSelectLabel;
-    private JComboBox<Building> buildingSelect;
+    private JComboBox<Object> buildingSelect;
     private JLabel pressurizerSelectLabel;
     private JComboBox<Production> pressurizerSelect;
     private JLabel recipeSelectLabel;
@@ -282,6 +284,7 @@ public class NewProductionPanel extends BasePanel
     private void updateRecipes()
     {
         Building selectedBuilding = (Building) this.buildingSelect.getSelectedItem();
+        this.updatedBuilding = selectedBuilding;
         boolean requiresPressurizer = selectedBuilding != null
             && "well_extractor".equals(selectedBuilding.getKey());
         boolean pressurizerVisibilityChanged = this.pressurizerSelect.isVisible() != requiresPressurizer;
@@ -592,12 +595,6 @@ public class NewProductionPanel extends BasePanel
             dialog.pack();
             dialog.setSize(width, dialog.getHeight());
         });
-    }
-
-    private boolean hasProductionChoices(Building building)
-    {
-        return !this.productionService.getRecipesForBuilding(building.getKey()).isEmpty()
-            || !this.productionService.getItemsForBuilding(building.getKey()).isEmpty();
     }
 
     private void addSummaryListener(JTextField field)
@@ -931,16 +928,16 @@ public class NewProductionPanel extends BasePanel
     private void initComponents()
     {
         this.buildingSelectLabel = new JLabel();
-        this.buildingSelect = new JComboBox<>();
         LocalizedNameRenderer<Building> buildingRenderer = new LocalizedNameRenderer<>(
             Building::getName,
             this.selectedLanguage
         );
-        this.buildingSelect.setRenderer(buildingRenderer);
-        this.productionService.getBuildings().stream()
-            .sorted(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Building::getKey))
-            .forEach(this.buildingSelect::addItem);
+        this.buildingSelect = new GroupedBuildingSelect(
+            this.productionService.getBuildings(),
+            buildingRenderer::getDisplayName,
+            this.getLanguage().translate("productionBuildings"),
+            this.getLanguage().translate("consumers")
+        );
         this.pressurizerSelectLabel = new JLabel();
         this.pressurizerSelect = new JComboBox<>();
         this.pressurizerSelect.setRenderer(new DefaultListCellRenderer() {
@@ -1106,7 +1103,11 @@ public class NewProductionPanel extends BasePanel
         this.add(this.cancelButton, buttonConstraints);
         this.addFullWidthRow(++row, this.requiredFieldsHintLabel);
 
-        this.buildingSelect.addActionListener(event -> this.updateRecipes());
+        this.buildingSelect.addActionListener(event -> {
+            if (this.buildingSelect.getSelectedItem() != this.updatedBuilding) {
+                this.updateRecipes();
+            }
+        });
         this.recipeSelect.addActionListener(event -> {
             this.prefillGroup();
             this.updateMaterialSources();
@@ -1151,11 +1152,6 @@ public class NewProductionPanel extends BasePanel
             }
         });
         this.addSummaryListener(this.usedSomersloopsField);
-        this.productionService.getBuildings().stream()
-            .filter(this::hasProductionChoices)
-            .min(Comparator.comparing(buildingRenderer::getDisplayName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing(Building::getKey))
-            .ifPresent(this.buildingSelect::setSelectedItem);
         this.updateRecipes();
     }
 
