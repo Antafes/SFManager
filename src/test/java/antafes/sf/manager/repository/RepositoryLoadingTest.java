@@ -79,7 +79,7 @@ public class RepositoryLoadingTest extends BaseTest
     {
         ItemRepository repository = this.context.getBean(ItemRepository.class);
 
-        assertEquals(182, repository.findAll().size());
+        assertEquals(159, repository.findAll().size());
         Item iron = repository.findOne("iron");
         assertNotNull(iron);
         assertEquals("Iron Ore", iron.getName().getEnglish());
@@ -90,7 +90,7 @@ public class RepositoryLoadingTest extends BaseTest
 
         Item adaptiveControlUnit = repository.findOne("adaptive_control_unit");
         assertNotNull(adaptiveControlUnit);
-        assertEquals("images/items/uranium_pellet.png", adaptiveControlUnit.getIcon());
+        assertEquals("images/items/adaptive_control_unit.png", adaptiveControlUnit.getIcon());
 
         Item ironIngot = repository.findOne("iron_ingot");
         assertNotNull(ironIngot);
