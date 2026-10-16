@@ -44,6 +44,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("newStorageMenu", "Neuer Lagereintrag");
         this.getTranslations().put("newStorage", "Neuer Lagereintrag");
         this.getTranslations().put("storageChoices", "Verfügbare Materialien");
+        this.getTranslations().put("storageFilterItem", "Nach Material filtern");
+        this.getTranslations().put("storageFilterAll", "Alle Materialien");
         this.getTranslations().put("newStorageMnemonic", "L");
         this.getTranslations().put("importFactoryMenu", "Fabrik importieren");
         this.getTranslations().put("importFactoryMnemonic", "I");
