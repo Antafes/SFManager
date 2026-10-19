@@ -32,6 +32,7 @@ import antafes.sf.manager.gui.dialog.NewProductionPrefill;
 import antafes.sf.manager.gui.element.PlanChainView;
 import antafes.sf.manager.gui.element.PlanStepNode;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
+import antafes.sf.manager.gui.renderer.TableSort;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.repository.ItemRepository;
 import antafes.sf.manager.service.FactoryService;
@@ -301,7 +302,7 @@ public class PlanningPanel extends JPanel
     {
         JTable table = new JTable(model);
         TableStyle.apply(table);
-        table.setAutoCreateRowSorter(true);
+        TableSort.apply(table, this.numberFormat);
 
         return table;
     }
