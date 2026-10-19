@@ -179,6 +179,7 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("deletingProductions", "Deleting productions...");
         this.getTranslations().put("editProductions", "Edit productions");
         this.getTranslations().put("editingProductions", "Updating productions...");
+        this.getTranslations().put("creatingProductions", "Creating productions...");
         this.getTranslations().put("editProductionsHint", "Only the fields with a checked box are changed for all %d selected productions.");
         this.getTranslations().put("keepUnchanged", "Keep unchanged");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "The selected productions use different buildings.");

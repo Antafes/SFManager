@@ -44,6 +44,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -75,7 +76,7 @@ public class ProductionServiceTest extends BaseTest
     {
         UUID factoryId;
         UUID productionId;
-        AtomicReference<ProductionSavedEvent> savedEvent = new AtomicReference<>();
+        AtomicReference<ProductionsSavedEvent> savedEvent = new AtomicReference<>();
         try (AnnotationConfigApplicationContext context = this.createContext(
             BuildingRepository.class,
             ItemRepository.class,
@@ -91,7 +92,7 @@ public class ProductionServiceTest extends BaseTest
             context.publishEvent(new FactorySelectedEvent(factory));
             context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
                 if (event instanceof PayloadApplicationEvent<?> payload
-                    && payload.getPayload() instanceof ProductionSavedEvent productionSavedEvent) {
+                    && payload.getPayload() instanceof ProductionsSavedEvent productionSavedEvent) {
                     savedEvent.set(productionSavedEvent);
                 }
             });
@@ -117,7 +118,7 @@ public class ProductionServiceTest extends BaseTest
             assertNotNull(productionId);
             assertTrue(factory.getProductions().contains(productionId.toString()));
             assertNotNull(savedEvent.get());
-            assertSame(production, savedEvent.get().production());
+            assertEquals(List.of(production), savedEvent.get().productions());
             assertEquals(List.of("Foundry"), this.productionService.getProductionGroups());
         }
 
@@ -166,6 +167,14 @@ public class ProductionServiceTest extends BaseTest
             this.autowireTest(context);
             Factory factory = this.factoryService.createFactory("Production Chain Factory");
             context.publishEvent(new FactorySelectedEvent(factory));
+            List<Object> publishedEvents = new ArrayList<>();
+            context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
+                if (event instanceof PayloadApplicationEvent<?> payload
+                    && (payload.getPayload() instanceof ProductionsSavedEvent
+                    || payload.getPayload() instanceof ProductionSavedEvent)) {
+                    publishedEvents.add(payload.getPayload());
+                }
+            });
             Building building = this.productionService.getBuildings().stream()
                 .filter(candidate -> "smelter".equals(candidate.getKey()))
                 .findFirst()
@@ -184,6 +193,8 @@ public class ProductionServiceTest extends BaseTest
                 .setUsedSomersloops(0), 3);
 
             assertEquals(3, productions.size());
+            assertEquals(1, publishedEvents.size());
+            assertEquals(new ProductionsSavedEvent(productions), publishedEvents.getFirst());
             assertEquals(3, factory.getProductions().size());
             assertEquals(3, productions.stream().map(Production::getId).distinct().count());
             assertTrue(productions.stream().allMatch(production ->
@@ -897,7 +908,7 @@ public class ProductionServiceTest extends BaseTest
     @Test
     public void testRollsBackProductionWhenFactoryPersistenceFails() throws IOException
     {
-        AtomicReference<ProductionSavedEvent> savedEvent = new AtomicReference<>();
+        AtomicReference<ProductionsSavedEvent> savedEvent = new AtomicReference<>();
         try (AnnotationConfigApplicationContext context = this.createContext(
             BuildingRepository.class,
             ItemRepository.class,
@@ -912,7 +923,7 @@ public class ProductionServiceTest extends BaseTest
             context.publishEvent(new FactorySelectedEvent(factory));
             context.addApplicationListener((ApplicationListener<ApplicationEvent>) event -> {
                 if (event instanceof PayloadApplicationEvent<?> payload
-                    && payload.getPayload() instanceof ProductionSavedEvent productionSavedEvent) {
+                    && payload.getPayload() instanceof ProductionsSavedEvent productionSavedEvent) {
                     savedEvent.set(productionSavedEvent);
                 }
             });

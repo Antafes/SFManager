@@ -118,7 +118,7 @@ public final class BulkOperationRunner
         dialog.setContentPane(content);
         dialog.pack();
         dialog.setMinimumSize(new Dimension(280, dialog.getHeight()));
-        dialog.setLocationRelativeTo(parent);
+        dialog.setLocationRelativeTo(owner);
 
         return dialog;
     }
