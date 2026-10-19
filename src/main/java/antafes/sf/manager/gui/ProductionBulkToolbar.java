@@ -169,7 +169,7 @@ public class ProductionBulkToolbar extends JPanel
         message.add(scrollPane, BorderLayout.CENTER);
 
         return JOptionPane.showConfirmDialog(
-            this,
+            SwingUtilities.getWindowAncestor(this),
             message,
             this.language.translate("deleteProductions"),
             JOptionPane.YES_NO_OPTION,
@@ -180,7 +180,7 @@ public class ProductionBulkToolbar extends JPanel
     private void showDeletionError(Exception exception)
     {
         JOptionPane.showMessageDialog(
-            this,
+            SwingUtilities.getWindowAncestor(this),
             Objects.toString(exception.getMessage(), this.language.translate("productionsDeletionFailed")),
             this.language.translate("deleteProductions"),
             JOptionPane.ERROR_MESSAGE
