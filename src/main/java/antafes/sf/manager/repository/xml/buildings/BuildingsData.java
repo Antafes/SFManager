@@ -47,6 +47,7 @@ public class BuildingsData
         public Boolean overclockable;
         public Integer somersloopSlots;
         public Boolean resourceBuilding;
+        public String icon;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
