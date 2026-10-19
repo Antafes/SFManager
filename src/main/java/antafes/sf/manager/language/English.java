@@ -41,6 +41,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("newFactoryMnemonic", "F");
         this.getTranslations().put("openFactoryMenu", "Open Factory");
         this.getTranslations().put("openFactoryMnemonic", "O");
+        this.getTranslations().put("deleteFactoryMenu", "Delete Factory");
+        this.getTranslations().put("deleteFactoryMnemonic", "D");
         this.getTranslations().put("newStorageMenu", "New Storage");
         this.getTranslations().put("newStorage", "New Storage");
         this.getTranslations().put("storageChoices", "Available materials");
@@ -196,5 +198,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("openFactory", "Open factory");
         this.getTranslations().put("noFactoryOpen", "No factory open");
         this.getTranslations().put("open", "Open");
+        this.getTranslations().put("deleteFactory", "Delete factory");
+        this.getTranslations().put("confirmDeleteFactory", "Are you sure you want to delete the factory \"%s\" including all its data?");
+        this.getTranslations().put("factoryDeletionFailed", "Could not delete the factory.");
     }
 }
