@@ -30,6 +30,7 @@
         <b:category>special</b:category>
         <b:power>-30</b:power>
         <b:overclockable>false</b:overclockable>
+        <b:icon>images/buildings/awesome_sink.png</b:icon>
     </b:building>
     <b:building key="miner_1">
         <b:name>
@@ -40,6 +41,7 @@
         <b:power>-5</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/miner_mk_1.png</b:icon>
     </b:building>
     <b:building key="miner_2">
         <b:name>
@@ -50,6 +52,7 @@
         <b:power>-15</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/miner_mk_2.png</b:icon>
     </b:building>
     <b:building key="miner_3">
         <b:name>
@@ -60,6 +63,7 @@
         <b:power>-45</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/miner_mk_3.png</b:icon>
     </b:building>
     <b:building key="water_extractor">
         <b:name>
@@ -70,6 +74,7 @@
         <b:power>-20</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/water_extractor.png</b:icon>
     </b:building>
     <b:building key="oil_extractor">
         <b:name>
@@ -80,6 +85,7 @@
         <b:power>-40</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/oil_extractor.png</b:icon>
     </b:building>
     <b:building key="well_pressurizer">
         <b:name>
@@ -90,6 +96,7 @@
         <b:power>-150</b:power>
         <b:overclockable>true</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/resource_well_pressurizer.png</b:icon>
     </b:building>
     <b:building key="well_extractor">
         <b:name>
@@ -100,6 +107,7 @@
         <b:power>0</b:power>
         <b:overclockable>false</b:overclockable>
         <b:resourceBuilding>true</b:resourceBuilding>
+        <b:icon>images/buildings/resource_well_extractor.png</b:icon>
     </b:building>
     <b:building key="smelter">
         <b:name>
@@ -110,6 +118,7 @@
         <b:power>-4</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>1</b:somersloopSlots>
+        <b:icon>images/buildings/smelter.png</b:icon>
     </b:building>
     <b:building key="foundry">
         <b:name>
@@ -120,6 +129,7 @@
         <b:power>-16</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>1</b:somersloopSlots>
+        <b:icon>images/buildings/foundry.png</b:icon>
     </b:building>
     <b:building key="constructor">
         <b:name>
@@ -130,6 +140,7 @@
         <b:power>-4</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>1</b:somersloopSlots>
+        <b:icon>images/buildings/constructor.png</b:icon>
     </b:building>
     <b:building key="assembler">
         <b:name>
@@ -140,6 +151,7 @@
         <b:power>-15</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>2</b:somersloopSlots>
+        <b:icon>images/buildings/assembler.png</b:icon>
     </b:building>
     <b:building key="manufacturer">
         <b:name>
@@ -150,6 +162,7 @@
         <b:power>-55</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>4</b:somersloopSlots>
+        <b:icon>images/buildings/manufacturer.png</b:icon>
     </b:building>
     <b:building key="packager">
         <b:name>
@@ -159,6 +172,7 @@
         <b:category>production</b:category>
         <b:power>-10</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:icon>images/buildings/packager.png</b:icon>
     </b:building>
     <b:building key="refinery">
         <b:name>
@@ -169,6 +183,7 @@
         <b:power>-30</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>2</b:somersloopSlots>
+        <b:icon>images/buildings/refinery.png</b:icon>
     </b:building>
     <b:building key="blender">
         <b:name>
@@ -179,6 +194,7 @@
         <b:power>-75</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>4</b:somersloopSlots>
+        <b:icon>images/buildings/blender.png</b:icon>
     </b:building>
     <b:building key="accelerator">
         <b:name>
@@ -189,6 +205,7 @@
         <b:power xsi:nil="true" />
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>4</b:somersloopSlots>
+        <b:icon>images/buildings/particle_accelerator.png</b:icon>
     </b:building>
     <b:building key="encoder">
         <b:name>
@@ -199,6 +216,7 @@
         <b:power>1000</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>4</b:somersloopSlots>
+        <b:icon>images/buildings/quantum_encoder.png</b:icon>
     </b:building>
     <b:building key="converter">
         <b:name>
@@ -209,6 +227,7 @@
         <b:power>250</b:power>
         <b:overclockable>true</b:overclockable>
         <b:somersloopSlots>2</b:somersloopSlots>
+        <b:icon>images/buildings/converter.png</b:icon>
     </b:building>
     <b:building key="burner">
         <b:name>
@@ -218,6 +237,7 @@
         <b:category>power</b:category>
         <b:power>30</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:icon>images/buildings/biomass_burner.png</b:icon>
     </b:building>
     <b:building key="coal_generator">
         <b:name>
@@ -227,6 +247,7 @@
         <b:category>power</b:category>
         <b:power>75</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:icon>images/buildings/coal_powered_generator.png</b:icon>
     </b:building>
     <b:building key="fuel_generator">
         <b:name>
@@ -236,6 +257,7 @@
         <b:category>power</b:category>
         <b:power>250</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:icon>images/buildings/fuel_powered_generator.png</b:icon>
     </b:building>
     <b:building key="geothermal_generator">
         <b:name>
@@ -245,6 +267,7 @@
         <b:category>power</b:category>
         <b:power>200</b:power>
         <b:overclockable>false</b:overclockable>
+        <b:icon>images/buildings/geothermal_generator.png</b:icon>
     </b:building>
     <b:building key="nuclear_power_plant">
         <b:name>
@@ -254,6 +277,7 @@
         <b:category>power</b:category>
         <b:power>2500</b:power>
         <b:overclockable>true</b:overclockable>
+        <b:icon>images/buildings/nuclear_power_plant.png</b:icon>
     </b:building>
     <b:building key="power_augmenter">
         <b:name>
@@ -265,6 +289,7 @@
         <b:powerPercentage>10</b:powerPercentage>
         <b:boostedPowerPercentage>30</b:boostedPowerPercentage>
         <b:overclockable>false</b:overclockable>
+        <b:icon>images/buildings/alien_power_augmenter.png</b:icon>
     </b:building>
     <b:building key="pump_1">
         <b:name>

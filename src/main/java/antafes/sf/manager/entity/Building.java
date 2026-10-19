@@ -38,4 +38,5 @@ public class Building
     private boolean overclockable;
     private int somersloopSlots;
     private boolean resourceBuilding;
+    private String icon;
 }
