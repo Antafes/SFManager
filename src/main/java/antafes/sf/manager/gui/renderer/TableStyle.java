@@ -36,6 +36,7 @@ public final class TableStyle
 
     public static void apply(JTable table)
     {
+        TableCopySupport.install(table);
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(
