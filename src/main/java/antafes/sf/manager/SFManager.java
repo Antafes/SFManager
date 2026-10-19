@@ -60,6 +60,8 @@ public class SFManager implements CommandLineRunner
     @Autowired
     private StorageRepository storageRepository;
     @Autowired
+    private PlanRepository planRepository;
+    @Autowired
     private FactoryService factoryService;
 
     public static void main(String[] args)
@@ -100,5 +102,6 @@ public class SFManager implements CommandLineRunner
         this.factoryRepository.init();
         this.productionRepository.init();
         this.storageRepository.init();
+        this.planRepository.init();
     }
 }

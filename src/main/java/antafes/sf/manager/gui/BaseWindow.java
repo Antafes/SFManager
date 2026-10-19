@@ -71,6 +71,7 @@ public class BaseWindow extends JFrame
 
     private LanguageInterface language;
     private JTabbedPane panel;
+    private PlanningPanel planningPanel;
     private JLabel activeFactoryLabel;
     private JMenuItem openFactoryMenuItem;
     private JMenu fileMenu;
@@ -284,6 +285,7 @@ public class BaseWindow extends JFrame
             this.newProductionMenuItem.setEnabled(currentFactory != null);
             this.updateStorageMenuItem();
             this.updateActiveFactoryLabel();
+            this.planningPanel = null;
             this.refreshResourceTabs();
         });
     }
@@ -330,6 +332,14 @@ public class BaseWindow extends JFrame
                 this.language.translate("storage"),
                 this.applicationContext.getBean(StoragePanel.class)
             );
+        }
+        if (this.factoryService.getCurrentFactory() != null) {
+            if (this.planningPanel == null) {
+                this.planningPanel = this.applicationContext.getBean(PlanningPanel.class);
+            } else {
+                this.planningPanel.recalculate();
+            }
+            this.panel.addTab(this.language.translate("planning"), this.planningPanel);
         }
         String selectedLanguage = this.configuration.getLanguage().getName();
         this.productionService.getResourceItemsWithProductions().stream()
@@ -416,6 +426,7 @@ public class BaseWindow extends JFrame
         this.languageMenu.setIcon(selectedLanguage.getIcon());
         this.setFieldTexts();
         this.updateActiveFactoryLabel();
+        this.planningPanel = null;
         this.refreshResourceTabs();
     }
 

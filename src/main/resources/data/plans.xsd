@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This file is part of SFManager.
+  ~
+  ~ SFManager is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU Lesser General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ SFManager is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU Lesser General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU Lesser General Public License
+  ~ along with SFManager. If not, see <http://www.gnu.org/licenses/>.
+  ~
+  ~ @package SFManager
+  ~ @author Marian Pollzien <map@wafriv.de>
+  ~ @copyright (c) 2026, Marian Pollzien
+  ~ @license https://www.gnu.org/licenses/lgpl.html LGPLv3
+  -->
+
+<xs:schema
+    elementFormDefault="qualified"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3schools.com/SFManager/plans"
+    targetNamespace="http://www.w3schools.com/SFManager/plans"
+>
+    <xs:complexType name="ChoiceList">
+        <xs:sequence>
+            <xs:element name="choice" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="itemKey" type="xs:string" />
+                        <xs:element name="recipeKey" type="xs:string" />
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="plans">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="factoryId" type="xs:string" />
+                <xs:element name="plan" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="id" type="xs:string" />
+                            <xs:element name="name" type="xs:string" />
+                            <xs:element name="targetItemKey" type="xs:string" />
+                            <xs:element name="targetRate" type="xs:double" />
+                            <xs:element name="recipeChoices" type="ChoiceList" />
+                            <xs:element name="sideRecipeChoices" type="ChoiceList" />
+                            <xs:element name="stepSettings">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="step" minOccurs="0" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="itemKey" type="xs:string" />
+                                                    <xs:element name="clockSpeed" type="xs:double" />
+                                                    <xs:element name="somersloops" type="xs:int" />
+                                                </xs:sequence>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
