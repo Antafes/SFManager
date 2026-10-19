@@ -27,6 +27,8 @@ import antafes.sf.manager.entity.Item;
 import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.entity.Plan;
 import antafes.sf.manager.entity.Recipe;
+import antafes.sf.manager.gui.dialog.NewProductionDialog;
+import antafes.sf.manager.gui.dialog.NewProductionPrefill;
 import antafes.sf.manager.gui.element.PlanChainView;
 import antafes.sf.manager.gui.element.PlanStepNode;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
@@ -40,6 +42,7 @@ import antafes.sf.manager.service.dto.PlanStep;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 
 import javax.swing.*;
@@ -65,6 +68,8 @@ public class PlanningPanel extends JPanel
     private ItemRepository itemRepository;
     @Autowired
     private Configuration configuration;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     private String selectedLanguage;
     private LanguageInterface language;
@@ -436,17 +441,46 @@ public class PlanningPanel extends JPanel
 
     private void createProductions(PlanStep step)
     {
-        try {
-            int count = this.planService.createProductions(step).size();
-            JOptionPane.showMessageDialog(
-                this,
-                String.format(this.language.translate("planProductionsCreated"), count),
-                this.language.translate("planning"),
-                JOptionPane.INFORMATION_MESSAGE
-            );
-        } catch (IOException | RuntimeException exception) {
-            this.showError("planProductionCreationFailed");
+        Window window = SwingUtilities.getWindowAncestor(this);
+        if (!(window instanceof Frame frame)) {
+            throw new IllegalStateException("The planning panel has no frame owner.");
         }
+
+        if (step.fullMachines() > 0) {
+            boolean saved = this.openNewProductionDialog(frame, new NewProductionPrefill(
+                step.building(),
+                step.recipe(),
+                step.clockSpeed(),
+                step.somersloops(),
+                step.fullMachines()
+            ));
+            if (!saved) {
+                return;
+            }
+        }
+        if (step.partialClockSpeed() > 0) {
+            this.openNewProductionDialog(frame, new NewProductionPrefill(
+                step.building(),
+                step.recipe(),
+                step.partialClockSpeed(),
+                step.somersloops(),
+                1
+            ));
+        }
+    }
+
+    private boolean openNewProductionDialog(Frame frame, NewProductionPrefill prefill)
+    {
+        NewProductionDialog dialog = this.applicationContext.getBean(
+            NewProductionDialog.class,
+            frame,
+            true,
+            prefill
+        );
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
+
+        return dialog.isSaved();
     }
 
     private void savePlan()

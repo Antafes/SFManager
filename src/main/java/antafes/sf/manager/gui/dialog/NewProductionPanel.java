@@ -120,6 +120,28 @@ public class NewProductionPanel extends BasePanel
         this.init();
     }
 
+    /**
+     * Fills the form with the given initial values. The group is derived from the selected recipe.
+     */
+    public void applyPrefill(NewProductionPrefill prefill)
+    {
+        if (prefill.building() != null) {
+            this.buildingSelect.setSelectedItem(prefill.building());
+        }
+        if (prefill.recipe() != null) {
+            for (int index = 0; index < this.recipeSelect.getItemCount(); index++) {
+                if (prefill.recipe().getKey().equals(this.recipeSelect.getItemAt(index).getKey())) {
+                    this.recipeSelect.setSelectedIndex(index);
+                    break;
+                }
+            }
+        }
+        this.amountField.setText(Integer.toString(prefill.amount()));
+        this.usedSomersloopsField.setText(Integer.toString(prefill.somersloops()));
+        this.clockSpeedValueField.setText(this.clockSpeedFormat.format(prefill.clockSpeed()));
+        this.commitClockSpeedText();
+    }
+
     @Override
     protected void init()
     {
@@ -269,7 +291,12 @@ public class NewProductionPanel extends BasePanel
                 this.getParentDialog(),
                 this.getLanguage().translate("creatingProductions"),
                 () -> this.productionService.saveProductions(production, amount),
-                saved -> this.getParentDialog().dispose(),
+                saved -> {
+                    if (this.getParentDialog() instanceof NewProductionDialog dialog) {
+                        dialog.setSaved();
+                    }
+                    this.getParentDialog().dispose();
+                },
                 this::showSaveError
             );
         } catch (RuntimeException exception) {

@@ -91,10 +91,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("planAlternate", "Alternativ");
         this.getTranslations().put("planTotalPower", "Gesamter Stromverbrauch");
         this.getTranslations().put("planCreateProduction", "Produktion erstellen");
-        this.getTranslations().put("planProductionsCreated", "%d Produktion(en) erstellt.");
         this.getTranslations().put("planSavingFailed", "Der Plan konnte nicht gespeichert werden.");
         this.getTranslations().put("planDeletionFailed", "Der Plan konnte nicht gelöscht werden.");
-        this.getTranslations().put("planProductionCreationFailed", "Die Produktionen konnten nicht erstellt werden.");
         this.getTranslations().put("planNoTarget", "Kein Zielgegenstand ausgewählt.");
         this.getTranslations().put("planTargetRaw", "Der Zielgegenstand ist ein Rohstoff.");
         this.getTranslations().put("planCycle", "Eine zirkuläre Rezeptabhängigkeit wurde erkannt und als Rohstoff behandelt.");

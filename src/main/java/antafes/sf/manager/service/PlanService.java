@@ -22,18 +22,14 @@
 
 package antafes.sf.manager.service;
 
-import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Plan;
-import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.repository.PlanRepository;
 import antafes.sf.manager.service.dto.PlanResult;
-import antafes.sf.manager.service.dto.PlanStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,11 +41,7 @@ public class PlanService
     @Autowired
     private FactoryService factoryService;
     @Autowired
-    private ProductionService productionService;
-    @Autowired
     private PlanCalculationService planCalculationService;
-    @Autowired
-    private Configuration configuration;
 
     public List<Plan> getPlans()
     {
@@ -87,44 +79,6 @@ public class PlanService
     public PlanResult calculate(Plan plan)
     {
         return this.planCalculationService.calculate(plan);
-    }
-
-    /**
-     * Creates the productions of a single plan step in the active factory.
-     * The machines running at the step's clock speed are created first, followed by the partially used one.
-     */
-    public List<Production> createProductions(PlanStep step) throws IOException
-    {
-        this.requireFactory();
-        if (step.machineCount() <= 0) {
-            throw new IllegalArgumentException("The step needs at least one machine.");
-        }
-        List<Production> created = new ArrayList<>();
-        if (step.fullMachines() > 0) {
-            created.addAll(this.productionService.saveProductions(
-                this.createProduction(step, step.clockSpeed()),
-                step.fullMachines()
-            ));
-        }
-        if (step.partialClockSpeed() > 0) {
-            created.add(this.productionService.saveProduction(this.createProduction(step, step.partialClockSpeed())));
-        }
-
-        return created;
-    }
-
-    private Production createProduction(PlanStep step, double clockSpeed)
-    {
-        String language = this.configuration.getLanguage().getName();
-        var firstProduct = step.recipe().getProducts().getFirst().getResource();
-        String group = firstProduct.getName() == null ? null : firstProduct.getName().getLocalizedName(language);
-
-        return new Production()
-            .setSelectedBuilding(step.building())
-            .setSelectedRecipe(step.recipe())
-            .setClockSpeed(clockSpeed)
-            .setUsedSomersloops(step.somersloops())
-            .setGroup(group);
     }
 
     private Factory requireFactory()

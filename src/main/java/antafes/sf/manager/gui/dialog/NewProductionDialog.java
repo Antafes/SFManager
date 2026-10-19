@@ -27,6 +27,7 @@ import antafes.sf.manager.SFManager;
 import antafes.sf.manager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.utilities.language.LanguageInterface;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -47,10 +48,19 @@ public class NewProductionDialog extends JDialog
     @Autowired
     private Configuration configuration;
     private LanguageInterface language;
+    private final NewProductionPrefill prefill;
+    @Getter
+    private boolean saved;
 
     public NewProductionDialog(Frame owner, boolean modal)
     {
+        this(owner, modal, null);
+    }
+
+    public NewProductionDialog(Frame owner, boolean modal, NewProductionPrefill prefill)
+    {
         super(owner, modal);
+        this.prefill = prefill;
     }
 
     @PostConstruct
@@ -67,6 +77,11 @@ public class NewProductionDialog extends JDialog
         int width = this.getWidth();
         this.pack();
         this.setSize(width, this.getHeight());
+    }
+
+    public void setSaved()
+    {
+        this.saved = true;
     }
 
     /**
@@ -92,6 +107,9 @@ public class NewProductionDialog extends JDialog
         NewProductionPanel panel = this.applicationContext.getBean(
             NewProductionPanel.class, this, this.configuration
         );
+        if (this.prefill != null) {
+            panel.applyPrefill(this.prefill);
+        }
         GridBagLayout layout = new GridBagLayout();
         this.setLayout(layout);
 

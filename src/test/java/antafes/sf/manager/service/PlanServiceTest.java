@@ -111,25 +111,6 @@ public class PlanServiceTest extends BaseTest
         }
     }
 
-    @Test
-    public void testCreatesProductionsFromStep() throws IOException
-    {
-        try (AnnotationConfigApplicationContext context = this.createPlanContext()) {
-            this.autowireTest(context);
-            PlanService planService = this.openFactory(context);
-            Plan plan = planService.createPlan("Plates", "iron_plate", 50);
-            PlanStep plateStep = planService.calculate(plan).steps().getFirst();
-
-            var productions = planService.createProductions(plateStep);
-
-            assertEquals(plateStep.machineCount(), productions.size());
-            assertEquals(
-                productions.size(),
-                context.getBean(ProductionRepository.class).findAll().size()
-            );
-        }
-    }
-
     private AnnotationConfigApplicationContext createPlanContext()
     {
         return this.createContext(

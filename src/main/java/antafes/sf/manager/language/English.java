@@ -91,10 +91,8 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("planAlternate", "Alternate");
         this.getTranslations().put("planTotalPower", "Total power consumption");
         this.getTranslations().put("planCreateProduction", "Create production");
-        this.getTranslations().put("planProductionsCreated", "%d production(s) created.");
         this.getTranslations().put("planSavingFailed", "The plan could not be saved.");
         this.getTranslations().put("planDeletionFailed", "The plan could not be deleted.");
-        this.getTranslations().put("planProductionCreationFailed", "The productions could not be created.");
         this.getTranslations().put("planNoTarget", "No target item selected.");
         this.getTranslations().put("planTargetRaw", "The target item is a raw material.");
         this.getTranslations().put("planCycle", "A circular recipe dependency was detected and treated as raw input.");

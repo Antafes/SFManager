@@ -206,6 +206,56 @@ public class NewProductionPanelTest extends BaseTest
         }
     }
 
+    @Test
+    public void testAppliesPrefill() throws Exception
+    {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            NewProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Prefill");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            JDialog dialog = new JDialog();
+            NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
+            JComboBox<Recipe> recipeSelect = this.field(panel, "recipeSelect");
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            JComboBox<String> groupField = this.field(panel, "groupField");
+            JTextField amountField = this.field(panel, "amountField");
+            JTextField clockSpeedValueField = this.field(panel, "clockSpeedValueField");
+            this.selectBuilding(buildingSelect, "assembler");
+            Building assembler = (Building) buildingSelect.getSelectedItem();
+            Recipe recipe = null;
+            for (int i = 0; i < recipeSelect.getItemCount(); i++) {
+                Recipe candidate = recipeSelect.getItemAt(i);
+                if (i > 0 && candidate.getProducts() != null && !candidate.getProducts().isEmpty()) {
+                    recipe = candidate;
+                    break;
+                }
+            }
+            assertTrue(recipe != null);
+
+            this.selectBuilding(buildingSelect, "sink");
+            panel.applyPrefill(new NewProductionPrefill(assembler, recipe, 150, 0, 3));
+
+            assertEquals(assembler, buildingSelect.getSelectedItem());
+            assertEquals(recipe, recipeSelect.getSelectedItem());
+            assertEquals("3", amountField.getText());
+            assertEquals("150", clockSpeedValueField.getText());
+            assertEquals(this.firstProductName(recipe), groupField.getEditor().getItem());
+            dialog.dispose();
+        }
+    }
+
     private void selectBuilding(JComboBox<Object> buildingSelect, String key)
     {
         for (int i = 0; i < buildingSelect.getItemCount(); i++) {
