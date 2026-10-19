@@ -449,9 +449,9 @@ public class NewProductionPanel extends BasePanel
     private void prefillGroup()
     {
         Recipe selectedRecipe = (Recipe) this.recipeSelect.getSelectedItem();
-        if (selectedRecipe == null && this.itemSelect.getItemCount() > 0) {
-            return;
-        }
+        antafes.sf.manager.entity.Item selectedItem = this.itemSelect.getItemCount() > 0
+            ? (antafes.sf.manager.entity.Item) this.itemSelect.getSelectedItem()
+            : null;
 
         Object currentValue = this.groupField.getEditor().getItem();
         String current = currentValue == null ? "" : currentValue.toString().trim();
@@ -459,11 +459,7 @@ public class NewProductionPanel extends BasePanel
             return;
         }
 
-        Name name = selectedRecipe == null || selectedRecipe.getProducts() == null
-            || selectedRecipe.getProducts().isEmpty()
-            || selectedRecipe.getProducts().getFirst().getResource() == null
-            ? this.selectedBuildingName()
-            : selectedRecipe.getProducts().getFirst().getResource().getName();
+        Name name = this.prefillName(selectedRecipe, selectedItem);
         if (name == null) {
             return;
         }
@@ -473,6 +469,24 @@ public class NewProductionPanel extends BasePanel
             this.applyGroupFilter(editor, group, false);
         }
         this.lastPrefilledGroup = group;
+    }
+
+    private Name prefillName(Recipe selectedRecipe, antafes.sf.manager.entity.Item selectedItem)
+    {
+        if (selectedItem != null) {
+            return selectedItem.getName();
+        }
+        Building building = (Building) this.buildingSelect.getSelectedItem();
+        if (selectedRecipe != null && building != null && building.getCategory() == Category.POWER) {
+            return building.getName();
+        }
+        if (selectedRecipe == null || selectedRecipe.getProducts() == null
+            || selectedRecipe.getProducts().isEmpty()
+            || selectedRecipe.getProducts().getFirst().getResource() == null) {
+            return this.selectedBuildingName();
+        }
+
+        return selectedRecipe.getProducts().getFirst().getResource().getName();
     }
 
     private void installGroupFilter()
@@ -1154,7 +1168,10 @@ public class NewProductionPanel extends BasePanel
             this.updateSummaries();
             this.createFocusTraversalPolicy();
         });
-        this.itemSelect.addActionListener(event -> this.updateSummaries());
+        this.itemSelect.addActionListener(event -> {
+            this.prefillGroup();
+            this.updateSummaries();
+        });
         this.puritySelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);
         this.clockSpeedSlider.addChangeListener(event -> {
