@@ -28,13 +28,33 @@ public class German extends antafes.utilities.language.German
     {
         super();
         this.general();
+        this.menu();
+        this.importFactory();
+        this.planning();
         this.newProduction();
-        this.newFactory();
+        this.editProductions();
+        this.deleteProductions();
+        this.factory();
     }
 
     private void general()
     {
         this.getTranslations().put("title", "Satisfactory-Manager");
+        this.getTranslations().put("newStorage", "Neuer Lagereintrag");
+        this.getTranslations().put("storageChoices", "Verfügbare Materialien");
+        this.getTranslations().put("storageFilterItem", "Nach Material filtern");
+        this.getTranslations().put("storageFilterAll", "Alle Materialien");
+        this.getTranslations().put("storage", "Lager");
+        this.getTranslations().put("storedRate", "Gelagert / min");
+        this.getTranslations().put("sourceProductions", "Quellproduktionen");
+        this.getTranslations().put("storageSavingFailed", "Die Lageroption konnte nicht gespeichert werden.");
+        this.getTranslations().put("confirmDeleteStorage", "Möchten Sie diesen gelagerten Gegenstand wirklich entfernen?");
+        this.getTranslations().put("deleteStorage", "Gelagerten Gegenstand entfernen");
+        this.getTranslations().put("storageDeletionFailed", "Der gelagerte Gegenstand konnte nicht entfernt werden.");
+    }
+
+    private void menu()
+    {
         this.getTranslations().put("newProductionMenu", "Neue Produktion");
         this.getTranslations().put("newProductionMnemonic", "P");
         this.getTranslations().put("newFactoryMenu", "Neue Fabrik");
@@ -44,13 +64,16 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("deleteFactoryMenu", "Fabrik löschen");
         this.getTranslations().put("deleteFactoryMnemonic", "C");
         this.getTranslations().put("newStorageMenu", "Neuer Lagereintrag");
-        this.getTranslations().put("newStorage", "Neuer Lagereintrag");
-        this.getTranslations().put("storageChoices", "Verfügbare Materialien");
-        this.getTranslations().put("storageFilterItem", "Nach Material filtern");
-        this.getTranslations().put("storageFilterAll", "Alle Materialien");
         this.getTranslations().put("newStorageMnemonic", "L");
         this.getTranslations().put("importFactoryMenu", "Fabrik importieren");
         this.getTranslations().put("importFactoryMnemonic", "I");
+        this.getTranslations().put("options", "Optionen");
+        this.getTranslations().put("optionsMnemonic", "O");
+        this.getTranslations().put("useStorage", "Lager verwenden");
+    }
+
+    private void importFactory()
+    {
         this.getTranslations().put("importSaveFileFilter", "Satisfactory-Spielstände (*.sav)");
         this.getTranslations().put("importParseError", "Der Spielstand konnte nicht gelesen werden.");
         this.getTranslations().put("importNothingFound", "Der Spielstand enthält keine importierbaren Maschinen.");
@@ -64,10 +87,10 @@ public class German extends antafes.utilities.language.German
             "importUnsupportedVersion",
             "Dieser Spielstand (Speicherversion %d) ist zu alt. Seine Maschinendaten können nicht gelesen werden, daher kann er nicht importiert werden."
         );
-        this.getTranslations().put("options", "Optionen");
-        this.getTranslations().put("optionsMnemonic", "O");
-        this.getTranslations().put("useStorage", "Lager verwenden");
-        this.getTranslations().put("storage", "Lager");
+    }
+
+    private void planning()
+    {
         this.getTranslations().put("planning", "Planung");
         this.getTranslations().put("planPlan", "Plan");
         this.getTranslations().put("planNew", "Neuer Plan");
@@ -91,20 +114,12 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("planAlternate", "Alternativ");
         this.getTranslations().put("planTotalPower", "Gesamter Stromverbrauch");
         this.getTranslations().put("planCreateProduction", "Produktion erstellen");
-        this.getTranslations().put("planProductionsCreated", "%d Produktion(en) erstellt.");
         this.getTranslations().put("planSavingFailed", "Der Plan konnte nicht gespeichert werden.");
         this.getTranslations().put("planDeletionFailed", "Der Plan konnte nicht gelöscht werden.");
-        this.getTranslations().put("planProductionCreationFailed", "Die Produktionen konnten nicht erstellt werden.");
         this.getTranslations().put("planNoTarget", "Kein Zielgegenstand ausgewählt.");
         this.getTranslations().put("planTargetRaw", "Der Zielgegenstand ist ein Rohstoff.");
         this.getTranslations().put("planCycle", "Eine zirkuläre Rezeptabhängigkeit wurde erkannt und als Rohstoff behandelt.");
         this.getTranslations().put("planNotConverged", "Die Nebenproduktionen konnten nicht aufgelöst werden.");
-        this.getTranslations().put("storedRate", "Gelagert / min");
-        this.getTranslations().put("sourceProductions", "Quellproduktionen");
-        this.getTranslations().put("storageSavingFailed", "Die Lageroption konnte nicht gespeichert werden.");
-        this.getTranslations().put("confirmDeleteStorage", "Möchten Sie diesen gelagerten Gegenstand wirklich entfernen?");
-        this.getTranslations().put("deleteStorage", "Gelagerten Gegenstand entfernen");
-        this.getTranslations().put("storageDeletionFailed", "Der gelagerte Gegenstand konnte nicht entfernt werden.");
     }
 
     private void newProduction()
@@ -160,26 +175,21 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("collapse", "Zuklappen");
         this.getTranslations().put("somersloops", "Somersloops");
         this.getTranslations().put("producedMaterials", "Produzierte Materialien");
-        this.getTranslations().put("delete", "Löschen");
+        this.getTranslations().put("productionSavingFailed", "Die Produktion konnte nicht gespeichert werden.");
+        this.getTranslations().put("creatingProductions", "Produktionen werden angelegt...");
+    }
+
+    private void editProductions()
+    {
         this.getTranslations().put("edit", "Bearbeiten");
         this.getTranslations().put("editProduction", "Produktion bearbeiten");
         this.getTranslations().put("upgrade", "Aufrüsten");
         this.getTranslations().put("upgradeMiner", "Miner aufrüsten");
-        this.getTranslations().put("deleteProduction", "Produktion löschen");
-        this.getTranslations().put("confirmDeleteProduction", "Möchten Sie diese Produktion wirklich löschen?");
-        this.getTranslations().put("productionDeletionFailed", "Die Produktion konnte nicht gelöscht werden.");
         this.getTranslations().put("productionUpgradeFailed", "Die Produktion konnte nicht aufgerüstet werden.");
-        this.getTranslations().put("productionSavingFailed", "Die Produktion konnte nicht gespeichert werden.");
         this.getTranslations().put("productionEditingFailed", "Die Produktion konnte nicht aktualisiert werden.");
-        this.getTranslations().put("deleteSelected", "Ausgewählte löschen");
         this.getTranslations().put("editSelected", "Ausgewählte bearbeiten");
-        this.getTranslations().put("deleteProductions", "Produktionen löschen");
-        this.getTranslations().put("confirmDeleteProductions", "Die folgenden %d Produktionen werden gelöscht:");
-        this.getTranslations().put("productionsDeletionFailed", "Die Produktionen konnten nicht gelöscht werden.");
-        this.getTranslations().put("deletingProductions", "Produktionen werden gelöscht...");
         this.getTranslations().put("editProductions", "Produktionen bearbeiten");
         this.getTranslations().put("editingProductions", "Produktionen werden aktualisiert...");
-        this.getTranslations().put("creatingProductions", "Produktionen werden angelegt...");
         this.getTranslations().put("editProductionsHint", "Nur die Felder mit gesetztem Haken werden für alle %d ausgewählten Produktionen geändert.");
         this.getTranslations().put("keepUnchanged", "Unverändert lassen");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "Die ausgewählten Produktionen verwenden unterschiedliche Gebäude.");
@@ -191,7 +201,20 @@ public class German extends antafes.utilities.language.German
         );
     }
 
-    private void newFactory()
+    private void deleteProductions()
+    {
+        this.getTranslations().put("delete", "Löschen");
+        this.getTranslations().put("deleteProduction", "Produktion löschen");
+        this.getTranslations().put("confirmDeleteProduction", "Möchten Sie diese Produktion wirklich löschen?");
+        this.getTranslations().put("productionDeletionFailed", "Die Produktion konnte nicht gelöscht werden.");
+        this.getTranslations().put("deleteSelected", "Ausgewählte löschen");
+        this.getTranslations().put("deleteProductions", "Produktionen löschen");
+        this.getTranslations().put("confirmDeleteProductions", "Die folgenden %d Produktionen werden gelöscht:");
+        this.getTranslations().put("productionsDeletionFailed", "Die Produktionen konnten nicht gelöscht werden.");
+        this.getTranslations().put("deletingProductions", "Produktionen werden gelöscht...");
+    }
+
+    private void factory()
     {
         this.getTranslations().put("newFactory", "Neue Fabrik erstellen");
         this.getTranslations().put("factoryName", "Fabrikname");

@@ -28,13 +28,33 @@ public class English extends antafes.utilities.language.English
     {
         super();
         this.general();
+        this.menu();
+        this.importFactory();
+        this.planning();
         this.newProduction();
-        this.newFactory();
+        this.editProductions();
+        this.deleteProductions();
+        this.factory();
     }
 
     private void general()
     {
         this.getTranslations().put("title", "Satisfactory Manager");
+        this.getTranslations().put("newStorage", "New Storage");
+        this.getTranslations().put("storageChoices", "Available materials");
+        this.getTranslations().put("storageFilterItem", "Filter by item");
+        this.getTranslations().put("storageFilterAll", "All items");
+        this.getTranslations().put("storage", "Storage");
+        this.getTranslations().put("storedRate", "Stored / min");
+        this.getTranslations().put("sourceProductions", "Source productions");
+        this.getTranslations().put("storageSavingFailed", "Could not save the storage option.");
+        this.getTranslations().put("confirmDeleteStorage", "Are you sure you want to remove this stored item?");
+        this.getTranslations().put("deleteStorage", "Remove stored item");
+        this.getTranslations().put("storageDeletionFailed", "Could not remove the stored item.");
+    }
+
+    private void menu()
+    {
         this.getTranslations().put("newProductionMenu", "New Production");
         this.getTranslations().put("newProductionMnemonic", "P");
         this.getTranslations().put("newFactoryMenu", "New Factory");
@@ -44,13 +64,16 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("deleteFactoryMenu", "Delete Factory");
         this.getTranslations().put("deleteFactoryMnemonic", "D");
         this.getTranslations().put("newStorageMenu", "New Storage");
-        this.getTranslations().put("newStorage", "New Storage");
-        this.getTranslations().put("storageChoices", "Available materials");
-        this.getTranslations().put("storageFilterItem", "Filter by item");
-        this.getTranslations().put("storageFilterAll", "All items");
         this.getTranslations().put("newStorageMnemonic", "S");
         this.getTranslations().put("importFactoryMenu", "Import factory");
         this.getTranslations().put("importFactoryMnemonic", "I");
+        this.getTranslations().put("options", "Options");
+        this.getTranslations().put("optionsMnemonic", "O");
+        this.getTranslations().put("useStorage", "Use storage");
+    }
+
+    private void importFactory()
+    {
         this.getTranslations().put("importSaveFileFilter", "Satisfactory save files (*.sav)");
         this.getTranslations().put("importParseError", "The save file could not be read.");
         this.getTranslations().put("importNothingFound", "The save contains no machines that can be imported.");
@@ -64,10 +87,10 @@ public class English extends antafes.utilities.language.English
             "importUnsupportedVersion",
             "This save file (save version %d) is too old. Its machine data cannot be read, so it cannot be imported."
         );
-        this.getTranslations().put("options", "Options");
-        this.getTranslations().put("optionsMnemonic", "O");
-        this.getTranslations().put("useStorage", "Use storage");
-        this.getTranslations().put("storage", "Storage");
+    }
+
+    private void planning()
+    {
         this.getTranslations().put("planning", "Planning");
         this.getTranslations().put("planPlan", "Plan");
         this.getTranslations().put("planNew", "New plan");
@@ -91,20 +114,12 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("planAlternate", "Alternate");
         this.getTranslations().put("planTotalPower", "Total power consumption");
         this.getTranslations().put("planCreateProduction", "Create production");
-        this.getTranslations().put("planProductionsCreated", "%d production(s) created.");
         this.getTranslations().put("planSavingFailed", "The plan could not be saved.");
         this.getTranslations().put("planDeletionFailed", "The plan could not be deleted.");
-        this.getTranslations().put("planProductionCreationFailed", "The productions could not be created.");
         this.getTranslations().put("planNoTarget", "No target item selected.");
         this.getTranslations().put("planTargetRaw", "The target item is a raw material.");
         this.getTranslations().put("planCycle", "A circular recipe dependency was detected and treated as raw input.");
         this.getTranslations().put("planNotConverged", "The side productions did not converge.");
-        this.getTranslations().put("storedRate", "Stored / min");
-        this.getTranslations().put("sourceProductions", "Source productions");
-        this.getTranslations().put("storageSavingFailed", "Could not save the storage option.");
-        this.getTranslations().put("confirmDeleteStorage", "Are you sure you want to remove this stored item?");
-        this.getTranslations().put("deleteStorage", "Remove stored item");
-        this.getTranslations().put("storageDeletionFailed", "Could not remove the stored item.");
     }
 
     private void newProduction()
@@ -160,26 +175,21 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("collapse", "Collapse");
         this.getTranslations().put("somersloops", "Somersloops");
         this.getTranslations().put("producedMaterials", "Produced Materials");
-        this.getTranslations().put("delete", "Delete");
+        this.getTranslations().put("productionSavingFailed", "Could not save the production.");
+        this.getTranslations().put("creatingProductions", "Creating productions...");
+    }
+
+    private void editProductions()
+    {
         this.getTranslations().put("edit", "Edit");
         this.getTranslations().put("editProduction", "Edit production");
         this.getTranslations().put("upgrade", "Upgrade");
         this.getTranslations().put("upgradeMiner", "Upgrade miner");
-        this.getTranslations().put("deleteProduction", "Delete production");
-        this.getTranslations().put("confirmDeleteProduction", "Are you sure you want to delete this production?");
-        this.getTranslations().put("productionDeletionFailed", "Could not delete the production.");
         this.getTranslations().put("productionUpgradeFailed", "Could not upgrade the production.");
-        this.getTranslations().put("productionSavingFailed", "Could not save the production.");
         this.getTranslations().put("productionEditingFailed", "Could not update the production.");
-        this.getTranslations().put("deleteSelected", "Delete selected");
         this.getTranslations().put("editSelected", "Edit selected");
-        this.getTranslations().put("deleteProductions", "Delete productions");
-        this.getTranslations().put("confirmDeleteProductions", "The following %d productions will be deleted:");
-        this.getTranslations().put("productionsDeletionFailed", "Could not delete the productions.");
-        this.getTranslations().put("deletingProductions", "Deleting productions...");
         this.getTranslations().put("editProductions", "Edit productions");
         this.getTranslations().put("editingProductions", "Updating productions...");
-        this.getTranslations().put("creatingProductions", "Creating productions...");
         this.getTranslations().put("editProductionsHint", "Only the fields with a checked box are changed for all %d selected productions.");
         this.getTranslations().put("keepUnchanged", "Keep unchanged");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "The selected productions use different buildings.");
@@ -191,7 +201,20 @@ public class English extends antafes.utilities.language.English
         );
     }
 
-    private void newFactory()
+    private void deleteProductions()
+    {
+        this.getTranslations().put("delete", "Delete");
+        this.getTranslations().put("deleteProduction", "Delete production");
+        this.getTranslations().put("confirmDeleteProduction", "Are you sure you want to delete this production?");
+        this.getTranslations().put("productionDeletionFailed", "Could not delete the production.");
+        this.getTranslations().put("deleteSelected", "Delete selected");
+        this.getTranslations().put("deleteProductions", "Delete productions");
+        this.getTranslations().put("confirmDeleteProductions", "The following %d productions will be deleted:");
+        this.getTranslations().put("productionsDeletionFailed", "Could not delete the productions.");
+        this.getTranslations().put("deletingProductions", "Deleting productions...");
+    }
+
+    private void factory()
     {
         this.getTranslations().put("newFactory", "Create new factory");
         this.getTranslations().put("factoryName", "Factory name");
