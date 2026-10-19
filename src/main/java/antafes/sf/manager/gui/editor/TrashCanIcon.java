@@ -25,7 +25,7 @@ package antafes.sf.manager.gui.editor;
 import javax.swing.*;
 import java.awt.*;
 
-final class TrashCanIcon implements Icon
+public final class TrashCanIcon implements Icon
 {
     @Override
     public int getIconWidth()

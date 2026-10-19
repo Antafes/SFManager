@@ -24,10 +24,7 @@ package antafes.sf.manager.gui;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
-import antafes.sf.manager.gui.dialog.NewFactoryDialog;
-import antafes.sf.manager.gui.dialog.NewProductionDialog;
-import antafes.sf.manager.gui.dialog.NewStorageDialog;
-import antafes.sf.manager.gui.dialog.OpenFactoryDialog;
+import antafes.sf.manager.gui.dialog.*;
 import antafes.sf.manager.gui.event.*;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
@@ -74,6 +71,7 @@ public class BaseWindow extends JFrame
     private PlanningPanel planningPanel;
     private JLabel activeFactoryLabel;
     private JMenuItem openFactoryMenuItem;
+    private JMenuItem deleteFactoryMenuItem;
     private JMenu fileMenu;
     private JMenu optionsMenu;
     private JMenu languageMenu;
@@ -132,6 +130,7 @@ public class BaseWindow extends JFrame
         this.closeMenuItem = new JMenuItem();
         this.newFactoryMenuItem = new JMenuItem();
         this.openFactoryMenuItem = new JMenuItem();
+        this.deleteFactoryMenuItem = new JMenuItem();
         this.newProductionMenuItem = new JMenuItem();
         this.newStorageMenuItem = new JMenuItem();
         this.importFactoryMenuItem = new JMenuItem();
@@ -141,6 +140,7 @@ public class BaseWindow extends JFrame
 
         this.fileMenu.add(this.newFactoryMenuItem);
         this.fileMenu.add(this.openFactoryMenuItem);
+        this.fileMenu.add(this.deleteFactoryMenuItem);
         this.fileMenu.add(this.newProductionMenuItem);
         this.fileMenu.add(this.newStorageMenuItem);
         this.fileMenu.addSeparator();
@@ -171,6 +171,9 @@ public class BaseWindow extends JFrame
         this.openFactoryMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
         this.openFactoryMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new OpenFactoryEvent()));
         this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
+
+        this.deleteFactoryMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new DeleteFactoryEvent()));
+        this.deleteFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
 
         this.newProductionMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
         this.newProductionMenuItem.addActionListener(e -> this.applicationContext.publishEvent(new NewProductionEvent()));
@@ -215,6 +218,12 @@ public class BaseWindow extends JFrame
     }
 
     @EventListener
+    private void onDeleteFactory(DeleteFactoryEvent event)
+    {
+        this.openDeleteFactoryDialog();
+    }
+
+    @EventListener
     private void onRegisterEscapeCloseOperation(RegisterEscapeCloseOperationEvent event)
     {
         this.registerEscapeCloseOperation(event.dialog());
@@ -251,7 +260,7 @@ public class BaseWindow extends JFrame
         );
         dialog.setLocationRelativeTo(this);
         dialog.setVisible(true);
-        this.openFactoryMenuItem.setEnabled(!this.factoryService.getFactories().isEmpty());
+        this.updateFactoryMenuItems();
     }
 
     private void openNewStorageDialog()
@@ -267,7 +276,7 @@ public class BaseWindow extends JFrame
     private void openFactoryDialog()
     {
         if (this.factoryService.getFactories().isEmpty()) {
-            this.openFactoryMenuItem.setEnabled(false);
+            this.updateFactoryMenuItems();
             return;
         }
 
@@ -275,6 +284,39 @@ public class BaseWindow extends JFrame
             OpenFactoryDialog.class, this, true
         );
         dialog.setVisible(true);
+    }
+
+    private void openDeleteFactoryDialog()
+    {
+        if (this.factoryService.getFactories().isEmpty()) {
+            this.updateFactoryMenuItems();
+            return;
+        }
+
+        DeleteFactoryDialog dialog = this.applicationContext.getBean(
+            DeleteFactoryDialog.class, this, true
+        );
+        dialog.setVisible(true);
+    }
+
+    private void updateFactoryMenuItems()
+    {
+        boolean hasFactories = !this.factoryService.getFactories().isEmpty();
+        this.openFactoryMenuItem.setEnabled(hasFactories);
+        this.deleteFactoryMenuItem.setEnabled(hasFactories);
+    }
+
+    @EventListener
+    private void onFactoryDeleted(FactoryDeletedEvent event)
+    {
+        SwingUtilities.invokeLater(() -> {
+            this.updateFactoryMenuItems();
+            this.newProductionMenuItem.setEnabled(this.factoryService.getCurrentFactory() != null);
+            this.updateStorageMenuItem();
+            this.updateActiveFactoryLabel();
+            this.planningPanel = null;
+            this.refreshResourceTabs();
+        });
     }
 
     @EventListener
@@ -548,7 +590,7 @@ public class BaseWindow extends JFrame
                 try {
                     Factory factory = this.get();
                     BaseWindow.this.importService.publishImport(factory);
-                    BaseWindow.this.openFactoryMenuItem.setEnabled(true);
+                    BaseWindow.this.updateFactoryMenuItems();
                     // The listeners refresh the UI via invokeLater, so closing is queued behind them.
                     SwingUtilities.invokeLater(() -> {
                         loadingDialog.dispose();
@@ -636,6 +678,8 @@ public class BaseWindow extends JFrame
         this.newFactoryMenuItem.setMnemonic(this.language.translate("newFactoryMnemonic").charAt(0));
         this.openFactoryMenuItem.setText(this.language.translate("openFactoryMenu"));
         this.openFactoryMenuItem.setMnemonic(this.language.translate("openFactoryMnemonic").charAt(0));
+        this.deleteFactoryMenuItem.setText(this.language.translate("deleteFactoryMenu"));
+        this.deleteFactoryMenuItem.setMnemonic(this.language.translate("deleteFactoryMnemonic").charAt(0));
         this.newProductionMenuItem.setText(this.language.translate("newProductionMenu"));
         this.newProductionMenuItem.setMnemonic(this.language.translate("newProductionMnemonic").charAt(0));
         this.newStorageMenuItem.setText(this.language.translate("newStorageMenu"));

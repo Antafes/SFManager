@@ -41,6 +41,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("newFactoryMnemonic", "F");
         this.getTranslations().put("openFactoryMenu", "Fabrik öffnen");
         this.getTranslations().put("openFactoryMnemonic", "Ö");
+        this.getTranslations().put("deleteFactoryMenu", "Fabrik löschen");
+        this.getTranslations().put("deleteFactoryMnemonic", "C");
         this.getTranslations().put("newStorageMenu", "Neuer Lagereintrag");
         this.getTranslations().put("newStorage", "Neuer Lagereintrag");
         this.getTranslations().put("storageChoices", "Verfügbare Materialien");
@@ -196,5 +198,8 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("openFactory", "Fabrik öffnen");
         this.getTranslations().put("noFactoryOpen", "Keine Fabrik geöffnet");
         this.getTranslations().put("open", "Öffnen");
+        this.getTranslations().put("deleteFactory", "Fabrik löschen");
+        this.getTranslations().put("confirmDeleteFactory", "Möchten Sie die Fabrik \"%s\" wirklich mit allen Daten löschen?");
+        this.getTranslations().put("factoryDeletionFailed", "Die Fabrik konnte nicht gelöscht werden.");
     }
 }

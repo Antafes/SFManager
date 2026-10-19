@@ -24,6 +24,7 @@ package antafes.sf.manager.gui.dialog;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
+import antafes.sf.manager.gui.editor.TrashCanIcon;
 import antafes.sf.manager.gui.event.RegisterEscapeCloseOperationEvent;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
@@ -92,21 +93,30 @@ public class OpenFactoryDialog extends JDialog
         JButton openButton = new JButton(this.language.translate("open"));
         JButton cancelButton = new JButton(this.language.translate("cancel"));
         openButton.addActionListener(event -> this.openSelectedFactory());
+        JButton deleteButton = new JButton(new TrashCanIcon());
+        deleteButton.setToolTipText(this.language.translate("delete"));
+        deleteButton.getAccessibleContext().setAccessibleName(this.language.translate("delete"));
         cancelButton.addActionListener(event -> this.dispose());
+        deleteButton.addActionListener(event -> this.deleteSelectedFactory());
         this.getRootPane().setDefaultButton(openButton);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttons.add(openButton);
         buttons.add(cancelButton);
+        JPanel selection = new JPanel(new BorderLayout(8, 0));
+        selection.setBorder(BorderFactory.createEmptyBorder(8, 8, 0, 8));
+        selection.add(this.factorySelect, BorderLayout.CENTER);
+        selection.add(deleteButton, BorderLayout.EAST);
         this.setLayout(new BorderLayout(8, 8));
-        this.add(this.factorySelect, BorderLayout.CENTER);
+        this.add(selection, BorderLayout.CENTER);
         this.add(buttons, BorderLayout.SOUTH);
-        this.factorySelect.setBorder(BorderFactory.createEmptyBorder(8, 8, 0, 8));
         this.pack();
+        this.setSize(Math.max(this.getWidth(), 350), this.getHeight());
         this.setLocationRelativeTo(this.owner);
 
         Vector<Component> focusOrder = new Vector<>();
         focusOrder.add(this.factorySelect);
+        focusOrder.add(deleteButton);
         focusOrder.add(openButton);
         focusOrder.add(cancelButton);
         this.setFocusTraversalPolicy(new OrderFocusTraversalPolicy(focusOrder));
@@ -118,6 +128,19 @@ public class OpenFactoryDialog extends JDialog
         Factory selectedFactory = (Factory) this.factorySelect.getSelectedItem();
         if (selectedFactory != null) {
             this.eventPublisher.publishEvent(new FactorySelectedEvent(selectedFactory));
+            this.dispose();
+        }
+    }
+
+    private void deleteSelectedFactory()
+    {
+        Factory selectedFactory = (Factory) this.factorySelect.getSelectedItem();
+        if (!FactoryDeletion.confirmAndDelete(this, this.language, this.factoryService, selectedFactory)) {
+            return;
+        }
+
+        this.factorySelect.removeItem(selectedFactory);
+        if (this.factorySelect.getItemCount() == 0) {
             this.dispose();
         }
     }

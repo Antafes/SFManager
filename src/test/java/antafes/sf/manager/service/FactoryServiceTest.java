@@ -25,12 +25,17 @@ package antafes.sf.manager.service;
 import antafes.sf.manager.BaseTest;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.repository.FactoryRepository;
+import antafes.sf.manager.service.event.FactoryDeletedEvent;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.PayloadApplicationEvent;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +80,59 @@ public class FactoryServiceTest extends BaseTest
             assertNotNull(loadedFactory);
             assertEquals(List.of("production-id"), loadedFactory.getProductions());
             assertNull(this.factoryService.getCurrentFactory());
+        }
+    }
+
+    @Test
+    public void testDeletingOpenFactoryClearsStateAndPublishesEvent() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            FactoryRepository.class, FactoryService.class
+        )) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
+            List<FactoryDeletedEvent> events = new ArrayList<>();
+            context.addApplicationListener((ApplicationListener<PayloadApplicationEvent<?>>) payloadEvent -> {
+                if (payloadEvent.getPayload() instanceof FactoryDeletedEvent deletedEvent) {
+                    events.add(deletedEvent);
+                }
+            });
+            Factory open = this.factoryService.createFactory("Open Factory");
+            Factory other = this.factoryService.createFactory("Other Factory");
+            context.publishEvent(new FactorySelectedEvent(open));
+
+            this.factoryService.deleteFactory(other);
+            assertSame(open, this.factoryService.getCurrentFactory());
+            assertEquals(open.getId().toString(), this.configuration.getLastOpenedFactoryId());
+            assertEquals(1, events.size());
+
+            this.factoryService.deleteFactory(open);
+            assertNull(this.factoryService.getCurrentFactory());
+            assertNull(this.configuration.getLastOpenedFactoryId());
+            assertEquals(List.of(), this.factoryService.getFactories());
+            assertEquals(2, events.size());
+            assertSame(open, events.get(1).factory());
+            assertFalse(Files.exists(this.configuration.getSaveDirPath().toPath().resolve("Open Factory")));
+        }
+    }
+
+    @Test
+    public void testFailedDeletionPublishesNoEvent() throws IOException
+    {
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            FactoryRepository.class, FactoryService.class
+        )) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
+            List<FactoryDeletedEvent> events = new ArrayList<>();
+            context.addApplicationListener((ApplicationListener<PayloadApplicationEvent<?>>) payloadEvent -> {
+                if (payloadEvent.getPayload() instanceof FactoryDeletedEvent deletedEvent) {
+                    events.add(deletedEvent);
+                }
+            });
+
+            assertThrows(IllegalArgumentException.class, () -> this.factoryService.deleteFactory(null));
+            assertEquals(List.of(), events);
         }
     }
 

@@ -25,9 +25,11 @@ package antafes.sf.manager.service;
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.repository.FactoryRepository;
+import antafes.sf.manager.service.event.FactoryDeletedEvent;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,8 @@ public class FactoryService
     private FactoryRepository factoryRepository;
     @Autowired
     private Configuration configuration;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
     @Getter
     private Factory currentFactory;
 
@@ -63,6 +67,14 @@ public class FactoryService
     public void deleteFactory(Factory factory) throws IOException
     {
         this.factoryRepository.deleteFactory(factory);
+        if (this.currentFactory != null && this.currentFactory.getId().equals(factory.getId())) {
+            this.currentFactory = null;
+        }
+        String lastOpenedFactoryId = this.configuration.getLastOpenedFactoryId();
+        if (lastOpenedFactoryId != null && lastOpenedFactoryId.equals(factory.getId().toString())) {
+            this.configuration.setLastOpenedFactoryId(null);
+        }
+        this.eventPublisher.publishEvent(new FactoryDeletedEvent(factory));
     }
 
     public Factory findFactory(UUID id)
