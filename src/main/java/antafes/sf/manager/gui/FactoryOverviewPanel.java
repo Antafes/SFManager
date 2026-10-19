@@ -30,6 +30,7 @@ import antafes.sf.manager.gui.element.PowerSignalLight;
 import antafes.sf.manager.gui.order.LocalizedBuildingOrder;
 import antafes.sf.manager.gui.order.LocalizedItemOrder;
 import antafes.sf.manager.gui.renderer.MaterialStatusRenderer;
+import antafes.sf.manager.gui.renderer.TableSort;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.gui.util.PersistentToolTip;
 import antafes.sf.manager.service.ProductionService;
@@ -177,7 +178,7 @@ public class FactoryOverviewPanel extends JPanel
         };
         this.materialTable = new JTable(this.materialTableModel);
         TableStyle.apply(this.materialTable);
-        this.materialTable.setAutoCreateRowSorter(true);
+        TableSort.apply(this.materialTable, this.numberFormat);
         this.materialTable.getColumnModel().getColumn(5).setCellRenderer(
             new MaterialStatusRenderer(this.language)
         );

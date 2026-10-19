@@ -105,7 +105,7 @@ public class StoragePanelTest extends BaseTest
             assertEquals(1, table.getRowCount());
             assertFalse(table.isCellEditable(0, 0));
             assertTrue(table.isCellEditable(0, 3));
-            assertTrue(table.getAutoCreateRowSorter());
+            assertNotNull(table.getRowSorter());
             assertEquals("Iron Ingot", table.getValueAt(0, 0));
             assertEquals("30 / min", table.getValueAt(0, 1));
             assertTrue(table.getValueAt(0, 2).toString().contains("Smelter"));
