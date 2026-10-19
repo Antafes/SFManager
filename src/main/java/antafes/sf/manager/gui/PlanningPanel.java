@@ -254,6 +254,7 @@ public class PlanningPanel extends JPanel
         planBar.add(this.targetSelect);
         planBar.add(new JLabel(this.language.translate("planTargetRate")));
         planBar.add(this.rateSpinner);
+        planBar.add(this.powerLabel);
 
         JTabbedPane materialTabs = new JTabbedPane();
         materialTabs.addTab(
@@ -267,7 +268,6 @@ public class PlanningPanel extends JPanel
         materialTabs.setPreferredSize(new Dimension(100, 160));
 
         JPanel summary = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        summary.add(this.powerLabel);
         summary.add(this.warningLabel);
 
         JPanel bottom = new JPanel(new BorderLayout());
