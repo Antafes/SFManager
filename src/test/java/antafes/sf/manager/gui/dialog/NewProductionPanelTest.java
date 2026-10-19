@@ -256,6 +256,80 @@ public class NewProductionPanelTest extends BaseTest
         }
     }
 
+    @Test
+    public void testPrefillsGroupFromSelectedMaterial() throws Exception
+    {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            NewProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Material");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            JDialog dialog = new JDialog();
+            NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
+            JComboBox<antafes.sf.manager.entity.Item> itemSelect = this.field(panel, "itemSelect");
+            JComboBox<String> groupField = this.field(panel, "groupField");
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            this.selectBuilding(buildingSelect, "miner_1");
+            assertTrue(itemSelect.getItemCount() >= 2);
+
+            itemSelect.setSelectedIndex(0);
+            assertEquals(this.itemName(itemSelect, 0), groupField.getEditor().getItem());
+            itemSelect.setSelectedIndex(1);
+            assertEquals(this.itemName(itemSelect, 1), groupField.getEditor().getItem());
+
+            groupField.getEditor().setItem("Custom");
+            itemSelect.setSelectedIndex(0);
+            assertEquals("Custom", groupField.getEditor().getItem());
+            dialog.dispose();
+        }
+    }
+
+    @Test
+    public void testPrefillsGroupFromBuildingNameForPowerBuildings() throws Exception
+    {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            NewProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Power");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            JDialog dialog = new JDialog();
+            NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
+            JComboBox<String> groupField = this.field(panel, "groupField");
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            this.selectBuilding(buildingSelect, "nuclear_power_plant");
+            Building building = (Building) buildingSelect.getSelectedItem();
+            assertEquals(building.getName().getLocalizedName("English"), groupField.getEditor().getItem());
+            dialog.dispose();
+        }
+    }
+
+    private String itemName(JComboBox<antafes.sf.manager.entity.Item> itemSelect, int index)
+    {
+        return itemSelect.getItemAt(index).getName().getLocalizedName("English");
+    }
+
     private void selectBuilding(JComboBox<Object> buildingSelect, String key)
     {
         for (int i = 0; i < buildingSelect.getItemCount(); i++) {
