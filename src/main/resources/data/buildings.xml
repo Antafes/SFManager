@@ -267,6 +267,7 @@
         <b:category>power</b:category>
         <b:power>200</b:power>
         <b:overclockable>false</b:overclockable>
+        <b:resourceBuilding>true</b:resourceBuilding>
         <b:icon>images/buildings/geothermal_generator.png</b:icon>
     </b:building>
     <b:building key="nuclear_power_plant">

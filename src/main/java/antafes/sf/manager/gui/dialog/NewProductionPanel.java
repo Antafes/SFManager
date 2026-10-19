@@ -827,7 +827,10 @@ public class NewProductionPanel extends BasePanel
             }
             this.productionPanel.removeAll();
             this.productionPanel.add(this.productionLabel);
-            double generatedPower = selectedBuilding.getPower() * (clockSpeed / 100) * amount;
+            double purityMultiplier = selectedBuilding.isResourceBuilding()
+                ? ProductionCalculator.getPurityMultiplier((Purity) this.puritySelect.getSelectedItem())
+                : 1.0;
+            double generatedPower = selectedBuilding.getPower() * purityMultiplier * (clockSpeed / 100) * amount;
             JLabel generatedPowerLabel = new JLabel(
                 this.getLanguage().translate("generatedPower") + ": "
                     + this.numberFormat.format(generatedPower) + " MW"

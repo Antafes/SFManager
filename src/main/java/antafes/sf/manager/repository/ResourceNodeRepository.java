@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -50,6 +51,13 @@ public class ResourceNodeRepository extends BaseRepository<ResourceNode, String>
 
     @Autowired
     private ItemRepository itemRepository;
+
+    public List<ResourceNode> findWells(String corePath)
+    {
+        return this.entities.values().stream()
+            .filter(node -> node.getType() == ResourceNode.Type.WELL && corePath.equals(node.getCore()))
+            .toList();
+    }
 
     @Override
     protected void loadData()

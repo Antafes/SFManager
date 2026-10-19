@@ -36,6 +36,19 @@ public class ProductionCalculator
         return baseProduction * somersloopMultiplier * (clockSpeed / 100);
     }
 
+    public double getPurityMultiplier(Purity purity)
+    {
+        if (purity == null) {
+            return 1.0;
+        }
+
+        return switch (purity) {
+            case IMPURE -> 0.5;
+            case NORMAL -> 1.0;
+            case PURE -> 2.0;
+        };
+    }
+
     public Double calculateResourceProduction(
         Double baseProduction,
         Purity purity,
@@ -44,11 +57,7 @@ public class ProductionCalculator
         int somersloopSlots
     )
     {
-        double purityMultiplier = switch (purity) {
-            case IMPURE -> 0.5;
-            case NORMAL -> 1.0;
-            case PURE -> 2.0;
-        };
+        double purityMultiplier = getPurityMultiplier(purity);
         return calculateProduction(
             baseProduction * purityMultiplier,
             clockSpeed,

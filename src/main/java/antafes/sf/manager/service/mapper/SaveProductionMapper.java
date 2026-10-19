@@ -48,6 +48,10 @@ public class SaveProductionMapper
     private static final String MAPPING_RESOURCE = "data/save-mapping.properties";
     private static final String WATER_ITEM_KEY = "water";
     private static final String WATER_EXTRACTOR_KEY = "water_extractor";
+    private static final String WELL_PRESSURIZER_KEY = "well_pressurizer";
+    private static final String WELL_EXTRACTOR_KEY = "well_extractor";
+    private static final String GEOTHERMAL_GENERATOR_KEY = "geothermal_generator";
+    private static final String EXTRACTABLE_RESOURCE_PROPERTY = "mExtractableResource";
     private static final double MAX_CLOCK_SPEED = 250;
 
     @Autowired
@@ -71,8 +75,7 @@ public class SaveProductionMapper
             }
         }
 
-        List<Production> productions = new ArrayList<>();
-        List<SkippedMachine> skipped = new ArrayList<>();
+        MappingState state = new MappingState();
         for (SaveLevel level : save.levels()) {
             for (SaveObjectHeader header : level.headers()) {
                 if (!(header instanceof ActorHeader actor)) {
@@ -81,7 +84,7 @@ public class SaveProductionMapper
                 String className = getClassName(actor.typePath());
                 String unsupportedReason = properties.getProperty("unsupported." + className);
                 if (unsupportedReason != null) {
-                    skipped.add(new SkippedMachine(
+                    state.skipped.add(new SkippedMachine(
                         actor.instanceName(),
                         className,
                         SkippedMachine.Reason.valueOf(unsupportedReason)
@@ -92,11 +95,12 @@ public class SaveProductionMapper
                 if (buildingKey == null) {
                     continue;
                 }
-                this.mapMachine(actor, className, buildingKey, objects.get(actor.instanceName()), productions, skipped);
+                this.mapMachine(actor, className, buildingKey, objects.get(actor.instanceName()), state);
             }
         }
+        this.resolveWellExtractors(state);
 
-        return new ImportResult(save.fileInfo().sessionName(), productions, skipped);
+        return new ImportResult(save.fileInfo().sessionName(), state.productions, state.skipped);
     }
 
     static String getClassName(String path)
@@ -109,8 +113,7 @@ public class SaveProductionMapper
         String className,
         String buildingKey,
         SaveObject object,
-        List<Production> productions,
-        List<SkippedMachine> skipped
+        MappingState state
     )
     {
         Building building = this.buildingRepository.findOne(buildingKey);
@@ -121,38 +124,26 @@ public class SaveProductionMapper
 
         double clockSpeed = Math.round(this.getPotential(saveProperties) * 1_000_000d) / 10_000d;
         if (!Double.isFinite(clockSpeed) || clockSpeed <= 0 || clockSpeed > MAX_CLOCK_SPEED) {
-            skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.INVALID_CLOCK_SPEED));
+            state.skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.INVALID_CLOCK_SPEED));
             return;
         }
 
         Production production = new Production()
+            .setId(UUID.randomUUID())
             .setSelectedBuilding(building)
             .setClockSpeed(clockSpeed)
             .setUsedSomersloops(0)
             .setPosition(formatPosition(actor));
 
         if (building.isResourceBuilding()) {
-            if (WATER_EXTRACTOR_KEY.equals(buildingKey)) {
-                production.setSelectedItem(this.itemRepository.findOne(WATER_ITEM_KEY)).setPurity(Purity.NORMAL);
-                productions.add(production);
-                return;
-            }
-
-            ResourceNode node = this.resolveResourceNode(building, saveProperties);
-            if (node == null) {
-                skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
-                return;
-            }
-            production.setSelectedItem(node.getItem()).setPurity(node.getPurity());
-            productions.add(production);
+            this.mapResourceMachine(actor, className, building, production, saveProperties, state);
             return;
         }
-
         String recipeKey = this.resolveRecipeKey(buildingKey, saveProperties);
         if (recipeKey == null) {
             boolean hasReference = this.getReferencePath(saveProperties, "mCurrentRecipe") != null
                 || this.getReferencePath(saveProperties, "mCurrentFuelClass") != null;
-            skipped.add(new SkippedMachine(
+            state.skipped.add(new SkippedMachine(
                 actor.instanceName(),
                 className,
                 hasReference ? SkippedMachine.Reason.RECIPE_UNMAPPED : SkippedMachine.Reason.NO_RECIPE
@@ -163,15 +154,98 @@ public class SaveProductionMapper
         if (recipe == null || recipe.getProducedIn() == null || !buildingKey.equals(recipe.getProducedIn().getKey())) {
             throw new IllegalStateException("The mapped recipe is not valid for " + buildingKey + ": " + recipeKey);
         }
-        productions.add(production.setSelectedRecipe(recipe));
+        state.productions.add(production.setSelectedRecipe(recipe));
     }
 
-    private ResourceNode resolveResourceNode(Building building, List<SaveProperty> saveProperties)
+    private void mapResourceMachine(
+        ActorHeader actor,
+        String className,
+        Building building,
+        Production production,
+        List<SaveProperty> saveProperties,
+        MappingState state
+    )
     {
-        String nodePath = this.getReferencePath(saveProperties, "mExtractableResource");
+        switch (building.getKey()) {
+            case WATER_EXTRACTOR_KEY -> {
+                production.setSelectedItem(this.itemRepository.findOne(WATER_ITEM_KEY)).setPurity(Purity.NORMAL);
+                state.productions.add(production);
+            }
+            case WELL_PRESSURIZER_KEY -> {
+                String corePath = this.getReferencePath(saveProperties, EXTRACTABLE_RESOURCE_PROPERTY);
+                if (corePath == null || this.resourceNodeRepository.findWells(corePath).isEmpty()) {
+                    state.skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
+                    return;
+                }
+                state.pressurizersByCore.put(corePath, production.setPurity(Purity.NORMAL));
+                state.productions.add(production);
+            }
+            case WELL_EXTRACTOR_KEY -> state.pendingExtractors.add(
+                new PendingExtractor(actor, className, building, production, saveProperties)
+            );
+            case GEOTHERMAL_GENERATOR_KEY -> {
+                String geyserPath = this.getReferencePath(saveProperties, EXTRACTABLE_RESOURCE_PROPERTY);
+                ResourceNode geyser = geyserPath == null ? null : this.resourceNodeRepository.findOne(geyserPath);
+                if (geyser == null || geyser.getType() != ResourceNode.Type.GEYSER || geyser.getPurity() == null) {
+                    state.skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
+                    return;
+                }
+                state.productions.add(production.setPurity(geyser.getPurity()));
+            }
+            default -> {
+                ResourceNode node = this.resolveResourceNode(
+                    building,
+                    ResourceNode.Type.NODE,
+                    this.getReferencePath(saveProperties, EXTRACTABLE_RESOURCE_PROPERTY)
+                );
+                if (node == null) {
+                    state.skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
+                    return;
+                }
+                production.setSelectedItem(node.getItem()).setPurity(node.getPurity());
+                state.productions.add(production);
+            }
+        }
+    }
+
+    // Extractors are resolved last, as they take over the clock speed of the pressurizer on their well.
+    private void resolveWellExtractors(MappingState state)
+    {
+        for (PendingExtractor pending : state.pendingExtractors) {
+            ResourceNode satellite = this.resolveResourceNode(
+                pending.building(),
+                ResourceNode.Type.WELL,
+                this.getReferencePath(pending.saveProperties(), EXTRACTABLE_RESOURCE_PROPERTY)
+            );
+            if (satellite == null) {
+                state.skipped.add(new SkippedMachine(
+                    pending.actor().instanceName(),
+                    pending.className(),
+                    SkippedMachine.Reason.RESOURCE_UNKNOWN
+                ));
+                continue;
+            }
+            Production pressurizer = state.pressurizersByCore.get(satellite.getCore());
+            if (pressurizer == null) {
+                state.skipped.add(new SkippedMachine(
+                    pending.actor().instanceName(),
+                    pending.className(),
+                    SkippedMachine.Reason.NO_PRESSURIZER
+                ));
+                continue;
+            }
+            state.productions.add(pending.production()
+                .setSelectedItem(satellite.getItem())
+                .setPurity(satellite.getPurity())
+                .setPressurizerId(pressurizer.getId())
+                .setClockSpeed(pressurizer.getClockSpeed()));
+        }
+    }
+
+    private ResourceNode resolveResourceNode(Building building, ResourceNode.Type type, String nodePath)
+    {
         ResourceNode node = nodePath == null ? null : this.resourceNodeRepository.findOne(nodePath);
-        if (node == null || node.getType() != ResourceNode.Type.NODE
-            || node.getItem() == null || node.getPurity() == null) {
+        if (node == null || node.getType() != type || node.getItem() == null || node.getPurity() == null) {
             return null;
         }
 
@@ -180,7 +254,6 @@ public class SaveProductionMapper
 
         return producible ? node : null;
     }
-
     private String resolveRecipeKey(String buildingKey, List<SaveProperty> saveProperties)
     {
         Properties properties = this.getMapping();
@@ -243,5 +316,23 @@ public class SaveProductionMapper
             this.mapping = loaded;
         }
         return this.mapping;
+    }
+
+    private record PendingExtractor(
+        ActorHeader actor,
+        String className,
+        Building building,
+        Production production,
+        List<SaveProperty> saveProperties
+    )
+    {
+    }
+
+    private static class MappingState
+    {
+        private final List<Production> productions = new ArrayList<>();
+        private final List<SkippedMachine> skipped = new ArrayList<>();
+        private final Map<String, Production> pressurizersByCore = new HashMap<>();
+        private final List<PendingExtractor> pendingExtractors = new ArrayList<>();
     }
 }

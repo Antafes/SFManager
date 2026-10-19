@@ -471,7 +471,7 @@ public class ProductionService
             }
 
             if (building.getCategory() == Category.POWER) {
-                double power = building.getPower() * this.getClockSpeed(production) / 100;
+                double power = this.calculatePower(production, building);
                 totalPowerProduction += power;
                 MutablePowerSource source = powerSources.computeIfAbsent(
                     building.getKey(),
@@ -1027,7 +1027,7 @@ public class ProductionService
         }
         return new GeneratorProductionEntry(
             production,
-            building.getPower() * clockSpeed / 100,
+            this.calculatePower(production, building),
             ingredients
         );
     }
@@ -1397,6 +1397,16 @@ public class ProductionService
         }
         String normalizedValue = value.trim();
         return normalizedValue.isEmpty() ? null : normalizedValue;
+    }
+
+    // Resource-bound power buildings (geothermal generators) scale their output with the node purity.
+    private double calculatePower(Production production, Building building)
+    {
+        double purityMultiplier = building.isResourceBuilding()
+            ? ProductionCalculator.getPurityMultiplier(production.getPurity())
+            : 1.0;
+
+        return building.getPower() * purityMultiplier * this.getClockSpeed(production) / 100;
     }
 
     private double getClockSpeed(Production production)
