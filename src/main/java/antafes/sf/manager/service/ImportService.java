@@ -39,7 +39,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -107,7 +109,18 @@ public class ImportService
 
         Factory factory = this.factoryService.createFactory(name);
         List<Production> productions = result.productions();
-        productions.forEach(production -> production.setId(UUID.randomUUID()));
+        Map<UUID, UUID> newIds = new HashMap<>();
+        productions.forEach(production -> {
+            UUID newId = UUID.randomUUID();
+            if (production.getId() != null) {
+                newIds.put(production.getId(), newId);
+            }
+            production.setId(newId);
+        });
+        // Wells reference their pressurizer by id, so the references have to follow the new ids.
+        productions.stream()
+            .filter(production -> production.getPressurizerId() != null)
+            .forEach(production -> production.setPressurizerId(newIds.get(production.getPressurizerId())));
         List<UUID> productionIds = productions.stream().map(Production::getId).toList();
         try {
             productions.forEach(production -> factory.getProductions().add(production.getId().toString()));

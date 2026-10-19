@@ -36,6 +36,7 @@ public record SkippedMachine(String instanceName, String className, Reason reaso
         /** The machine has no recipe or fuel set. */
         NO_RECIPE,
         /** The clock speed is outside of the supported range. */
-        INVALID_CLOCK_SPEED
+        INVALID_CLOCK_SPEED,
+        NO_PRESSURIZER
     }
 }

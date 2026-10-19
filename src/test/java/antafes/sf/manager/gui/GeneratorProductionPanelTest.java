@@ -103,6 +103,7 @@ public class GeneratorProductionPanelTest extends BaseTest
                 .setSelectedBuilding(geothermalGenerator)
                 .setPosition("G1")
                 .setGroup("Geothermal Group")
+                .setPurity(antafes.sf.manager.entity.Purity.PURE)
                 .setClockSpeed(100.0)
                 .setUsedSomersloops(0));
 
@@ -160,7 +161,7 @@ public class GeneratorProductionPanelTest extends BaseTest
                 geothermalGenerator
             );
             assertEquals(1, geothermalPanel.getTable().getRowCount());
-            assertEquals("200 MW", geothermalPanel.getTable().getValueAt(0, 4));
+            assertEquals("400 MW", geothermalPanel.getTable().getValueAt(0, 4));
 
             ProductionDeleteButtonEditor deleteButton = new ProductionDeleteButtonEditor(
                 productionService,

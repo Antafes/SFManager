@@ -23,9 +23,7 @@
 package antafes.sf.manager.repository;
 
 import antafes.sf.manager.BaseTest;
-import antafes.sf.manager.entity.Building;
-import antafes.sf.manager.entity.Item;
-import antafes.sf.manager.entity.Recipe;
+import antafes.sf.manager.entity.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +42,7 @@ public class RepositoryLoadingTest extends BaseTest
     {
         super.setUp();
         this.context = new AnnotationConfigApplicationContext(
-            BuildingRepository.class, ItemRepository.class, RecipeRepository.class
+            BuildingRepository.class, ItemRepository.class, RecipeRepository.class, ResourceNodeRepository.class
         );
         this.context.getBean(BuildingRepository.class).init();
         this.context.getBean(ItemRepository.class).init();
@@ -98,6 +96,30 @@ public class RepositoryLoadingTest extends BaseTest
         assertEquals(0, ironIngot.getProductions().size());
         assertTrue(repository.findOne("wood").isHandCollected());
         assertFalse(iron.isHandCollected());
+    }
+
+    @Test
+    public void testLoadsResourceNodesInMeters()
+    {
+        this.context.getBean(ResourceNodeRepository.class).init();
+        ResourceNodeRepository repository = this.context.getBean(ResourceNodeRepository.class);
+
+        assertEquals(608, repository.findAll().size());
+        ResourceNode node = repository.findOne("Persistent_Level:PersistentLevel.BP_ResourceNode555");
+        assertNotNull(node);
+        assertEquals(ResourceNode.Type.NODE, node.getType());
+        assertSame(this.context.getBean(ItemRepository.class).findOne("limestone"), node.getItem());
+        assertEquals(Purity.IMPURE, node.getPurity());
+        assertEquals(-625.367734375, node.getX(), 0.0001);
+        assertEquals(2280.4259375, node.getY(), 0.0001);
+
+        ResourceNode well = repository.findOne("Persistent_Level:PersistentLevel.BP_FrackingSatellite33");
+        assertNotNull(well);
+        assertEquals(ResourceNode.Type.WELL, well.getType());
+        assertEquals("Persistent_Level:PersistentLevel.BP_FrackingCore5", well.getCore());
+        assertTrue(repository.findAll().values().stream()
+            .filter(found -> found.getType() == ResourceNode.Type.GEYSER)
+            .allMatch(found -> found.getItem() == null));
     }
 
     @Test
