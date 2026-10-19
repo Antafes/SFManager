@@ -22,13 +22,11 @@
 
 package antafes.sf.manager.service.mapper;
 
-import antafes.sf.manager.entity.Building;
-import antafes.sf.manager.entity.Production;
-import antafes.sf.manager.entity.Purity;
-import antafes.sf.manager.entity.Recipe;
+import antafes.sf.manager.entity.*;
 import antafes.sf.manager.repository.BuildingRepository;
 import antafes.sf.manager.repository.ItemRepository;
 import antafes.sf.manager.repository.RecipeRepository;
+import antafes.sf.manager.repository.ResourceNodeRepository;
 import antafes.sf.manager.service.dto.ImportResult;
 import antafes.sf.manager.service.dto.SkippedMachine;
 import antafes.sf.saveparser.dto.*;
@@ -58,6 +56,8 @@ public class SaveProductionMapper
     private RecipeRepository recipeRepository;
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired
+    private ResourceNodeRepository resourceNodeRepository;
 
     private Properties mapping;
 
@@ -132,11 +132,18 @@ public class SaveProductionMapper
             .setPosition(formatPosition(actor));
 
         if (building.isResourceBuilding()) {
-            if (!WATER_EXTRACTOR_KEY.equals(buildingKey)) {
+            if (WATER_EXTRACTOR_KEY.equals(buildingKey)) {
+                production.setSelectedItem(this.itemRepository.findOne(WATER_ITEM_KEY)).setPurity(Purity.NORMAL);
+                productions.add(production);
+                return;
+            }
+
+            ResourceNode node = this.resolveResourceNode(building, saveProperties);
+            if (node == null) {
                 skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
                 return;
             }
-            production.setSelectedItem(this.itemRepository.findOne(WATER_ITEM_KEY)).setPurity(Purity.NORMAL);
+            production.setSelectedItem(node.getItem()).setPurity(node.getPurity());
             productions.add(production);
             return;
         }
@@ -157,6 +164,21 @@ public class SaveProductionMapper
             throw new IllegalStateException("The mapped recipe is not valid for " + buildingKey + ": " + recipeKey);
         }
         productions.add(production.setSelectedRecipe(recipe));
+    }
+
+    private ResourceNode resolveResourceNode(Building building, List<SaveProperty> saveProperties)
+    {
+        String nodePath = this.getReferencePath(saveProperties, "mExtractableResource");
+        ResourceNode node = nodePath == null ? null : this.resourceNodeRepository.findOne(nodePath);
+        if (node == null || node.getType() != ResourceNode.Type.NODE
+            || node.getItem() == null || node.getPurity() == null) {
+            return null;
+        }
+
+        boolean producible = node.getItem().getProductions().stream()
+            .anyMatch(production -> building.getKey().equals(production.getBuilding().getKey()));
+
+        return producible ? node : null;
     }
 
     private String resolveRecipeKey(String buildingKey, List<SaveProperty> saveProperties)

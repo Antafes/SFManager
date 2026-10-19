@@ -28,7 +28,6 @@ import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.dto.ImportResult;
-import antafes.sf.manager.service.dto.SkippedMachine;
 import antafes.sf.manager.service.exception.UnsupportedSaveVersionException;
 import antafes.sf.manager.service.mapper.SaveProductionMapper;
 import antafes.sf.saveparser.SaveParser;
@@ -64,6 +63,7 @@ class ImportServiceTest extends BaseTest
         super.autowireTest(context);
         context.getBean(BuildingRepository.class).init();
         context.getBean(ItemRepository.class).init();
+        context.getBean(ResourceNodeRepository.class).init();
         context.getBean(RecipeRepository.class).init();
         context.getBean(FactoryRepository.class).init();
         context.getBean(ProductionRepository.class).init();
@@ -74,6 +74,7 @@ class ImportServiceTest extends BaseTest
         AnnotationConfigApplicationContext context = this.createContext(
             BuildingRepository.class,
             ItemRepository.class,
+            ResourceNodeRepository.class,
             RecipeRepository.class,
             ProductionRepository.class,
             FactoryRepository.class,
@@ -92,12 +93,12 @@ class ImportServiceTest extends BaseTest
     }
 
     @Test
-    void testReadsFixtureAndReportsSkippedMiners() throws IOException
+    void testReadsFixtureAndImportsMiners() throws IOException
     {
         try (AnnotationConfigApplicationContext context = this.context()) {
             ImportResult result = this.importService.readSave(this.fixture());
 
-            assertEquals(24, result.productions().size());
+            assertEquals(28, result.productions().size());
             assertEquals(
                 18,
                 result.productions().stream()
@@ -110,11 +111,18 @@ class ImportServiceTest extends BaseTest
                     .filter(production -> "water_extractor".equals(production.getSelectedBuilding().getKey()))
                     .count()
             );
+            List<Production> miners = result.productions().stream()
+                .filter(production -> "miner_3".equals(production.getSelectedBuilding().getKey()))
+                .toList();
+            assertEquals(4, miners.size());
+            miners.forEach(miner -> {
+                assertNotNull(miner.getSelectedItem());
+                assertNotNull(miner.getPurity());
+            });
             assertEquals(
-                4,
+                0,
                 result.skippedMachines().stream()
-                    .filter(skipped -> skipped.reason() == SkippedMachine.Reason.RESOURCE_UNKNOWN)
-                    .filter(skipped -> skipped.className().contains("MinerMk3"))
+                    .filter(skipped -> skipped.className().contains("Miner"))
                     .count()
             );
             result.productions().forEach(production -> {
@@ -135,7 +143,7 @@ class ImportServiceTest extends BaseTest
             Factory factory = this.importService.importFactory(result, "Imported Factory");
             this.importService.publishImport(factory);
 
-            assertEquals(24, factory.getProductions().size());
+            assertEquals(28, factory.getProductions().size());
             assertTrue(context.getBean(FactoryService.class).getFactories().stream()
                 .anyMatch(found -> found.getId().equals(factory.getId())));
             assertTrue(events.stream().anyMatch(event -> event.getClass().getSimpleName().equals("PayloadApplicationEvent")));

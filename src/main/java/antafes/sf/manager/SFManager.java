@@ -54,6 +54,8 @@ public class SFManager implements CommandLineRunner
     @Autowired
     private ItemRepository itemRepository;
     @Autowired
+    private ResourceNodeRepository resourceNodeRepository;
+    @Autowired
     private ProductionRepository productionRepository;
     @Autowired
     private RecipeRepository recipeRepository;
@@ -98,6 +100,7 @@ public class SFManager implements CommandLineRunner
     {
         this.buildingRepository.init();
         this.itemRepository.init();
+        this.resourceNodeRepository.init();
         this.recipeRepository.init();
         this.factoryRepository.init();
         this.productionRepository.init();
