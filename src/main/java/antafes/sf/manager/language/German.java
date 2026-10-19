@@ -179,6 +179,7 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("deletingProductions", "Produktionen werden gelöscht...");
         this.getTranslations().put("editProductions", "Produktionen bearbeiten");
         this.getTranslations().put("editingProductions", "Produktionen werden aktualisiert...");
+        this.getTranslations().put("creatingProductions", "Produktionen werden angelegt...");
         this.getTranslations().put("editProductionsHint", "Nur die Felder mit gesetztem Haken werden für alle %d ausgewählten Produktionen geändert.");
         this.getTranslations().put("keepUnchanged", "Unverändert lassen");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "Die ausgewählten Produktionen verwenden unterschiedliche Gebäude.");

@@ -29,6 +29,7 @@ import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.element.GroupedBuildingSelect;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.renderer.LocalizedNameRenderer;
+import antafes.sf.manager.gui.util.BulkOperationRunner;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.util.PowerCalculator;
 import antafes.sf.manager.util.ProductionCalculator;
@@ -39,7 +40,6 @@ import org.springframework.context.annotation.Scope;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -265,20 +265,30 @@ public class NewProductionPanel extends BasePanel
                 .setPressurizerId(this.selectedPressurizerId)
                 .setClockSpeed(selectedClockSpeed)
                 .setUsedSomersloops(usedSomersloops);
-            this.productionService.saveProductions(production, amount);
-            this.getParentDialog().dispose();
-        } catch (IOException | RuntimeException exception) {
-            String message = Objects.toString(
-                exception.getMessage(),
-                this.getLanguage().translate("productionSavingFailed")
-            );
-            JOptionPane.showMessageDialog(
+            BulkOperationRunner.run(
                 this.getParentDialog(),
-                message,
-                this.getLanguage().translate("newProduction"),
-                JOptionPane.ERROR_MESSAGE
+                this.getLanguage().translate("creatingProductions"),
+                () -> this.productionService.saveProductions(production, amount),
+                saved -> this.getParentDialog().dispose(),
+                this::showSaveError
             );
+        } catch (RuntimeException exception) {
+            this.showSaveError(exception);
         }
+    }
+
+    private void showSaveError(Exception exception)
+    {
+        String message = Objects.toString(
+            exception.getMessage(),
+            this.getLanguage().translate("productionSavingFailed")
+        );
+        JOptionPane.showMessageDialog(
+            this.getParentDialog(),
+            message,
+            this.getLanguage().translate("newProduction"),
+            JOptionPane.ERROR_MESSAGE
+        );
     }
 
     private void updateRecipes()

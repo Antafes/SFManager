@@ -624,10 +624,9 @@ public class ProductionService
             }
             throw failure;
         }
-        newProductions.forEach(newProduction ->
-            this.eventPublisher.publishEvent(new ProductionSavedEvent(newProduction))
-        );
-        return List.copyOf(newProductions);
+        List<Production> savedProductions = List.copyOf(newProductions);
+        this.eventPublisher.publishEvent(new ProductionsSavedEvent(savedProductions));
+        return savedProductions;
     }
 
     public List<Production> deleteProduction(UUID productionId) throws IOException
