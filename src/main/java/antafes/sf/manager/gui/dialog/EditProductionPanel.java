@@ -190,11 +190,13 @@ public class EditProductionPanel extends BasePanel
         Building building = this.production.getSelectedBuilding();
         ResourceNode.Type type = this.resourcePositionType(building);
         boolean usesResourcePositions = type != null;
-        this.resourcePositionSelect.setVisible(usesResourcePositions);
-        ((CardLayout) this.positionInputPanel.getLayout()).show(
-            this.positionInputPanel,
-            usesResourcePositions ? "resource" : "text"
-        );
+        Component positionInput = usesResourcePositions ? this.resourcePositionSelect : this.positionField;
+        if (positionInput.getParent() != this.positionInputPanel) {
+            this.positionInputPanel.removeAll();
+            this.positionInputPanel.add(positionInput, BorderLayout.CENTER);
+            this.positionInputPanel.revalidate();
+            this.positionInputPanel.repaint();
+        }
         if (usesResourcePositions) {
             if (this.resourceNodeRepository != null) {
                 this.resourceNodeRepository.init();
@@ -227,7 +229,9 @@ public class EditProductionPanel extends BasePanel
 
     private Component positionComponent()
     {
-        return this.resourcePositionSelect.isVisible() ? this.resourcePositionSelect : this.positionField;
+        return this.resourcePositionSelect.getParent() == this.positionInputPanel
+            ? this.resourcePositionSelect
+            : this.positionField;
     }
 
     private List<ProductionMaterialSource> getMaterialSources()
@@ -260,9 +264,7 @@ public class EditProductionPanel extends BasePanel
         this.positionLabel = new JLabel();
         this.positionField = new JTextField(Objects.toString(this.production.getPosition(), ""));
         this.resourcePositionSelect = new ResourcePositionSelector();
-        this.positionInputPanel = new JPanel(new CardLayout());
-        this.positionInputPanel.add(this.positionField, "text");
-        this.positionInputPanel.add(this.resourcePositionSelect, "resource");
+        this.positionInputPanel = new JPanel(new BorderLayout());
         this.updateResourcePositions();
         this.purityLabel = new JLabel();
         this.purityField = this.readOnlyField(this.purityName(this.production.getPurity()));
@@ -404,7 +406,7 @@ public class EditProductionPanel extends BasePanel
                 this.productionId,
                 clockSpeed,
                 this.groupField.getText(),
-                this.resourcePositionSelect.isVisible()
+                this.resourcePositionSelect.getParent() == this.positionInputPanel
                     ? this.resourcePositionSelect.getPosition()
                     : this.positionField.getText(),
                 usedSomersloops,

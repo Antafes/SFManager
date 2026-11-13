@@ -324,9 +324,12 @@ public class NewProductionPanelTest extends BaseTest
             JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
             JComboBox<antafes.sf.manager.entity.Item> itemSelect = this.field(panel, "itemSelect");
             ResourcePositionSelector positions = this.field(panel, "resourcePositionSelect");
+            JTextField positionField = this.field(panel, "positionField");
+            JPanel positionInputPanel = this.field(panel, "positionInputPanel");
 
-            this.selectBuilding(buildingSelect, "miner_1");
-            assertTrue(positions.isVisible());
+            this.selectBuilding(buildingSelect, "miner_2");
+            assertEquals(positionInputPanel, positions.getParent());
+            assertTrue(positionField.getParent() != positionInputPanel);
             this.selectItem(itemSelect, "iron");
             assertEquals(
                 context.getBean(ResourceNodeRepository.class)
@@ -359,7 +362,8 @@ public class NewProductionPanelTest extends BaseTest
             }
 
             this.selectBuilding(buildingSelect, "sink");
-            assertTrue(!positions.isVisible());
+            assertEquals(positionInputPanel, positionField.getParent());
+            assertTrue(positions.getParent() != positionInputPanel);
             dialog.dispose();
         }
     }

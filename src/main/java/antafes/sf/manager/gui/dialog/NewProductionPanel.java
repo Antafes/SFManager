@@ -273,7 +273,7 @@ public class NewProductionPanel extends BasePanel
             if (group == null) {
                 throw new IllegalArgumentException("A production group is required.");
             }
-            String position = this.resourcePositionSelect.isVisible()
+            String position = this.usesResourcePositionSelect()
                 ? this.resourcePositionSelect.getPosition()
                 : this.optionalPosition(this.positionField.getText());
 
@@ -412,11 +412,13 @@ public class NewProductionPanel extends BasePanel
         Building building = (Building) this.buildingSelect.getSelectedItem();
         ResourceNode.Type type = this.resourcePositionType(building);
         boolean usesResourcePositions = type != null;
-        this.resourcePositionSelect.setVisible(usesResourcePositions);
-        ((CardLayout) this.positionInputPanel.getLayout()).show(
-            this.positionInputPanel,
-            usesResourcePositions ? "resource" : "text"
-        );
+        Component positionInput = usesResourcePositions ? this.resourcePositionSelect : this.positionField;
+        if (positionInput.getParent() != this.positionInputPanel) {
+            this.positionInputPanel.removeAll();
+            this.positionInputPanel.add(positionInput, BorderLayout.CENTER);
+            this.positionInputPanel.revalidate();
+            this.positionInputPanel.repaint();
+        }
         if (usesResourcePositions) {
             antafes.sf.manager.entity.Item item =
                 (antafes.sf.manager.entity.Item) this.itemSelect.getSelectedItem();
@@ -450,7 +452,12 @@ public class NewProductionPanel extends BasePanel
 
     private Component positionComponent()
     {
-        return this.resourcePositionSelect.isVisible() ? this.resourcePositionSelect : this.positionField;
+        return this.usesResourcePositionSelect() ? this.resourcePositionSelect : this.positionField;
+    }
+
+    private boolean usesResourcePositionSelect()
+    {
+        return this.resourcePositionSelect.getParent() == this.positionInputPanel;
     }
 
     private String optionalPosition(String position)
@@ -1107,10 +1114,7 @@ public class NewProductionPanel extends BasePanel
         this.positionLabel = new JLabel();
         this.positionField = new JTextField();
         this.resourcePositionSelect = new ResourcePositionSelector();
-        this.positionInputPanel = new JPanel(new CardLayout());
-        this.positionInputPanel.add(this.positionField, "text");
-        this.positionInputPanel.add(this.resourcePositionSelect, "resource");
-        this.resourcePositionSelect.setVisible(false);
+        this.positionInputPanel = new JPanel(new BorderLayout());
         this.puritySelectLabel = new JLabel();
         this.puritySelect = new JComboBox<>();
         for (Purity purity : Purity.values()) {

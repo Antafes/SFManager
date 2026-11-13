@@ -94,7 +94,8 @@ public class EditProductionPanelTest extends BaseTest
                 production.getId()
             );
             ResourcePositionSelector positions = this.field(panel, "resourcePositionSelect");
-            assertTrue(positions.isVisible());
+            JPanel positionInputPanel = this.field(panel, "positionInputPanel");
+            assertEquals(positionInputPanel, positions.getParent());
             assertEquals(node.getKey(), positions.getPosition());
             for (int index = 1; index < positions.getItemCount(); index++) {
                 ResourceNode choice = (ResourceNode) positions.getItemAt(index);
