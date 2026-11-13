@@ -122,7 +122,11 @@ public class ProductionBulkToolbar extends JPanel
         List<String> labels;
         try {
             labels = this.productionService.getProductionsAffectedByDeletion(ids).stream()
-                .map(production -> ProductionLabelFormatter.format(production, this.selectedLanguage))
+                .map(production -> ProductionLabelFormatter.format(
+                    production,
+                    this.selectedLanguage,
+                    this.productionService::getPositionLabel
+                ))
                 .toList();
         } catch (RuntimeException exception) {
             this.showDeletionError(exception);

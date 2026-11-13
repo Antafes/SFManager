@@ -102,6 +102,7 @@ public class FactoryService
         }
 
         this.currentFactory = factory;
+        this.eventPublisher.publishEvent(new FactorySelectedEvent(factory));
         return factory;
     }
 

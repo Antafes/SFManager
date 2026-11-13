@@ -28,6 +28,7 @@ import antafes.sf.manager.gui.editor.StorageDeleteButtonEditor;
 import antafes.sf.manager.gui.renderer.TableSort;
 import antafes.sf.manager.gui.renderer.TableStyle;
 import antafes.sf.manager.service.FactoryService;
+import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.StorageService;
 import antafes.sf.manager.service.dto.StorageItem;
 import antafes.sf.manager.service.dto.StorageProductionChoice;
@@ -54,6 +55,8 @@ public class StoragePanel extends JPanel
     private StorageService storageService;
     @Autowired
     private FactoryService factoryService;
+    @Autowired(required = false)
+    private ProductionService productionService;
     @Autowired
     private Configuration configuration;
 
@@ -154,7 +157,9 @@ public class StoragePanel extends JPanel
             context.add(choice.production().getGroup());
         }
         if (choice.production().getPosition() != null && !choice.production().getPosition().isBlank()) {
-            context.add(choice.production().getPosition());
+            context.add(this.productionService == null
+                ? choice.production().getPosition()
+                : this.productionService.getPositionLabel(choice.production().getPosition()));
         }
         return String.join(" — ", context);
     }

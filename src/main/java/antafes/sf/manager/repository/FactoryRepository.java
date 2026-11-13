@@ -24,6 +24,8 @@ package antafes.sf.manager.repository;
 
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Factory;
+import antafes.sf.manager.migration.FactoryMigration;
+import antafes.sf.manager.migration.MigrationVersion;
 import antafes.sf.manager.repository.xml.factory.FactoryData;
 import antafes.sf.manager.util.FactoryName;
 import antafes.utilities.Utilities;
@@ -46,6 +48,10 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -54,6 +60,9 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
 {
     @Autowired
     private Configuration configuration;
+    @Autowired(required = false)
+    private List<FactoryMigration> factoryMigrations = List.of();
+    private final Map<UUID, String> factoryVersions = new HashMap<>();
 
     public Factory createFactory(String name) throws IOException
     {
@@ -76,9 +85,13 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
         Path temporaryFile = null;
         try {
             temporaryFile = Files.createTempFile(factoryDirectory, "factory-", ".xml");
-            this.createMarshaller().marshal(this.toData(factory), temporaryFile.toFile());
+            this.createMarshaller().marshal(
+                this.toData(factory, this.getCurrentVersion()),
+                temporaryFile.toFile()
+            );
             Files.move(temporaryFile, factoryFile);
             this.entities.put(factory.getId(), factory);
+            this.factoryVersions.put(factory.getId(), this.getCurrentVersion());
             return factory;
         } catch (JAXBException | SAXException | IOException e) {
             IOException failure = e instanceof IOException ioException
@@ -108,6 +121,7 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
         Path factoryDirectory = this.configuration.getSaveDirPath().toPath()
             .resolve(FactoryName.toDirectoryName(factory.getName()));
         this.entities.remove(factory.getId());
+        this.factoryVersions.remove(factory.getId());
         if (!Files.isDirectory(factoryDirectory)) {
             return;
         }
@@ -123,7 +137,38 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
         if (factory == null || factory.getId() == null || !this.entities.containsKey(factory.getId())) {
             throw new IllegalArgumentException("Factory must already exist in the repository.");
         }
+        this.saveFactoryData(factory, this.getVersion(factory));
+    }
 
+    public String getVersion(Factory factory)
+    {
+        if (factory == null || factory.getId() == null) {
+            throw new IllegalArgumentException("A saved factory is required.");
+        }
+        return this.factoryVersions.getOrDefault(factory.getId(), FactoryMigration.INITIAL_VERSION);
+    }
+
+    public void saveVersion(Factory factory, String version) throws IOException
+    {
+        if (factory == null || factory.getId() == null || !this.entities.containsKey(factory.getId())) {
+            throw new IllegalArgumentException("Factory must already exist in the repository.");
+        }
+        String normalizedVersion = MigrationVersion.parse(version).toString();
+        String previousVersion = this.factoryVersions.put(factory.getId(), normalizedVersion);
+        try {
+            this.saveFactoryData(factory, normalizedVersion);
+        } catch (IOException | RuntimeException failure) {
+            if (previousVersion == null) {
+                this.factoryVersions.remove(factory.getId());
+            } else {
+                this.factoryVersions.put(factory.getId(), previousVersion);
+            }
+            throw failure;
+        }
+    }
+
+    private void saveFactoryData(Factory factory, String version) throws IOException
+    {
         Path factoryDirectory = this.configuration.getSaveDirPath().toPath()
             .resolve(FactoryName.toDirectoryName(factory.getName()));
         Path factoryFile = factoryDirectory.resolve("factory.xml");
@@ -133,7 +178,7 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
 
         Path temporaryFile = Files.createTempFile(factoryDirectory, "factory-", ".xml");
         try {
-            this.createMarshaller().marshal(this.toData(factory), temporaryFile.toFile());
+            this.createMarshaller().marshal(this.toData(factory, version), temporaryFile.toFile());
             Files.move(temporaryFile, factoryFile, StandardCopyOption.REPLACE_EXISTING);
             this.entities.put(factory.getId(), factory);
         } catch (JAXBException | SAXException | IOException e) {
@@ -179,6 +224,12 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
                 if (this.entities.putIfAbsent(factory.getId(), factory) != null) {
                     throw new IllegalStateException("Duplicate factory ID in " + factoryFile.getAbsolutePath());
                 }
+                this.factoryVersions.put(
+                    factory.getId(),
+                    MigrationVersion.parse(factoryData.version == null
+                        ? FactoryMigration.INITIAL_VERSION
+                        : factoryData.version).toString()
+                );
             }
         } catch (JAXBException | IOException | SAXException e) {
             throw new RuntimeException(e);
@@ -206,13 +257,29 @@ public class FactoryRepository extends BaseRepository<Factory, UUID>
         return schemaFactory.newSchema(Utilities.getResourceInJar(Configuration.getDataPath() + "factory.xsd"));
     }
 
-    private FactoryData toData(Factory factory)
+    private FactoryData toData(Factory factory, String version)
     {
         FactoryData data = new FactoryData();
         data.id = factory.getId().toString();
         data.name = factory.getName();
+        data.version = Objects.requireNonNull(version);
         data.useStorage = factory.isUseStorage();
         data.productions.productionIds.addAll(factory.getProductions());
         return data;
+    }
+
+    private String getCurrentVersion()
+    {
+        MigrationVersion currentVersion = MigrationVersion.parse(FactoryMigration.INITIAL_VERSION);
+        for (FactoryMigration migration : this.factoryMigrations.stream()
+            .sorted(Comparator.comparing(candidate -> MigrationVersion.parse(candidate.getVersion())))
+            .toList()) {
+            MigrationVersion migrationVersion = MigrationVersion.parse(migration.getVersion());
+            if (migrationVersion.compareTo(currentVersion) <= 0) {
+                throw new IllegalStateException("Factory migration versions must be strictly increasing.");
+            }
+            currentVersion = migrationVersion;
+        }
+        return currentVersion.toString();
     }
 }

@@ -38,6 +38,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,6 +57,21 @@ public class ResourceNodeRepository extends BaseRepository<ResourceNode, String>
     {
         return this.entities.values().stream()
             .filter(node -> node.getType() == ResourceNode.Type.WELL && corePath.equals(node.getCore()))
+            .toList();
+    }
+
+    public List<ResourceNode> findByItemAndType(String itemKey, ResourceNode.Type type)
+    {
+        if (itemKey == null || type == null) {
+            return List.of();
+        }
+        return this.entities.values().stream()
+            .filter(node -> node.getType() == type
+                && node.getItem() != null
+                && itemKey.equals(node.getItem().getKey()))
+            .sorted(Comparator.comparingDouble(ResourceNode::getX)
+                .thenComparingDouble(ResourceNode::getY)
+                .thenComparing(ResourceNode::getKey))
             .toList();
     }
 

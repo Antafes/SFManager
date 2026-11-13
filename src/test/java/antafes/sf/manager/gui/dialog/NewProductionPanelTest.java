@@ -27,6 +27,8 @@ import antafes.sf.manager.entity.Building;
 import antafes.sf.manager.entity.Factory;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.entity.Recipe;
+import antafes.sf.manager.entity.ResourceNode;
+import antafes.sf.manager.gui.element.ResourcePositionSelector;
 import antafes.sf.manager.repository.*;
 import antafes.sf.manager.service.FactoryService;
 import antafes.sf.manager.service.ProductionService;
@@ -53,6 +55,8 @@ public class NewProductionPanelTest extends BaseTest
         context.getBean(BuildingRepository.class).init();
         context.getBean(ItemRepository.class).init();
         context.getBean(RecipeRepository.class).init();
+        context.getBeansOfType(ResourceNodeRepository.class).values()
+            .forEach(ResourceNodeRepository::init);
         context.getBean(FactoryRepository.class).init();
         context.getBean(ProductionRepository.class).init();
     }
@@ -296,6 +300,75 @@ public class NewProductionPanelTest extends BaseTest
     }
 
     @Test
+    public void testResourcePositionChoicesFollowSelectedResource() throws Exception
+    {
+        Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
+
+        try (AnnotationConfigApplicationContext context = this.createContext(
+            BuildingRepository.class,
+            ItemRepository.class,
+            RecipeRepository.class,
+            ResourceNodeRepository.class,
+            ProductionRepository.class,
+            FactoryRepository.class,
+            FactoryService.class,
+            ProductionService.class,
+            NewProductionPanel.class
+        )) {
+            this.autowireTest(context);
+            Factory factory = context.getBean(FactoryService.class).createFactory("Positions");
+            context.publishEvent(new FactorySelectedEvent(factory));
+
+            JDialog dialog = new JDialog();
+            NewProductionPanel panel = context.getBean(NewProductionPanel.class, dialog, this.configuration);
+            JComboBox<Object> buildingSelect = this.field(panel, "buildingSelect");
+            JComboBox<antafes.sf.manager.entity.Item> itemSelect = this.field(panel, "itemSelect");
+            ResourcePositionSelector positions = this.field(panel, "resourcePositionSelect");
+            JTextField positionField = this.field(panel, "positionField");
+            JPanel positionInputPanel = this.field(panel, "positionInputPanel");
+
+            this.selectBuilding(buildingSelect, "miner_2");
+            assertEquals(positionInputPanel, positions.getParent());
+            assertTrue(positionField.getParent() != positionInputPanel);
+            this.selectItem(itemSelect, "iron");
+            assertEquals(
+                context.getBean(ResourceNodeRepository.class)
+                    .findByItemAndType("iron", ResourceNode.Type.NODE).size() + 1,
+                positions.getItemCount()
+            );
+            for (int index = 1; index < positions.getItemCount(); index++) {
+                ResourceNode node = (ResourceNode) positions.getItemAt(index);
+                assertEquals("iron", node.getItem().getKey());
+                assertEquals(ResourceNode.Type.NODE, node.getType());
+            }
+
+            this.selectItem(itemSelect, "copper");
+            for (int index = 1; index < positions.getItemCount(); index++) {
+                ResourceNode node = (ResourceNode) positions.getItemAt(index);
+                assertEquals("copper", node.getItem().getKey());
+            }
+
+            this.selectBuilding(buildingSelect, "well_extractor");
+            this.selectItem(itemSelect, "nitrogen");
+            assertEquals(
+                context.getBean(ResourceNodeRepository.class)
+                    .findByItemAndType("nitrogen", ResourceNode.Type.WELL).size() + 1,
+                positions.getItemCount()
+            );
+            for (int index = 1; index < positions.getItemCount(); index++) {
+                ResourceNode node = (ResourceNode) positions.getItemAt(index);
+                assertEquals("nitrogen", node.getItem().getKey());
+                assertEquals(ResourceNode.Type.WELL, node.getType());
+            }
+
+            this.selectBuilding(buildingSelect, "sink");
+            assertEquals(positionInputPanel, positionField.getParent());
+            assertTrue(positions.getParent() != positionInputPanel);
+            dialog.dispose();
+        }
+    }
+
+    @Test
     public void testPrefillsGroupFromBuildingNameForPowerBuildings() throws Exception
     {
         Assumptions.assumeFalse(GraphicsEnvironment.isHeadless());
@@ -339,6 +412,17 @@ public class NewProductionPanelTest extends BaseTest
             }
         }
         throw new IllegalStateException("Building not found: " + key);
+    }
+
+    private void selectItem(JComboBox<antafes.sf.manager.entity.Item> itemSelect, String key)
+    {
+        for (int i = 0; i < itemSelect.getItemCount(); i++) {
+            if (key.equals(itemSelect.getItemAt(i).getKey())) {
+                itemSelect.setSelectedIndex(i);
+                return;
+            }
+        }
+        throw new IllegalStateException("Resource item not found: " + key);
     }
 
     private String firstProductName(Recipe recipe)

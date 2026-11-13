@@ -70,6 +70,7 @@ public class FactoryRepositoryTest extends BaseTest
 
             assertNotNull(created.getId());
             assertEquals("Crème Factory 42", created.getName());
+            assertEquals("1.0.0", this.factoryRepository.getVersion(created));
             assertFalse(created.isUseStorage());
             assertEquals(List.of(), created.getProductions());
             assertTrue(this.tempDirectory.resolve("creme-factory-42").resolve("factory.xml").toFile().isFile());
@@ -90,6 +91,25 @@ public class FactoryRepositoryTest extends BaseTest
             assertTrue(loaded.isUseStorage());
             assertEquals(List.of("550e8400-e29b-41d4-a716-446655440000"), loaded.getProductions());
             assertEquals(2, this.factoryRepository.findAll().size());
+        }
+    }
+
+    @Test
+    public void testLoadsFactoryWithoutVersionAsVersionOne() throws IOException
+    {
+        String id = "550e8400-e29b-41d4-a716-446655440000";
+        Path factoryDirectory = Files.createDirectory(this.tempDirectory.resolve("legacy-factory"));
+        Files.writeString(factoryDirectory.resolve("factory.xml"),
+            "<factory xmlns=\"http://www.w3schools.com/SFManager/factory\" id=\"" + id + "\">"
+                + "<name>Legacy</name><productions /></factory>");
+
+        try (AnnotationConfigApplicationContext context = this.createContext(FactoryRepository.class)) {
+            this.autowireTest(context);
+            this.factoryRepository.init();
+
+            Factory loaded = this.factoryRepository.findOne(java.util.UUID.fromString(id));
+            assertNotNull(loaded);
+            assertEquals("1.0.0", this.factoryRepository.getVersion(loaded));
         }
     }
 

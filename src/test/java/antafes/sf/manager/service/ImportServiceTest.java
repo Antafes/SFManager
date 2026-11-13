@@ -123,11 +123,13 @@ class ImportServiceTest extends BaseTest
             Production pump = this.find(result, "oil_extractor");
             assertEquals("oil", pump.getSelectedItem().getKey());
             assertEquals(oilNode.getPurity(), pump.getPurity());
+            assertEquals(oilNode.getKey(), pump.getPosition());
             Production pressurizer = this.find(result, "well_pressurizer");
             assertNull(pressurizer.getSelectedItem());
             Production extractor = this.find(result, "well_extractor");
             assertEquals(satellite.getItem(), extractor.getSelectedItem());
             assertEquals(satellite.getPurity(), extractor.getPurity());
+            assertEquals(satellite.getKey(), extractor.getPosition());
             assertEquals(pressurizer.getId(), extractor.getPressurizerId());
             assertEquals(50.0, extractor.getClockSpeed());
             assertEquals(1, result.skippedMachines().size());
@@ -258,6 +260,9 @@ class ImportServiceTest extends BaseTest
             miners.forEach(miner -> {
                 assertNotNull(miner.getSelectedItem());
                 assertNotNull(miner.getPurity());
+                ResourceNode node = context.getBean(ResourceNodeRepository.class).findOne(miner.getPosition());
+                assertNotNull(node);
+                assertEquals(ResourceNode.Type.NODE, node.getType());
             });
             assertEquals(
                 0,

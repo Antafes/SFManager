@@ -193,6 +193,10 @@ public class German extends antafes.utilities.language.German
         this.getTranslations().put("editProductionsHint", "Nur die Felder mit gesetztem Haken werden für alle %d ausgewählten Produktionen geändert.");
         this.getTranslations().put("keepUnchanged", "Unverändert lassen");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "Die ausgewählten Produktionen verwenden unterschiedliche Gebäude.");
+        this.getTranslations().put(
+            "mixedResourcePositionsHint",
+            "Positionen können nur gemeinsam geändert werden, wenn alle ausgewählten Ressourcen-Gebäude dieselbe Ressource nutzen."
+        );
         this.getTranslations().put("notOverclockableHint", "Nicht alle ausgewählten Gebäude können übertaktet werden.");
         this.getTranslations().put("noSomersloopSlotsHint", "Nicht alle ausgewählten Gebäude haben Somersloop-Slots.");
         this.getTranslations().put(

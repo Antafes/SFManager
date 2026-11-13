@@ -34,6 +34,7 @@ public class FactoryData
     @XmlAttribute
     public String id;
     public String name;
+    public String version;
     public boolean useStorage;
     public ProductionsData productions = new ProductionsData();
 

@@ -202,7 +202,7 @@ public class SaveProductionMapper
                     state.skipped.add(new SkippedMachine(actor.instanceName(), className, SkippedMachine.Reason.RESOURCE_UNKNOWN));
                     return;
                 }
-                production.setSelectedItem(node.getItem()).setPurity(node.getPurity());
+                production.setSelectedItem(node.getItem()).setPurity(node.getPurity()).setPosition(node.getKey());
                 state.productions.add(production);
             }
         }
@@ -237,6 +237,7 @@ public class SaveProductionMapper
             state.productions.add(pending.production()
                 .setSelectedItem(satellite.getItem())
                 .setPurity(satellite.getPurity())
+                .setPosition(satellite.getKey())
                 .setPressurizerId(pressurizer.getId())
                 .setClockSpeed(pressurizer.getClockSpeed()));
         }
