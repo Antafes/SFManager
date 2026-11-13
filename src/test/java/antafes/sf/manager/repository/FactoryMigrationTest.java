@@ -24,6 +24,8 @@ package antafes.sf.manager.repository;
 
 import antafes.sf.manager.BaseTest;
 import antafes.sf.manager.entity.*;
+import antafes.sf.manager.migration.FactoryMigration;
+import antafes.sf.manager.migration.MigrationVersion;
 import antafes.sf.manager.migration.V001;
 import antafes.sf.manager.service.FactoryMigrationService;
 import antafes.sf.manager.service.event.FactorySelectedEvent;
@@ -33,6 +35,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +52,8 @@ public class FactoryMigrationTest extends BaseTest
             factories.init();
             Factory factory = factories.createFactory("Latest migration");
 
-            assertEquals("1.0.1", factories.getVersion(factory));
+            String latestVersion = this.getLatestMigrationVersion(context);
+            assertEquals(MigrationVersion.parse(latestVersion).toString(), factories.getVersion(factory));
         }
     }
 
@@ -99,6 +103,7 @@ public class FactoryMigrationTest extends BaseTest
             );
         }
 
+        String latestVersion = FactoryMigration.INITIAL_VERSION;
         for (int load = 0; load < 2; load++) {
             try (AnnotationConfigApplicationContext context = this.createMigrationContext()) {
                 FactoryRepository factories = context.getBean(FactoryRepository.class);
@@ -107,22 +112,23 @@ public class FactoryMigrationTest extends BaseTest
                 Factory factory = factories.findAll().values().iterator().next();
                 productions.init();
 
+                latestVersion = this.getLatestMigrationVersion(context);
                 String migratedPosition = this.findUniqueIronNode(context).getKey();
                 if (load == 0) {
                     assertEquals("1.0.0", factories.getVersion(factory));
                     assertEquals(matchingPosition, productions.findOne(matchedId).getPosition());
                 } else {
-                    assertEquals("1.0.1", factories.getVersion(factory));
+                    assertEquals(latestVersion, factories.getVersion(factory));
                     assertEquals(migratedPosition, productions.findOne(matchedId).getPosition());
                 }
                 context.publishEvent(new FactorySelectedEvent(factory));
-                assertEquals("1.0.1", factories.getVersion(factory));
+                assertEquals(latestVersion, factories.getVersion(factory));
                 assertEquals(migratedPosition, productions.findOne(matchedId).getPosition());
                 assertEquals("A1", productions.findOne(unmatchedId).getPosition());
             }
         }
         assertTrue(Files.readString(this.tempDirectory.resolve("position-migration").resolve("factory.xml"))
-            .contains("<version>1.0.1</version>"));
+            .contains("<version>" + latestVersion + "</version>"));
     }
 
     @Test
@@ -221,6 +227,17 @@ public class FactoryMigrationTest extends BaseTest
         context.getBean(RecipeRepository.class).init();
         context.getBean(ResourceNodeRepository.class).init();
         return context;
+    }
+
+    private String getLatestMigrationVersion(AnnotationConfigApplicationContext context)
+    {
+        return context.getBeansOfType(FactoryMigration.class)
+            .values()
+            .stream()
+            .map(FactoryMigration::getVersion)
+            .max(Comparator.comparing(MigrationVersion::parse))
+            .map(version -> MigrationVersion.parse(version).toString())
+            .orElse(FactoryMigration.INITIAL_VERSION);
     }
 
     private ResourceNode findUniqueIronNode(AnnotationConfigApplicationContext context)
