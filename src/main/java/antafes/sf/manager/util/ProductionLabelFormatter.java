@@ -25,6 +25,8 @@ package antafes.sf.manager.util;
 import antafes.sf.manager.entity.Production;
 import lombok.experimental.UtilityClass;
 
+import java.util.function.Function;
+
 @UtilityClass
 public final class ProductionLabelFormatter
 {
@@ -33,6 +35,11 @@ public final class ProductionLabelFormatter
      * Without a group the localized building name is used.
      */
     public String format(Production production, String language)
+    {
+        return format(production, language, Function.identity());
+    }
+
+    public String format(Production production, String language, Function<String, String> positionFormatter)
     {
         String label = production.getGroup() == null ? "" : production.getGroup().trim();
         if (label.isEmpty() && production.getSelectedBuilding() != null) {
@@ -43,7 +50,9 @@ public final class ProductionLabelFormatter
         if (label == null) {
             label = "";
         }
-        String position = production.getPosition() == null ? "" : production.getPosition().trim();
+        String position = production.getPosition() == null
+            ? ""
+            : positionFormatter.apply(production.getPosition()).trim();
 
         return position.isEmpty() ? label : label + "(" + position + ")";
     }

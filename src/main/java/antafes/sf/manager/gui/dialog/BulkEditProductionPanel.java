@@ -25,9 +25,12 @@ package antafes.sf.manager.gui.dialog;
 import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.Production;
 import antafes.sf.manager.entity.ProductionMaterialSource;
+import antafes.sf.manager.entity.ResourceNode;
 import antafes.sf.manager.gui.BasePanel;
+import antafes.sf.manager.gui.element.ResourcePositionSelector;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.util.BulkOperationRunner;
+import antafes.sf.manager.repository.ResourceNodeRepository;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.dto.BulkProductionEdit;
 import jakarta.annotation.PostConstruct;
@@ -49,12 +52,17 @@ public class BulkEditProductionPanel extends BasePanel
 {
     @Autowired
     private ProductionService productionService;
+    @Autowired(required = false)
+    private ResourceNodeRepository resourceNodeRepository;
 
     private final List<UUID> productionIds;
     private final NumberFormat clockSpeedFormat;
     private List<Production> productions;
     private final JTextField groupField = new JTextField();
     private final JTextField positionField = new JTextField();
+    private ResourcePositionSelector resourcePositionSelect;
+    private Component positionInput;
+    private boolean resourcePositionEditingBlocked;
     private final JTextField clockSpeedField = new JTextField();
     private final JTextField usedSomersloopsField = new JTextField();
     private final JCheckBox groupKeep = new JCheckBox();
@@ -149,6 +157,9 @@ public class BulkEditProductionPanel extends BasePanel
                 if (component.isEnabled()) {
                     order.add(component);
                 }
+                if (!this.positionKeep.isSelected() && this.positionInput != null) {
+                    order.add(this.positionInput);
+                }
             }
         }
         order.add(this.saveButton);
@@ -173,11 +184,35 @@ public class BulkEditProductionPanel extends BasePanel
 
         this.groupField.setText(this.commonText(Production::getGroup));
         this.positionField.setText(this.commonText(Production::getPosition));
+        ResourceNode.Type positionType = this.commonResourcePositionType();
+        if (positionType != null) {
+            this.resourcePositionSelect = new ResourcePositionSelector();
+            if (this.resourceNodeRepository != null) {
+                this.resourceNodeRepository.init();
+            }
+            String itemKey = this.productions.getFirst().getSelectedItem().getKey();
+            this.resourcePositionSelect.setPositions(
+                this.resourceNodeRepository == null
+                    ? List.of()
+                    : this.resourceNodeRepository.findByItemAndType(itemKey, positionType),
+                this.commonText(Production::getPosition)
+            );
+            this.positionInput = this.resourcePositionSelect;
+        } else {
+            this.positionInput = this.positionField;
+            this.resourcePositionEditingBlocked = this.hasFixedResourcePositions();
+        }
         this.clockSpeedField.setText(this.commonClockSpeed());
         this.usedSomersloopsField.setText(this.commonValue(production -> production.getUsedSomersloops() + ""));
 
         this.addRow(1, "group", this.groupField, this.groupKeep, null);
-        this.addRow(2, "position", this.positionField, this.positionKeep, null);
+        this.addRow(
+            2,
+            "position",
+            this.positionInput,
+            this.positionKeep,
+            this.resourcePositionEditingBlocked ? "mixedResourcePositionsHint" : null
+        );
         this.addRow(
             3,
             "clockSpeed",
@@ -211,7 +246,7 @@ public class BulkEditProductionPanel extends BasePanel
         this.updateSaveButton();
     }
 
-    private void addRow(int row, String labelKey, JTextField field, JCheckBox keep, String blockedHintKey)
+    private void addRow(int row, String labelKey, Component field, JCheckBox keep, String blockedHintKey)
     {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridy = row;
@@ -224,7 +259,9 @@ public class BulkEditProductionPanel extends BasePanel
         constraints.gridx = 1;
         constraints.weightx = 1;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        field.setColumns(16);
+        if (field instanceof JTextField textField) {
+            textField.setColumns(16);
+        }
         this.add(field, constraints);
 
         constraints.gridx = 2;
@@ -236,13 +273,18 @@ public class BulkEditProductionPanel extends BasePanel
         field.setEnabled(false);
         keep.addActionListener(event -> {
             field.setEnabled(!keep.isSelected());
+            if (keep == this.positionKeep) {
+                this.createFocusTraversalPolicy();
+            }
             this.updateSaveButton();
         });
         if (blockedHintKey != null) {
             String hint = this.getLanguage().translate(blockedHintKey);
             keep.setEnabled(false);
             keep.setToolTipText(hint);
-            field.setToolTipText(hint);
+            if (field instanceof JComponent component) {
+                component.setToolTipText(hint);
+            }
         }
     }
 
@@ -368,6 +410,39 @@ public class BulkEditProductionPanel extends BasePanel
         return this.commonValue(production -> Objects.toString(getter.apply(production), ""));
     }
 
+    private ResourceNode.Type commonResourcePositionType()
+    {
+        ResourceNode.Type type = this.resourcePositionType(this.productions.getFirst());
+        if (type == null) {
+            return null;
+        }
+        String itemKey = this.productions.getFirst().getSelectedItem() == null
+            ? null
+            : this.productions.getFirst().getSelectedItem().getKey();
+        return this.productions.stream().allMatch(production ->
+            type == this.resourcePositionType(production)
+                && production.getSelectedItem() != null
+                && Objects.equals(itemKey, production.getSelectedItem().getKey())
+        ) ? type : null;
+    }
+
+    private boolean hasFixedResourcePositions()
+    {
+        return this.productions.stream().anyMatch(production -> this.resourcePositionType(production) != null);
+    }
+
+    private ResourceNode.Type resourcePositionType(Production production)
+    {
+        String buildingKey = production.getSelectedBuilding() == null
+            ? null
+            : production.getSelectedBuilding().getKey();
+        if (buildingKey != null
+            && (buildingKey.startsWith("miner_") || "oil_extractor".equals(buildingKey))) {
+            return ResourceNode.Type.NODE;
+        }
+        return "well_extractor".equals(buildingKey) ? ResourceNode.Type.WELL : null;
+    }
+
     private String commonValue(Function<Production, String> getter)
     {
         String first = getter.apply(this.productions.getFirst());
@@ -407,7 +482,11 @@ public class BulkEditProductionPanel extends BasePanel
                 throw new IllegalArgumentException("A production group is required.");
             }
         }
-        String position = this.positionKeep.isSelected() ? null : this.positionField.getText();
+        String position = this.positionKeep.isSelected()
+            ? null
+            : this.resourcePositionSelect == null
+                ? this.positionField.getText()
+                : this.resourcePositionSelect.getPosition();
         Double clockSpeed = null;
         if (!this.clockSpeedKeep.isSelected()) {
             clockSpeed = this.parseClockSpeed();

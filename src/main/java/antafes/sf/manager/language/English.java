@@ -193,6 +193,10 @@ public class English extends antafes.utilities.language.English
         this.getTranslations().put("editProductionsHint", "Only the fields with a checked box are changed for all %d selected productions.");
         this.getTranslations().put("keepUnchanged", "Keep unchanged");
         this.getTranslations().put("differentBuildingsSomersloopsHint", "The selected productions use different buildings.");
+        this.getTranslations().put(
+            "mixedResourcePositionsHint",
+            "Positions can only be changed together when all selected resource buildings use the same resource."
+        );
         this.getTranslations().put("notOverclockableHint", "Not all selected buildings can be overclocked.");
         this.getTranslations().put("noSomersloopSlotsHint", "Not all selected buildings have Somersloop slots.");
         this.getTranslations().put(

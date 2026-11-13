@@ -236,7 +236,7 @@ public class ResourceProductionPanel extends JPanel
         Double consumption = this.calculatePowerConsumption(production);
         return new Object[] {
             this.localizedName(building.getName()),
-            production.getPosition(),
+            this.productionService.getPositionLabel(production.getPosition()),
             production.getGroup(),
             this.purityName(production.getPurity()),
             this.percentage(clockSpeed),
@@ -254,7 +254,7 @@ public class ResourceProductionPanel extends JPanel
         Building building = pressurizer.getSelectedBuilding();
         return new Object[] {
             this.localizedName(building.getName()),
-            pressurizer.getPosition(),
+            this.productionService.getPositionLabel(pressurizer.getPosition()),
             pressurizer.getGroup(),
             "",
             this.percentage(pressurizer.getClockSpeed()),

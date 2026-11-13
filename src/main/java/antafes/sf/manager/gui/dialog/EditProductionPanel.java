@@ -26,7 +26,9 @@ import antafes.sf.manager.Configuration;
 import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.recipe.Item;
 import antafes.sf.manager.gui.BasePanel;
+import antafes.sf.manager.gui.element.ResourcePositionSelector;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
+import antafes.sf.manager.repository.ResourceNodeRepository;
 import antafes.sf.manager.service.ProductionService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,8 @@ public class EditProductionPanel extends BasePanel
     private MaterialSourceSelector materialSourceSelector;
     private JLabel positionLabel;
     private JTextField positionField;
+    private ResourcePositionSelector resourcePositionSelect;
+    private JPanel positionInputPanel;
     private JLabel purityLabel;
     private JTextField purityField;
     private JLabel clockSpeedLabel;
@@ -76,6 +80,9 @@ public class EditProductionPanel extends BasePanel
     private JButton cancelButton;
     private JLabel requiredFieldsHintLabel;
     private boolean syncingClockSpeed;
+
+    @Autowired(required = false)
+    private ResourceNodeRepository resourceNodeRepository;
 
     public EditProductionPanel(JDialog parent, Configuration configuration, UUID productionId)
     {
@@ -130,7 +137,7 @@ public class EditProductionPanel extends BasePanel
         if (this.groupField.isEnabled()) {
             order.add(this.groupField);
         }
-        order.add(this.positionField);
+        order.add(this.positionComponent());
         if (this.clockSpeedSlider.isEnabled()) {
             order.add(this.clockSpeedSlider);
             order.add(this.clockSpeedField);
@@ -178,6 +185,51 @@ public class EditProductionPanel extends BasePanel
         this.add(component, constraints);
     }
 
+    private void updateResourcePositions()
+    {
+        Building building = this.production.getSelectedBuilding();
+        ResourceNode.Type type = this.resourcePositionType(building);
+        boolean usesResourcePositions = type != null;
+        this.resourcePositionSelect.setVisible(usesResourcePositions);
+        ((CardLayout) this.positionInputPanel.getLayout()).show(
+            this.positionInputPanel,
+            usesResourcePositions ? "resource" : "text"
+        );
+        if (usesResourcePositions) {
+            if (this.resourceNodeRepository != null) {
+                this.resourceNodeRepository.init();
+            }
+            this.resourcePositionSelect.setPositions(
+                this.production.getSelectedItem() == null || this.resourceNodeRepository == null
+                    ? List.of()
+                    : this.resourceNodeRepository.findByItemAndType(
+                        this.production.getSelectedItem().getKey(),
+                        type
+                    ),
+                this.production.getPosition()
+            );
+        }
+    }
+
+    private ResourceNode.Type resourcePositionType(Building building)
+    {
+        if (building == null || building.getKey() == null) {
+            return null;
+        }
+        if (building.getKey().startsWith("miner_") || "oil_extractor".equals(building.getKey())) {
+            return ResourceNode.Type.NODE;
+        }
+        if ("well_extractor".equals(building.getKey())) {
+            return ResourceNode.Type.WELL;
+        }
+        return null;
+    }
+
+    private Component positionComponent()
+    {
+        return this.resourcePositionSelect.isVisible() ? this.resourcePositionSelect : this.positionField;
+    }
+
     private List<ProductionMaterialSource> getMaterialSources()
     {
         return this.materialSourceSelector == null ? List.of() : this.materialSourceSelector.getMaterialSources();
@@ -207,6 +259,11 @@ public class EditProductionPanel extends BasePanel
         this.materialSourcesPanel.setVisible(false);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField(Objects.toString(this.production.getPosition(), ""));
+        this.resourcePositionSelect = new ResourcePositionSelector();
+        this.positionInputPanel = new JPanel(new CardLayout());
+        this.positionInputPanel.add(this.positionField, "text");
+        this.positionInputPanel.add(this.resourcePositionSelect, "resource");
+        this.updateResourcePositions();
         this.purityLabel = new JLabel();
         this.purityField = this.readOnlyField(this.purityName(this.production.getPurity()));
         this.clockSpeedLabel = new JLabel();
@@ -238,7 +295,7 @@ public class EditProductionPanel extends BasePanel
         this.addFieldRow(3, this.groupLabel, this.groupField);
         this.addFullWidthRow(4, this.materialSourcesLabel);
         this.addFullWidthRow(5, this.materialSourcesPanel);
-        this.addFieldRow(6, this.positionLabel, this.positionField);
+        this.addFieldRow(6, this.positionLabel, this.positionInputPanel);
         this.addFieldRow(7, this.purityLabel, this.purityField);
         this.addFieldRow(8, this.clockSpeedLabel, clockSpeedInput);
         this.addFieldRow(9, this.usedSomersloopsLabel, this.usedSomersloopsField);
@@ -347,7 +404,9 @@ public class EditProductionPanel extends BasePanel
                 this.productionId,
                 clockSpeed,
                 this.groupField.getText(),
-                this.positionField.getText(),
+                this.resourcePositionSelect.isVisible()
+                    ? this.resourcePositionSelect.getPosition()
+                    : this.positionField.getText(),
                 usedSomersloops,
                 this.getMaterialSources()
             );

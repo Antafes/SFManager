@@ -28,6 +28,7 @@ import antafes.sf.manager.entity.Name;
 import antafes.sf.manager.entity.Storage;
 import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.renderer.TableStyle;
+import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.service.StorageService;
 import antafes.sf.manager.service.dto.StorageProductionChoice;
 import antafes.utilities.gui.OrderFocusTraversalPolicy;
@@ -50,6 +51,8 @@ public class NewStoragePanel extends BasePanel
 {
     @Autowired
     private StorageService storageService;
+    @Autowired(required = false)
+    private ProductionService productionService;
 
     private final String selectedLanguage;
     private final NumberFormat numberFormat;
@@ -252,7 +255,9 @@ public class NewStoragePanel extends BasePanel
             context.add(choice.production().getGroup());
         }
         if (choice.production().getPosition() != null && !choice.production().getPosition().isBlank()) {
-            context.add(choice.production().getPosition());
+            context.add(this.productionService == null
+                ? choice.production().getPosition()
+                : this.productionService.getPositionLabel(choice.production().getPosition()));
         }
         return String.join(" — ", context);
     }

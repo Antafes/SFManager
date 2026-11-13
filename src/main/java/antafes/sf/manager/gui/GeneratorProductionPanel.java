@@ -130,7 +130,7 @@ public class GeneratorProductionPanel extends JPanel
             .map(entry -> new ExpandableMaterialsTable.Entry(
                 entry.production().getId(),
                 new Object[] {
-                    entry.production().getPosition(),
+                    this.productionService.getPositionLabel(entry.production().getPosition()),
                     entry.production().getGroup(),
                     this.percentage(entry.production().getClockSpeed()),
                     this.megawatts(entry.powerProduction()),

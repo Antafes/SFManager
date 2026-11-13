@@ -26,6 +26,7 @@ import antafes.sf.manager.entity.*;
 import antafes.sf.manager.repository.BuildingRepository;
 import antafes.sf.manager.repository.ItemRepository;
 import antafes.sf.manager.repository.ProductionRepository;
+import antafes.sf.manager.repository.ResourceNodeRepository;
 import antafes.sf.manager.repository.RecipeRepository;
 import antafes.sf.manager.service.dto.*;
 import antafes.sf.manager.service.event.ProductionDeletedEvent;
@@ -55,6 +56,8 @@ public class ProductionService
     private RecipeRepository recipeRepository;
     @Autowired
     private ItemRepository itemRepository;
+    @Autowired(required = false)
+    private ResourceNodeRepository resourceNodeRepository;
     @Autowired
     private ProductionRepository productionRepository;
     @Autowired
@@ -67,6 +70,19 @@ public class ProductionService
     public List<Building> getBuildings()
     {
         return List.copyOf(this.buildingRepository.findAll().values());
+    }
+
+    public String getPositionLabel(String position)
+    {
+        if (position == null) {
+            return "";
+        }
+        if (this.resourceNodeRepository == null) {
+            return position;
+        }
+        this.resourceNodeRepository.init();
+        ResourceNode node = this.resourceNodeRepository.findOne(position);
+        return node == null ? position : Math.round(node.getX()) + ", " + Math.round(node.getY());
     }
 
     private double getMaterialSourceProduction(

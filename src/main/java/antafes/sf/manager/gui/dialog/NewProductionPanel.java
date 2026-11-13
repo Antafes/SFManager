@@ -27,9 +27,11 @@ import antafes.sf.manager.entity.*;
 import antafes.sf.manager.entity.recipe.Item;
 import antafes.sf.manager.gui.BasePanel;
 import antafes.sf.manager.gui.element.GroupedBuildingSelect;
+import antafes.sf.manager.gui.element.ResourcePositionSelector;
 import antafes.sf.manager.gui.focus.DynamicFocusTraversalPolicy;
 import antafes.sf.manager.gui.renderer.LocalizedNameRenderer;
 import antafes.sf.manager.gui.util.BulkOperationRunner;
+import antafes.sf.manager.repository.ResourceNodeRepository;
 import antafes.sf.manager.service.ProductionService;
 import antafes.sf.manager.util.PowerCalculator;
 import antafes.sf.manager.util.ProductionCalculator;
@@ -77,6 +79,8 @@ public class NewProductionPanel extends BasePanel
     private MaterialSourceSelector materialSourceSelector;
     private JLabel positionLabel;
     private JTextField positionField;
+    private ResourcePositionSelector resourcePositionSelect;
+    private JPanel positionInputPanel;
     private JLabel puritySelectLabel;
     private JComboBox<Purity> puritySelect;
     private JLabel clockSpeedLabel;
@@ -99,6 +103,8 @@ public class NewProductionPanel extends BasePanel
 
     @Autowired
     private ProductionService productionService;
+    @Autowired(required = false)
+    private ResourceNodeRepository resourceNodeRepository;
 
     public NewProductionPanel(JDialog parent, Configuration configuration)
     {
@@ -184,7 +190,7 @@ public class NewProductionPanel extends BasePanel
         if (this.materialSourceSelector != null) {
             order.addAll(this.materialSourceSelector.getFocusableComponents());
         }
-        order.add(this.positionField);
+        order.add(this.positionComponent());
         order.add(this.puritySelect);
         order.add(this.clockSpeedSlider);
         order.add(this.clockSpeedValueField);
@@ -267,10 +273,9 @@ public class NewProductionPanel extends BasePanel
             if (group == null) {
                 throw new IllegalArgumentException("A production group is required.");
             }
-            String position = this.positionField.getText().trim();
-            if (position.isEmpty()) {
-                position = null;
-            }
+            String position = this.resourcePositionSelect.isVisible()
+                ? this.resourcePositionSelect.getPosition()
+                : this.optionalPosition(this.positionField.getText());
 
             Production production = new Production()
                 .setSelectedBuilding(selectedBuilding)
@@ -363,6 +368,7 @@ public class NewProductionPanel extends BasePanel
         this.itemSelect.setEnabled(false);
         this.puritySelect.setEnabled(selectedBuilding != null && selectedBuilding.isResourceBuilding());
         if (selectedBuilding == null) {
+            this.updateResourcePositions();
             this.productSelectPanel.setVisible(false);
             this.recipeSelectLabel.setVisible(false);
             this.updateSummaries();
@@ -394,10 +400,63 @@ public class NewProductionPanel extends BasePanel
             this.recipeSelectLabel.setVisible(hasRecipes);
             this.recipeSelectLabel.setText(this.requiredFieldLabel("recipe"));
         }
+        this.updateResourcePositions();
         this.prefillGroup();
         this.updateMaterialSources();
         this.updateSummaries();
         this.createFocusTraversalPolicy();
+    }
+
+    private void updateResourcePositions()
+    {
+        Building building = (Building) this.buildingSelect.getSelectedItem();
+        ResourceNode.Type type = this.resourcePositionType(building);
+        boolean usesResourcePositions = type != null;
+        this.resourcePositionSelect.setVisible(usesResourcePositions);
+        ((CardLayout) this.positionInputPanel.getLayout()).show(
+            this.positionInputPanel,
+            usesResourcePositions ? "resource" : "text"
+        );
+        if (usesResourcePositions) {
+            antafes.sf.manager.entity.Item item =
+                (antafes.sf.manager.entity.Item) this.itemSelect.getSelectedItem();
+            if (this.resourceNodeRepository != null) {
+                this.resourceNodeRepository.init();
+            }
+            this.resourcePositionSelect.setPositions(
+                item == null
+                    ? List.of()
+                    : this.resourceNodeRepository == null
+                        ? List.of()
+                        : this.resourceNodeRepository.findByItemAndType(item.getKey(), type),
+                null
+            );
+        }
+    }
+
+    private ResourceNode.Type resourcePositionType(Building building)
+    {
+        if (building == null || building.getKey() == null) {
+            return null;
+        }
+        if (building.getKey().startsWith("miner_") || "oil_extractor".equals(building.getKey())) {
+            return ResourceNode.Type.NODE;
+        }
+        if ("well_extractor".equals(building.getKey())) {
+            return ResourceNode.Type.WELL;
+        }
+        return null;
+    }
+
+    private Component positionComponent()
+    {
+        return this.resourcePositionSelect.isVisible() ? this.resourcePositionSelect : this.positionField;
+    }
+
+    private String optionalPosition(String position)
+    {
+        String normalized = position.trim();
+        return normalized.isEmpty() ? null : normalized;
     }
 
     private void updateMaterialSources()
@@ -1047,6 +1106,11 @@ public class NewProductionPanel extends BasePanel
         this.materialSourcesPanel.setVisible(false);
         this.positionLabel = new JLabel();
         this.positionField = new JTextField();
+        this.resourcePositionSelect = new ResourcePositionSelector();
+        this.positionInputPanel = new JPanel(new CardLayout());
+        this.positionInputPanel.add(this.positionField, "text");
+        this.positionInputPanel.add(this.resourcePositionSelect, "resource");
+        this.resourcePositionSelect.setVisible(false);
         this.puritySelectLabel = new JLabel();
         this.puritySelect = new JComboBox<>();
         for (Purity purity : Purity.values()) {
@@ -1124,7 +1188,7 @@ public class NewProductionPanel extends BasePanel
         this.addFieldRow(4, this.groupLabel, this.groupField);
         this.addFullWidthRow(5, this.materialSourcesLabel);
         this.addFullWidthRow(6, this.materialSourcesPanel);
-        this.addFieldRow(7, this.positionLabel, this.positionField);
+        this.addFieldRow(7, this.positionLabel, this.positionInputPanel);
         this.addFieldRow(8, this.puritySelectLabel, this.puritySelect);
         this.addFieldRow(9, this.clockSpeedLabel, clockSpeedInput);
         this.addFieldRow(10, this.usedSomersloopsLabel, this.usedSomersloopsField);
@@ -1170,7 +1234,9 @@ public class NewProductionPanel extends BasePanel
         });
         this.itemSelect.addActionListener(event -> {
             this.prefillGroup();
+            this.updateResourcePositions();
             this.updateSummaries();
+            this.createFocusTraversalPolicy();
         });
         this.puritySelect.addActionListener(event -> this.updateSummaries());
         this.addSummaryListener(this.amountField);

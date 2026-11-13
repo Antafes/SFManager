@@ -122,6 +122,12 @@ public class ProductionRepository extends BaseRepository<Production, UUID>
         this.saveData(factory);
     }
 
+    public synchronized void saveFactoryProductions(Factory factory) throws IOException
+    {
+        this.validateFactory(factory);
+        this.saveData(factory);
+    }
+
     public synchronized void deleteProductions(Factory factory, List<UUID> ids) throws IOException
     {
         this.validateFactory(factory);
